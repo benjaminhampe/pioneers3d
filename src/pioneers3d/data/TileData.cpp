@@ -1,13 +1,11 @@
 #include "TileData.hpp"
 
+namespace pioneers3d
+{
+
 TileData::TileData()
 {
-    _driver = driver;
 
-    srand( (unsigned int)time(NULL) );
-
-    createAndSave("data");
-    load("data");
 }
 
 TileData::~TileData()
@@ -15,8 +13,15 @@ TileData::~TileData()
 
 }
 
+
+} // end namespace pioneers3d
+
+
+#if 0
+
+
 // ============================================================================
-void TileData::createAndSave( const QString& baseDir )
+void TileData::build( const QString& baseDir )
 // ============================================================================
 {
     /// CREATE
@@ -73,3 +78,5 @@ void TileData::load( const QString& baseDir )
         }
     }
 }
+
+#endif

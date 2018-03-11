@@ -1,40 +1,29 @@
 #ifndef P3DDATA_BOARD_HPP
 #define P3DDATA_BOARD_HPP
 
-#include <TextureData.h>
-#include <TileData.h>
+#include <pioneers3d/data/TextureType.hpp>
+#include <pioneers3d/data/TileData.hpp>
+#include <vector>
+
+namespace pioneers3d
+{
 
 // ============================================================================
 class BoardData
 // ============================================================================
-{  
+{
 public:
 
-	/// create default board
-	// x = 0.5*(|j|%2)*dx + i*dx
-	// z = j*0.75*dz
+    BoardData();
 
-    BoardData()
-    {
-        std::cout << __FUNCTION__ << "()" << std::endl;
-        
-        for ( int i = -4; i < 5; ++i )
-        {
-            for ( int j = -4; j < 5; ++j )
-            {
-                m_Tiles.emplace_back( std::move( TileData( i, j ) ) );     
-            }
-        }
-    }
-
-    virtual ~BoardData()
-    {
-        std::cout << "~" << __FUNCTION__ << "()" << std::endl;
-    }
+    ~BoardData();
 
 private:
     std::vector< TileData > m_Tiles;
-    
+
 };
+
+} // end namespace pioneers3d
+
 
 #endif // P3DDATA_BOARD_HPP
