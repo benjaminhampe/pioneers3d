@@ -196,7 +196,6 @@ Makefile: ../../pioneers3d.pro C:/SDK/Qt5.8.0_mingw530/5.8/mingw53_32/mkspecs/wi
 		C:/SDK/Qt5.8.0_mingw530/5.8/mingw53_32/mkspecs/features/qt_config.prf \
 		C:/SDK/Qt5.8.0_mingw530/5.8/mingw53_32/mkspecs/win32-g++/qmake.conf \
 		C:/SDK/Qt5.8.0_mingw530/5.8/mingw53_32/mkspecs/features/spec_post.prf \
-		.qmake.stash \
 		C:/SDK/Qt5.8.0_mingw530/5.8/mingw53_32/mkspecs/features/exclusive_builds.prf \
 		C:/SDK/Qt5.8.0_mingw530/5.8/mingw53_32/mkspecs/features/toolchain.prf \
 		C:/SDK/Qt5.8.0_mingw530/5.8/mingw53_32/mkspecs/features/default_pre.prf \
@@ -363,7 +362,6 @@ C:/SDK/Qt5.8.0_mingw530/5.8/mingw53_32/mkspecs/features/qt_functions.prf:
 C:/SDK/Qt5.8.0_mingw530/5.8/mingw53_32/mkspecs/features/qt_config.prf:
 C:/SDK/Qt5.8.0_mingw530/5.8/mingw53_32/mkspecs/win32-g++/qmake.conf:
 C:/SDK/Qt5.8.0_mingw530/5.8/mingw53_32/mkspecs/features/spec_post.prf:
-.qmake.stash:
 C:/SDK/Qt5.8.0_mingw530/5.8/mingw53_32/mkspecs/features/exclusive_builds.prf:
 C:/SDK/Qt5.8.0_mingw530/5.8/mingw53_32/mkspecs/features/toolchain.prf:
 C:/SDK/Qt5.8.0_mingw530/5.8/mingw53_32/mkspecs/features/default_pre.prf:

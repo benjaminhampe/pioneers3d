@@ -29,8 +29,11 @@ public:
 private:
     irr::IrrlichtDevice* m_Device = nullptr;
 
-    //Camera m_Camera;
+    irr::SIrrlichtCreationParameters m_DeviceConfig;
 
+    irr::video::SColor m_ClearColor;
+
+    //Camera m_Camera;
 };
 
 } // namespace pioneers3d
