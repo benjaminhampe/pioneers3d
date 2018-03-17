@@ -1,15 +1,8 @@
 #ifndef PIONEERS3DAPPLICATION_HPP
 #define PIONEERS3DAPPLICATION_HPP
 
-#include <irrlicht.h>
-#include <pioneers3d/Types.hpp>
+#include <pioneers3d/common/Utils.hpp>
 #include <pioneers3d/scene/Camera.hpp>
-
-#include <windows.h>
-#include <time.h>
-#include <sstream>
-#include <iostream>
-#include <memory>
 
 namespace pioneers3d {
 

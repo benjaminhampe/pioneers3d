@@ -1,4 +1,3 @@
-
 #include <pioneers3d/Pioneers3DApplication.hpp>
 
 using namespace pioneers3d;
