@@ -37,7 +37,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-include ( lib/res/res.pri )
+include ( lib/res/pioneers3d.pri )
 include ( lib/lib-awesome/lib-awesome.pri )
 include ( lib/lib-tinyxml2/lib-tinyxml2.pri )
 include ( lib/lib-irrlicht-1.8.4/lib-irrlicht-1.8.4-mingw530.pri )

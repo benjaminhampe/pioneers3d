@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/app">
-        <file alias="icon">irr.ico</file>
+        <file alias="icon">pioneers3d.ico</file>
     </qresource>	
 </RCC>

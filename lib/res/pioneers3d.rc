@@ -23,4 +23,4 @@ BEGIN
   END
 END
 
-IDI_ICON1               ICON    DISCARDABLE     "irr.ico"
+IDI_ICON1               ICON    DISCARDABLE     "pioneers3d.ico"
