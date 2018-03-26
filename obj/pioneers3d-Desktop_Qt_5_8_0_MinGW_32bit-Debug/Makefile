@@ -205,6 +205,7 @@ Makefile: ../../pioneers3d.pro C:/SDK/Qt5.8.0_mingw530/5.8/mingw53_32/mkspecs/wi
 		../../lib/lib-awesome/lib-awesome.pri \
 		../../lib/lib-tinyxml2/lib-tinyxml2.pri \
 		../../lib/lib-irrlicht-1.8.4/lib-irrlicht-1.8.4-mingw530.pri \
+		../../lib/lib-glm/lib-glm.pri \
 		C:/SDK/Qt5.8.0_mingw530/5.8/mingw53_32/mkspecs/features/resolve_config.prf \
 		C:/SDK/Qt5.8.0_mingw530/5.8/mingw53_32/mkspecs/features/exclusive_builds_post.prf \
 		C:/SDK/Qt5.8.0_mingw530/5.8/mingw53_32/mkspecs/features/default_post.prf \
@@ -375,6 +376,7 @@ C:/SDK/Qt5.8.0_mingw530/5.8/mingw53_32/mkspecs/features/win32/default_pre.prf:
 ../../lib/lib-awesome/lib-awesome.pri:
 ../../lib/lib-tinyxml2/lib-tinyxml2.pri:
 ../../lib/lib-irrlicht-1.8.4/lib-irrlicht-1.8.4-mingw530.pri:
+../../lib/lib-glm/lib-glm.pri:
 C:/SDK/Qt5.8.0_mingw530/5.8/mingw53_32/mkspecs/features/resolve_config.prf:
 C:/SDK/Qt5.8.0_mingw530/5.8/mingw53_32/mkspecs/features/exclusive_builds_post.prf:
 C:/SDK/Qt5.8.0_mingw530/5.8/mingw53_32/mkspecs/features/default_post.prf:

@@ -41,17 +41,63 @@ include ( lib/res/res.pri )
 include ( lib/lib-awesome/lib-awesome.pri )
 include ( lib/lib-tinyxml2/lib-tinyxml2.pri )
 include ( lib/lib-irrlicht-1.8.4/lib-irrlicht-1.8.4-mingw530.pri )
+include ( lib/lib-glm/lib-glm.pri )
 
 # Sources:
 INCLUDEPATH += $$PWD/src
 
 HEADERS	+= \
-	src/pioneers3d/Pioneers3DApplication.hpp
+	src/common/AutoMeshBuffer.hpp \
+	src/common/AutoSceneNode.hpp \
+	src/common/Camera.hpp \
+	src/common/createBox.hpp \
+	src/common/createCircle.hpp \
+	src/common/createCylinder.hpp \
+	src/common/createDevice.hpp \
+	src/common/createHexagon.hpp \
+	src/common/createRect.hpp \
+	src/common/createRoundRect.hpp \
+	src/common/createTriangle.hpp \
+	src/common/ImageUtils.hpp \
+	src/common/sinCosTable.hpp \
+	src/common/StringUtils.hpp \
+	src/common/TextureManager.hpp \
+	src/common/Types.hpp \
+    src/pioneers3d/Board.hpp \
+    src/pioneers3d/BoardSceneNode.hpp \
+    src/pioneers3d/createTileImage.hpp \
+    src/pioneers3d/Game.hpp \
+    src/pioneers3d/Player.hpp \
+    src/pioneers3d/Tile.hpp \
+    src/pioneers3d/TileSceneNode.hpp \
+    src/pioneers3d/Types.hpp \
+    src/pioneers3d/Waypoint.hpp \
+    src/pioneers3d/Textures.hpp
 
 SOURCES += \
-	src/main.cpp \
-	src/pioneers3d/main_Pioneers3D.cpp \
-	src/pioneers3d/Pioneers3DApplication.cpp \
-	src/main.cpp
-
-
+	src/common/AutoMeshBuffer.cpp \
+	src/common/AutoSceneNode.cpp \
+	src/common/Camera.cpp \
+	src/common/createBox.cpp \
+	src/common/createCircle.cpp \
+	src/common/createCylinder.cpp \
+	src/common/createDevice.cpp \
+	src/common/createHexagon.cpp \
+	src/common/createRect.cpp \
+	src/common/createRoundRect.cpp \
+	src/common/createTriangle.cpp \
+	src/common/ImageUtils.cpp \
+	src/common/StringUtils.cpp \
+	src/common/TextureManager.cpp \
+	src/common/Types.cpp \
+    src/pioneers3d/Board.cpp \
+    src/pioneers3d/BoardSceneNode.cpp \
+    src/pioneers3d/createTileImage.cpp \
+    src/pioneers3d/Game.cpp \
+    src/pioneers3d/main_Pioneers3D.cpp \
+    src/pioneers3d/Player.cpp \
+    src/pioneers3d/Tile.cpp \
+    src/pioneers3d/TileSceneNode.cpp \
+    src/pioneers3d/Types.cpp \
+    src/pioneers3d/Waypoint.cpp \
+    src/pioneers3d/Textures.cpp

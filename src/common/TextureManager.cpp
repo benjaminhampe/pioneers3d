@@ -1,70 +1,143 @@
-#include <TextureManager.hpp>
+#include <common/TextureManager.hpp>
 
-void TextureManager::TextureManager( std::string const & fileName )
+typedef std::map< std::string, irr::video::ITexture* > TextureMap;
+
+static void
+removeTexture( irr::video::IVideoDriver* driver, irr::video::ITexture* &tex )
 {
+    assert( driver );
+
+    if ( !tex )
+    {
+        return;
+    }
+
+    irr::core::stringw texName = (irr::core::stringw)tex->getName();
+
+    std::wcout << __FUNCTION__ << "(" << texName.c_str() << ")\n";
+
+    driver->removeTexture( tex );
+
+    tex = nullptr;
 }
 
-
-#if 0
-
-
-// ============================================================================
-void TileData::build( const QString& baseDir )
-// ============================================================================
+TextureManager::TextureManager( irr::video::IVideoDriver * driver )
+    : m_Driver( driver )
 {
-	/// CREATE
+    std::wcout << __FUNCTION__ << "()\n";
 
-	QImage _img[E_SIEDLER_TEX_COUNT];
-	_img[E_SIEDLER_TEX_WASSER] = createImage_Wasser( _texW, _texH );
-	_img[E_SIEDLER_TEX_HOLZ] = createImage_Holz( _texW, _texH );
-	_img[E_SIEDLER_TEX_LEHM] = createImage_Lehm( _texW, _texH );
-	_img[E_SIEDLER_TEX_WEIZEN] = createImage_Weizen( _texW, _texH );
-	_img[E_SIEDLER_TEX_WOLLE] = createImage_Wolle( _texW, _texH );
-	_img[E_SIEDLER_TEX_ERZ] = createImage_Erz( _texW, _texH );
-	_img[E_SIEDLER_TEX_AUGEN_2] = createImage_Augen(2,0);
-	_img[E_SIEDLER_TEX_AUGEN_3] = createImage_Augen(3,0);
-	_img[E_SIEDLER_TEX_AUGEN_4] = createImage_Augen(4,2);
-	_img[E_SIEDLER_TEX_AUGEN_5] = createImage_Augen(5,3);
-	_img[E_SIEDLER_TEX_AUGEN_6] = createImage_Augen(6,4);
-	_img[E_SIEDLER_TEX_AUGEN_7] = createImage_Augen(7,5);
-	_img[E_SIEDLER_TEX_AUGEN_8] = createImage_Augen(8,4);
-	_img[E_SIEDLER_TEX_AUGEN_9] = createImage_Augen(9,3);
-	_img[E_SIEDLER_TEX_AUGEN_10] = createImage_Augen(10,2);
-	_img[E_SIEDLER_TEX_AUGEN_11] = createImage_Augen(11,0);
-	_img[E_SIEDLER_TEX_AUGEN_12] = createImage_Augen(12,0);
-
-	/// SAVE
-
-	QDir().mkpath( baseDir );
-
-	for ( int i = 0; i < E_SIEDLER_TEX_COUNT; ++i )
-	{
-		QString fileName = baseDir;
-		fileName.append( "/" );
-		fileName.append( E_SIEDLER_TEX_FILENAMES[i] );
-
-		if (!_img[i].save( fileName ))
-		{
-			std::cout << "Cannot save image (" << fileName.toStdString() << ")" << std::endl;
-		}
-	}
+    assert( m_Driver );
 }
 
-void TileData::load( const QString& baseDir )
+TextureManager::~TextureManager()
 {
-	for ( int i = 0; i < E_SIEDLER_TEX_COUNT; ++i )
-	{
-		QString fileName = baseDir;
-		fileName.append( "/" );
-		fileName.append( E_SIEDLER_TEX_FILENAMES[i] );
+    std::wcout << "~" << __FUNCTION__ << "()\n";
 
-		_tex[i] = loadTexture( _driver, fileName );
+    assert( m_Driver );
 
-		if (!_tex[i])
-		{
-			std::cout << "Cannot load texture (" << fileName.toStdString() << ")" << std::endl;
-		}
-	}
+    std::wcout << __FUNCTION__ << "(" << m_Data.size() << ")\n";
+
+    TextureMap::iterator it = m_Data.begin();
+    for ( ; it != m_Data.end(); it++ )
+    {
+        removeTexture( m_Driver, it->second );
+    }
+
 }
 
-#endif
+uint32_t
+TextureManager::getTextureCount() const
+{
+    return static_cast< uint32_t >( m_Data.size() );
+}
+
+irr::video::ITexture *
+TextureManager::getTexture( std::string const & key )
+{
+    std::cout << __FUNCTION__ << "(" << key << ")\n";
+
+    TextureMap::iterator it = m_Data.find( key );
+    if ( it == m_Data.end() )
+    {
+        return nullptr;
+    }
+    else
+    {
+        return it->second;
+    }
+}
+
+bool
+TextureManager::addTexture( std::string const & key, irr::video::ITexture * src )
+{
+    std::cout << __FUNCTION__ << "(" << key << ")\n";
+
+    assert( m_Driver );
+
+    TextureMap::iterator it = m_Data.find( key );
+    if ( it == m_Data.end() )
+    {
+        m_Data[ key ] = src;
+    }
+    else
+    {
+        // the following two lines could be combined and called exchangeTexture( driver, old, new )
+        removeTexture( m_Driver, it->second );
+        it->second = src;
+    }
+    return true;
+}
+
+bool
+TextureManager::addTexture( std::string const & key, irr::video::IImage * src, std::string const & fileName, bool removeImage )
+{
+    std::cout << __FUNCTION__ << "(" << key << "," << fileName << ")\n";
+
+    assert( m_Driver );
+
+    irr::video::ITexture * tex = createTextureFromImage( m_Driver, src, fileName.empty() ? "" : fileName.c_str() );
+
+    if (removeImage)
+    {
+        src->drop();
+    }
+
+    addTexture( key, tex );
+}
+
+bool
+TextureManager::addTexture( std::string const & key, std::string const & fileName )
+{
+    std::cout << __FUNCTION__ << "(" << key << "," << fileName << ")\n";
+
+    assert( m_Driver );
+
+    irr::video::ITexture * tex = m_Driver->getTexture( fileName.c_str() );
+
+    addTexture( key, tex );
+}
+
+void
+TextureManager::clear()
+{
+    std::cout << __FUNCTION__ << "()\n";
+
+    assert( m_Driver );
+}
+
+bool
+TextureManager::loadXML( std::string const & fileName )
+{
+    std::cout << __FUNCTION__ << "(" << fileName << ")\n";
+
+    assert( m_Driver );
+
+}
+
+bool
+TextureManager::saveXML( std::string const & fileName )
+{
+    std::cout << __FUNCTION__ << "(" << fileName << ")\n";
+
+    assert( m_Driver );
+}

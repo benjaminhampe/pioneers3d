@@ -182,37 +182,6 @@ public:
         return driver->writeImageToFile( img, fileName.c_str(), 0 );
     }
 
-#if 0
-    static irr::video::IImage*
-    createImage( int32_t w, int32_t h, irr::video::SColor color = irr::video::SColor(255,0,200,0) )
-    {
-        irr::IrrlichtDevice * device = createNullDevice();
-        irr::video::IImage* img = device->getVideoDriver()->createImage( irr::video::ECF_A8R8G8B8, irr::core::dimension2du(w,h) );
-        closeDevice( device );
-        img->fill( color );
-        return img;
-    }
-
-    static irr::video::IImage*
-    loadImage( std::string fileName )
-    {
-        irr::IrrlichtDevice * device = createNullDevice();
-        irr::video::IImage* img = device->getVideoDriver()->createImageFromFile( fileName.c_str() );
-        closeDevice( device );
-        return img;
-    }
-
-
-    static bool
-    saveImage( irr::video::IImage * img, std::string fileName )
-    {
-        irr::IrrlichtDevice * device = createNullDevice();
-        bool const retVal = device->getVideoDriver()->writeImageToFile( img, fileName.c_str(), 0 );
-        closeDevice( device );
-        return retVal;
-    }
-#endif
-
     static irr::IrrlichtDevice*
     createOpenGLDevice( int32_t w, int32_t h, bool fullscreen = false )
     {

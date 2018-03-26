@@ -1,21 +1,24 @@
-#ifndef PIONEERS3D_COMMON_TYPES_HPP
-#define PIONEERS3D_COMMON_TYPES_HPP
+#ifndef DE_ALPHASONIC_COMMON_TYPES_HPP
+#define DE_ALPHASONIC_COMMON_TYPES_HPP
 
 #include <irrlicht.h>
 #include <stdint.h>
 #include <time.h>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <vector>
 #include <memory>
+#include <map>
+
 #include <assert.h>
 
-namespace pioneers3d {
+#include <tinyxml2.h>
 
-	typedef float float32_t;
+#include <GLM/glm.hpp>
 
-	typedef double float64_t;
+typedef float float32_t;
 
-} // end namespace pioneers3d
+typedef double float64_t;
 
-#endif // PIONEERS3D_COMMON_TYPES_HPP
+#endif // DE_ALPHASONIC_COMMON_TYPES_HPP

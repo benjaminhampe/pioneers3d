@@ -1,26 +1,30 @@
+#include <pioneers3d/Game.hpp>
 
-#include <pioneers3d/Pioneers3DApplication.hpp>
+int main_Pioneers3D( int argc, char** argv );
 
-using namespace pioneers3d;
-
-// ============================================================================
-int main_Pioneers3D(int argc, char** argv)
-// ============================================================================
+int main( int argc, char** argv )
 {
-    std::cout << __FUNCTION__ << std::endl;
-
-    std::cout << "printSystemTime() = " << printSystemTime() << "\n";
-    std::cout << "printLocalTime() = " << printLocalTime() << "\n";
-    std::cout << "printTimer() = " << printTimer() << "\n";
-
-    pioneers3d::Pioneers3DApplication app;
-
-    while( app.run() ) {};
-
-    return 0;
+    return main_Pioneers3D( argc, argv );
 }
 
+int main_Pioneers3D( int argc, char** argv )
+{
+    std::cout << "// ==========================================================\n";
+    std::cout << __FUNCTION__ << "\n";
+    std::cout << "// ==========================================================\n";
 
+    irr::SIrrlichtCreationParameters params;
+    irr::IrrlichtDevice * device = createDevice( 800, 600, params );
+    assert( device );
+
+    pioneers3d::Game_t game( device );
+    game.create();
+    game.save( "standard_test1.xml" );
+    game.load( "standard_test1.xml" );
+    game.save( "standard_test2.xml" );
+	
+    return game.exec();
+}
 
 #if 0
 
@@ -79,9 +83,7 @@ int main_Pioneers3D(int argc, char** argv)
     irr::scene::IMeshSceneNode* node = g_SceneM->addMeshSceneNode( mesh, rootNode, -1);
     mesh->drop();
 
-
     //Board* board = new Board( g_SceneM );
-
 //    g_Ground = g_SceneM->addTerrainSceneNode( "heightmap_simple.png", rootNode );
 //    g_Ground->setScale( core::vector3df(1.0,0.1f,1.0f) );
 //    g_Ground->getMaterial(0).Lighting = false;

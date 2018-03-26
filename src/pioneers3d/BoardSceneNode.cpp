@@ -1,8 +1,4 @@
-#include <pioneers3d/scene/BoardSceneNode.hpp>
-
-#include <iostream>
-
-#include <irrlicht.h>
+#include <pioneers3d/BoardSceneNode.hpp>
 
 namespace pioneers3d {
 
@@ -21,7 +17,7 @@ BoardSceneNode::BoardSceneNode( irr::scene::ISceneManager* smgr, irr::scene::ISc
     {
         for ( int j = -4; j < 5; ++j )
         {
-            TileType::ETileType tileType = static_cast< TileType::ETileType >( rand() % int(TileType::COUNT) );
+            eTileType tileType = static_cast< eTileType >( rand() % int(eTileType::COUNT) );
 
             irr::scene::SMeshBuffer * mb = createTileMeshBuffer( tileType, i, j );
 
