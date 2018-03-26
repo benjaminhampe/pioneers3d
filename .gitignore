@@ -6,14 +6,14 @@
 
 # Compiled source #
 ###################
-# *.com
-# *.class
-# *.o
+*.com
+*.class
+*.o
 
 # Qt intermediate #
 ###################
-# obj/
-# *.user
+obj/
+*.user
 
 # Packages #
 ############
