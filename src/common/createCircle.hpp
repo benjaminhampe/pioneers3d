@@ -1,12 +1,12 @@
 #ifndef DE_ALPHASONIC_CREATE_CIRCLE_MESHBUFFER_HPP
 #define DE_ALPHASONIC_CREATE_CIRCLE_MESHBUFFER_HPP
 
-#include <irrlicht.h>
+#include <common/AutoMeshBuffer.hpp>
 
-irr::scene::SMeshBuffer*
-createCircleMeshBufferXY( float r, int segments, float x, float y, float z );
+AutoMeshBuffer*
+createCircleXY( float r, int segments, float x, float y, float z );
 
-irr::scene::SMeshBuffer*
-createCircleMeshBufferXZ( float r, int segments, float x, float y, float z );
+AutoMeshBuffer*
+createCircleXZ( glm::vec3 pos, float r, int segments );
 
 #endif // DE_ALPHASONIC_CREATE_CIRCLE_MESHBUFFER_HPP

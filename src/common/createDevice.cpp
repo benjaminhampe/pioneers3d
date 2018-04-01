@@ -8,10 +8,10 @@ createDevice( uint32_t w, uint32_t h, irr::SIrrlichtCreationParameters & cfg )
     cfg.DriverType = irr::video::EDT_OPENGL;
     cfg.WindowSize.Width = w;
     cfg.WindowSize.Height = h;
-    cfg.AntiAlias = 0;
+    cfg.AntiAlias = irr::video::EAAM_FULL_BASIC;
     cfg.Bits = 32;
-    cfg.Doublebuffer = false;
-    cfg.Vsync = false;
+    cfg.Doublebuffer = true;
+    cfg.Vsync = true;
     cfg.EventReceiver = nullptr;
     cfg.Fullscreen = false;
     cfg.Stencilbuffer = true;

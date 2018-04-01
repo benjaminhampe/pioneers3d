@@ -2,6 +2,71 @@
 
 /// @brief Create a cylinder hull meshbuffer.
 
+AutoMeshBuffer*
+createCylinderHull(
+    glm::vec3 pos,
+    float radius,
+    float height,
+    uint32_t color,
+    uint32_t tessCircle,
+    uint32_t tessHull)
+{
+    AutoMeshBuffer* p = new AutoMeshBuffer();
+
+    assert( p );
+
+    p->PrimitiveType = irr::scene::EPT_TRIANGLES;
+
+    // common vars and constants
+    float const y0 = 0.5f*height;				// top
+    float const y1 = -0.5f*height;			// bottom
+    float const sx = 1.f / (float)tessCircle;   // value step for circle
+    float const sy = 1.f / (float)tessHull;		// value step for hull
+
+    // bbox
+    p->MeshBuffer.BoundingBox.reset( irr::core::aabbox3df(-radius,y1,-radius, radius,y0,radius) );
+
+    // points
+
+    SinCosTablef sincosTable( tessCircle );
+
+    std::vector< glm::vec3 > vertexData;
+
+    for (uint32_t y=0; y<=tessHull; y++)
+    {
+        for (uint32_t x=0; x<=tessCircle; x++)
+        {
+            float const s = sincosTable[x].s;
+            float const c = sincosTable[x].c;
+            vertexData.emplace_back( pos + glm::vec3( radius*s, y1 + height*sy*y, radius*c ) );
+        }
+    }
+
+    // vertices
+
+    uint32_t const pitch = tessCircle + 1; // vertices per row to skip
+
+    for (uint32_t j = 0; j < tessHull; ++j )
+    {
+        for (uint32_t i = 0; i < tessCircle; ++i )
+        {
+            uint32_t const iA = i + j*pitch;
+            uint32_t const iB = i + (j+1)*pitch;
+            uint32_t const iC = (i+1) + (j+1)*pitch;
+            uint32_t const iD = (i+1) + j*pitch;
+
+            glm::vec3 const & D = vertexData[ iA ];
+            glm::vec3 const & C = vertexData[ iB ];
+            glm::vec3 const & B = vertexData[ iC ];
+            glm::vec3 const & A = vertexData[ iD ];
+
+            addQuad( *p, A, B, C, D, color );
+        }
+    }
+
+    return p;
+}
+
 #if 0
 // berechnet alle Punkte für eine Zylindermantelflaeche
 // Die Flaeche besteht aus tessCircle * tessHull Segmenten

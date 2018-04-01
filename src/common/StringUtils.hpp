@@ -33,7 +33,7 @@ std::string printLocalTime();
 std::string printTimer();
 
 inline void
-XML_Header( std::stringstream & out )
+XML_writeHeader( std::stringstream & out )
 {
     out << "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
 }

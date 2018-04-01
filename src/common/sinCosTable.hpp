@@ -75,7 +75,6 @@ public:
     operator[] ( uint32_t index ) const
     {
         assert( getTableSize() > 0 );
-        assert( getTableSize() > index );
         return m_Data[ index % getTableSize() ];
     }
 
@@ -83,21 +82,18 @@ public:
     operator[] ( uint32_t index )
     {
         assert( getTableSize() > 0 );
-        assert( getTableSize() > index );
         return m_Data[ index % getTableSize() ];
     }
 
     T getSin( uint32_t index ) const
     {
         assert( getTableSize() > 0 );
-        assert( getTableSize() > index );
         return m_Data[ index % getTableSize() ].s;
     }
 
     T getCos( uint32_t index )
     {
         assert( getTableSize() > 0 );
-        assert( getTableSize() > index );
         return m_Data[ index % getTableSize() ].c;
     }
 

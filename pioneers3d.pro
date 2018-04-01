@@ -1,9 +1,10 @@
 TARGET = Pioneers3D
 TEMPLATE = app
-CONFIG += console c++14
-QT += core gui widgets
-DEFINES += USE_IRRLICHT
 DEFINES += USE_WINDOWS
+CONFIG += console c++14
+CONFIG -= app_bundle
+CONFIG -= qt
+# QT += core gui widgets
 
 ### Release version
 CONFIG(release, debug|release) {
@@ -40,13 +41,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 include ( lib/res/pioneers3d.pri )
 include ( lib/lib-awesome/lib-awesome.pri )
 include ( lib/lib-tinyxml2/lib-tinyxml2.pri )
-include ( lib/lib-irrlicht-1.8.4/lib-irrlicht-1.8.4-mingw530.pri )
+#include ( lib/lib-irrlicht-1.8.4/lib-irrlicht-1.8.4-mingw530.pri )
+include ( lib/lib-irrlicht-1.8.4-static/lib-irrlicht-1.8.4-static.pri )
 include ( lib/lib-glm/lib-glm.pri )
 
 # Sources:
 INCLUDEPATH += $$PWD/src
 
 HEADERS	+= \
+	src/common/AlphaSonic.hpp \
 	src/common/AutoMeshBuffer.hpp \
 	src/common/AutoSceneNode.hpp \
 	src/common/Camera.hpp \
@@ -61,19 +64,18 @@ HEADERS	+= \
 	src/common/ImageUtils.hpp \
 	src/common/sinCosTable.hpp \
 	src/common/StringUtils.hpp \
-	src/common/TextureManager.hpp \
 	src/common/Types.hpp \
-    src/pioneers3d/Board.hpp \
-    src/pioneers3d/BoardSceneNode.hpp \
-    src/pioneers3d/createTileImage.hpp \
-    src/pioneers3d/Game.hpp \
-    src/pioneers3d/Player.hpp \
-    src/pioneers3d/Tile.hpp \
-    src/pioneers3d/TileSceneNode.hpp \
-    src/pioneers3d/Types.hpp \
-    src/pioneers3d/Waypoint.hpp \
-    src/pioneers3d/Textures.hpp
-
+	src/pioneers3d/scene/BoardSceneNode.hpp \
+	src/pioneers3d/scene/TileSceneNode.hpp \
+	src/pioneers3d/createTileImage.hpp \
+	src/pioneers3d/eGameState.hpp \
+	src/pioneers3d/eGameType.hpp \
+	src/pioneers3d/eTexture.hpp \
+	src/pioneers3d/eTileType.hpp \
+	src/pioneers3d/EventReceiver.hpp \
+	src/pioneers3d/Game.hpp \
+	src/pioneers3d/GameUtils.hpp \
+	src/pioneers3d/Types.hpp
 SOURCES += \
 	src/common/AutoMeshBuffer.cpp \
 	src/common/AutoSceneNode.cpp \
@@ -88,16 +90,14 @@ SOURCES += \
 	src/common/createTriangle.cpp \
 	src/common/ImageUtils.cpp \
 	src/common/StringUtils.cpp \
-	src/common/TextureManager.cpp \
 	src/common/Types.cpp \
-    src/pioneers3d/Board.cpp \
-    src/pioneers3d/BoardSceneNode.cpp \
-    src/pioneers3d/createTileImage.cpp \
-    src/pioneers3d/Game.cpp \
-    src/pioneers3d/main_Pioneers3D.cpp \
-    src/pioneers3d/Player.cpp \
-    src/pioneers3d/Tile.cpp \
-    src/pioneers3d/TileSceneNode.cpp \
-    src/pioneers3d/Types.cpp \
-    src/pioneers3d/Waypoint.cpp \
-    src/pioneers3d/Textures.cpp
+	src/pioneers3d/scene/BoardSceneNode.cpp \
+	src/pioneers3d/scene/TileSceneNode.cpp \
+	src/pioneers3d/createTileImage.cpp \
+	src/pioneers3d/EventReceiver.cpp \
+	src/pioneers3d/Game.cpp \
+	src/pioneers3d/GameUtils.cpp \
+	src/pioneers3d/main_Pioneers3D.cpp
+
+DISTFILES += \
+	src/common/createRoundRect.pdf

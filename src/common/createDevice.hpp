@@ -11,7 +11,7 @@ inline std::string
 toINIString( irr::SIrrlichtCreationParameters const & cfg )
 {
     std::stringstream s;
-    writeXMLHeader( s );
+    XML_writeHeader( s );
     s << "[device]\n" << (int)cfg.DeviceType << '\n';
     s << "[driver]\n" << (int)cfg.DriverType << '\n';
     s << "[loglevel]\n" << (int)cfg.LoggingLevel << '\n';
