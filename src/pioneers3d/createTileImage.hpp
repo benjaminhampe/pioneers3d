@@ -29,6 +29,7 @@ namespace pioneers3d {
 
     /// @brief Create tile images manully from random patterns as low quality fallback
 
+/*
     inline irr::video::ITexture*
     createTileTexture( eTileType tileType, irr::video::IVideoDriver* driver, int w = -1, int h = -1 )
     {
@@ -66,6 +67,7 @@ namespace pioneers3d {
 
         return tex;
     }
+*/
 
 #if 0
     void

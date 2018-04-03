@@ -43,6 +43,50 @@ public:
 
     void render( irr::video::IVideoDriver* driver );
 
+    // material
+
+    void setTexture( uint32_t stage, irr::video::ITexture* tex )
+    {
+        MeshBuffer.Material.setTexture( stage, tex );
+    }
+
+    void setWireframe( bool enable )
+    {
+        MeshBuffer.Material.Wireframe = enable;
+    }
+
+    bool hasTransparentVertexColor() const
+    {
+        for ( uint32_t i = 0; i < MeshBuffer.Vertices.size(); ++i )
+        {
+            if ( MeshBuffer.Vertices[ i ].Color.getAlpha() < 255 )
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void setDefaultMaterialType()
+    {
+        MeshBuffer.Material.MaterialType = irr::video::EMT_SOLID;
+
+        if ( hasTransparentVertexColor() )
+        {
+            MeshBuffer.Material.MaterialType = irr::video::EMT_TRANSPARENT_VERTEX_ALPHA;
+        }
+    }
+
+    void setDefaultMaterialType( irr::video::SColor const & color )
+    {
+        MeshBuffer.Material.MaterialType = irr::video::EMT_SOLID;
+
+        if ( color.getAlpha() < 255 )
+        {
+            MeshBuffer.Material.MaterialType = irr::video::EMT_TRANSPARENT_VERTEX_ALPHA;
+        }
+    }
+
 public:
     irr::scene::E_PRIMITIVE_TYPE PrimitiveType;
     irr::video::E_VERTEX_TYPE VertexType;

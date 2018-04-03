@@ -4,9 +4,9 @@
 #include <common/AutoMeshBuffer.hpp>
 
 AutoMeshBuffer*
-createCircleXY( float r, int segments, float x, float y, float z );
+createCircle( glm::vec3 const & pos, float r, uint32_t segments = 36, uint32_t color = 0xFFFFFFFF );
 
 AutoMeshBuffer*
-createCircleXZ( glm::vec3 pos, float r, int segments );
+createCircleXZ( glm::vec3 const & pos, float r, int segments );
 
 #endif // DE_ALPHASONIC_CREATE_CIRCLE_MESHBUFFER_HPP

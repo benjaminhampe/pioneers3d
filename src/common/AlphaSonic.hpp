@@ -8,6 +8,7 @@
 #define DE_ALPHASONIC_COMMON_HPP
 
 #include <common/Types.hpp>
+#include <common/BaseEventReceiver.hpp>
 #include <common/StringUtils.hpp>
 #include <common/ImageUtils.hpp>
 #include <common/AutoMeshBuffer.hpp>

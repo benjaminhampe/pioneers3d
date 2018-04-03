@@ -72,7 +72,7 @@ AutoSceneNode::clear()
 }
 
 void
-AutoSceneNode::addMeshBuffer( AutoMeshBuffer * mb, bool dropAfterAdd )
+AutoSceneNode::add( AutoMeshBuffer * mb, bool dropAfterAdd )
 {
     AUTOSCENENODE_LOG_SIMPLE
 

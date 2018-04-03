@@ -34,6 +34,12 @@ glm::ivec3 getDesktopSize();
 
 float32_t convertToNormalized( int16_t value );
 
+inline irr::core::recti
+mkRect( int32_t x, int32_t y, uint32_t w, uint32_t h )
+{
+    return irr::core::recti( irr::core::position2di( x, y ), irr::core::dimension2du( w, h ) );
+}
+
 class irrBackend
 {
 public:

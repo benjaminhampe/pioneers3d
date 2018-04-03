@@ -3,17 +3,11 @@
 #ifndef DE_ALPHASONIC_COMMON_CREATE_RECT_HPP
 #define DE_ALPHASONIC_COMMON_CREATE_RECT_HPP
 
-#include <common/Types.hpp>
+#include <common/AutoMeshBuffer.hpp>
 
-/// @brief Add a rect to a meshbuffer.
-inline void addRect(
-        irr::scene::SMeshBuffer* buffer,
-        float32_t width,
-        float32_t height,
-        irr::video::SColor const & color )
-{
+void addRect( AutoMeshBuffer* buffer, glm::vec3 pos, glm::vec2 size, uint32_t color);
 
-}
+AutoMeshBuffer* createRect( glm::vec3 pos, glm::vec2 size, uint32_t color );
 
 /// @brief Add a rect to a meshbuffer.
 inline void addRect(

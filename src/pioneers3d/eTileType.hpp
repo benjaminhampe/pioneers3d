@@ -12,67 +12,117 @@
 
 namespace pioneers3d {
 
-enum class eTileType : uint32_t
+class eTileType
 {
-    UNKNOWN = 0,
-    WASSER,
-    LAND_WUESTE,
-    LAND_HOLZ,
-    LAND_LEHM,
-    LAND_WEIZEN,
-    LAND_ERZ,
-    LAND_WOLLE,
-    HAFEN_3zu1,
-    HAFEN_HOLZ,
-    HAFEN_LEHM,
-    HAFEN_WEIZEN,
-    HAFEN_ERZ,
-    HAFEN_WOLLE,
-    COUNT,
+public:
+    enum EType : uint32_t
+    {
+        UNKNOWN = 0,
+        WASSER = 1,
+        LAND = 1<<1,
+        HAFEN = 1<<2,
+
+        HOLZ = 1<<4,
+        LEHM = 1<<5,
+        WEIZEN = 1<<6,
+        WOLLE = 1<<7,
+        ERZ = 1<<8,
+        RESSOURCE_MASK = HOLZ | LEHM | WEIZEN | WOLLE | ERZ,
+        RESSOURCE_COUNT = 5,
+        LAND_WUESTE = LAND,
+        LAND_HOLZ = LAND | HOLZ,
+        LAND_LEHM = LAND | LEHM,
+        LAND_WEIZEN = LAND | WEIZEN,
+        LAND_WOLLE = LAND | WOLLE,
+        LAND_ERZ = LAND | ERZ,
+        HAFEN_3zu1 = HAFEN,
+        HAFEN_HOLZ = HAFEN | HOLZ,
+        HAFEN_LEHM = HAFEN | LEHM,
+        HAFEN_WEIZEN = HAFEN | WEIZEN,
+        HAFEN_WOLLE = HAFEN | WOLLE,
+        HAFEN_ERZ = HAFEN | ERZ,
+        FORCE32BIT = 0x7FFFFFFF
+    };
+
+    eTileType() : m_TileType( UNKNOWN ) {}
+    eTileType( EType type ) : m_TileType( type ) {}
+    eTileType( uint32_t type ) : m_TileType( static_cast< EType >( type ) ) {}
+    bool isUnknown() const { return m_TileType == UNKNOWN; }
+    bool isWasser() const { return 0 != (m_TileType & WASSER); }
+    bool isHafen() const { return 0 != (m_TileType & HAFEN); }
+    bool isLand() const { return 0 != (m_TileType & LAND); }
+    bool isRessource() const { return 0 != (m_TileType & RESSOURCE_MASK); }
+    bool has( EType flags ) const { return 0 != (m_TileType & flags); }
+
+    void set( EType flags ) { m_TileType = flags; }
+    EType get() const { return m_TileType; }
+    operator EType () const { return m_TileType; }
+
+    uint32_t getRessourceColor() const
+    {
+             if ( has( HOLZ ) ) return 0xFF00C000;
+        else if ( has( LEHM ) ) return 0xFF0000FF;
+        else if ( has( WEIZEN ) ) return 0xFFFFFF00;
+        else if ( has( WOLLE ) ) return 0xFF60FF60;
+        else if ( has( ERZ ) ) return 0xFFFF0000;
+        else return 0xFFFF00FF;
+    }
+
+    std::string getRessourceString() const
+    {
+             if ( has( HOLZ ) ) return "holz";
+        else if ( has( LEHM ) ) return "lehm";
+        else if ( has( WEIZEN ) ) return "weizen";
+        else if ( has( WOLLE ) ) return "wolle";
+        else if ( has( ERZ ) ) return "erz";
+        else return "";
+    }
+
+    std::string
+    toString() const
+    {
+        if ( isUnknown() ) return "UNKNOWN";
+        if ( isWasser() ) return "WASSER";
+
+        std::stringstream s;
+
+        if ( isLand() ) s << "LAND";
+        if ( isHafen() ) s << "HAFEN";
+        if ( has( HOLZ ) ) s << "_HOLZ";
+        if ( has( LEHM ) ) s << "_LEHM";
+        if ( has( WEIZEN ) ) s << "_WEIZEN";
+        if ( has( WOLLE ) ) s << "_WOLLE";
+        if ( has( ERZ ) ) s << "_ERZ";
+
+        return s.str();
+    }
+
+    static eTileType
+    fromString( std::string const & txt )
+    {
+        uint32_t tileType = eTileType::UNKNOWN;
+             if ( txt == "WASSER" )        { tileType = eTileType::WASSER; }
+        else if ( txt == "LAND" )          { tileType = eTileType::LAND; }
+        else if ( txt == "LAND_HOLZ" )     { tileType = eTileType::LAND | eTileType::HOLZ; }
+        else if ( txt == "LAND_LEHM" )     { tileType = eTileType::LAND | eTileType::LEHM; }
+        else if ( txt == "LAND_WEIZEN" )   { tileType = eTileType::LAND | eTileType::WEIZEN; }
+        else if ( txt == "LAND_ERZ" )      { tileType = eTileType::LAND | eTileType::ERZ; }
+        else if ( txt == "LAND_WOLLE")     { tileType = eTileType::LAND | eTileType::WOLLE; }
+        else if ( txt == "HAFEN")          { tileType = eTileType::HAFEN; }
+        else if ( txt == "HAFEN_HOLZ")     { tileType = eTileType::HAFEN | eTileType::HOLZ; }
+        else if ( txt == "HAFEN_LEHM")     { tileType = eTileType::HAFEN | eTileType::LEHM; }
+        else if ( txt == "HAFEN_WEIZEN")   { tileType = eTileType::HAFEN | eTileType::WEIZEN; }
+        else if ( txt == "HAFEN_WOLLE")    { tileType = eTileType::HAFEN | eTileType::WOLLE; }
+        else if ( txt == "HAFEN_ERZ")      { tileType = eTileType::HAFEN | eTileType::ERZ; }
+
+        return tileType;
+    }
+
+    EType m_TileType;
 };
 
-inline std::string
-eTileTypeToString( eTileType const & tileType )
-{
-    switch( tileType )
-    {
-        case eTileType::WASSER: return "WASSER";
-        case eTileType::LAND_WUESTE: return "LAND_WUESTE";
-        case eTileType::LAND_HOLZ: return "LAND_HOLZ";
-        case eTileType::LAND_LEHM: return "LAND_LEHM";
-        case eTileType::LAND_WEIZEN: return "LAND_WEIZEN";
-        case eTileType::LAND_ERZ: return "LAND_ERZ";
-        case eTileType::LAND_WOLLE: return "LAND_WOLLE";
-        case eTileType::HAFEN_3zu1: return "HAFEN_3zu1";
-        case eTileType::HAFEN_HOLZ: return "HAFEN_HOLZ";
-        case eTileType::HAFEN_LEHM: return "HAFEN_LEHM";
-        case eTileType::HAFEN_WEIZEN: return "HAFEN_WEIZEN";
-        case eTileType::HAFEN_ERZ: return "HAFEN_ERZ";
-        case eTileType::HAFEN_WOLLE: return "HAFEN_WOLLE";
-        default: return "UNKNOWN";
-    }
-    return "MISSION IMPOSSIBLE FINISHED";
-}
 
-inline eTileType
-eTileTypeFromString( std::string const & tileName )
-{
-    eTileType tileType = eTileType::UNKNOWN;
-         if ( tileName == "WASSER" )        { tileType = eTileType::WASSER; }
-    else if ( tileName == "LAND_WUESTE" )   { tileType = eTileType::LAND_WUESTE; }
-    else if ( tileName == "LAND_HOLZ" )     { tileType = eTileType::LAND_HOLZ; }
-    else if ( tileName == "LAND_LEHM" )     { tileType = eTileType::LAND_LEHM; }
-    else if ( tileName == "LAND_WEIZEN" )   { tileType = eTileType::LAND_WEIZEN; }
-    else if ( tileName == "LAND_ERZ" )      { tileType = eTileType::LAND_ERZ; }
-    else if ( tileName == "LAND_WOLLE")     { tileType = eTileType::LAND_WOLLE; }
-    else if ( tileName == "HAFEN_3zu1")   { tileType = eTileType::HAFEN_3zu1; }
-    else if ( tileName == "HAFEN_HOLZ")     { tileType = eTileType::HAFEN_HOLZ; }
-    else if ( tileName == "HAFEN_LEHM")     { tileType = eTileType::HAFEN_LEHM; }
-    else if ( tileName == "HAFEN_WEIZEN")   { tileType = eTileType::HAFEN_WEIZEN; }
-    else if ( tileName == "HAFEN_ERZ")      { tileType = eTileType::HAFEN_ERZ; }
-    else if ( tileName == "HAFEN_WOLLE")    { tileType = eTileType::HAFEN_WOLLE; }
-    return tileType;
-}
+
 
 
 

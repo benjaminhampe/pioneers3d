@@ -75,7 +75,10 @@ HEADERS	+= \
 	src/pioneers3d/EventReceiver.hpp \
 	src/pioneers3d/Game.hpp \
 	src/pioneers3d/GameUtils.hpp \
-	src/pioneers3d/Types.hpp
+	src/pioneers3d/Types.hpp \
+    src/pioneers3d/GUI_Constants.hpp \
+    src/common/BaseEventReceiver.hpp \
+    src/common/OffscreenRenderer.hpp
 SOURCES += \
 	src/common/AutoMeshBuffer.cpp \
 	src/common/AutoSceneNode.cpp \
@@ -97,7 +100,9 @@ SOURCES += \
 	src/pioneers3d/EventReceiver.cpp \
 	src/pioneers3d/Game.cpp \
 	src/pioneers3d/GameUtils.cpp \
-	src/pioneers3d/main_Pioneers3D.cpp
+	src/pioneers3d/main_Pioneers3D.cpp \
+    src/common/BaseEventReceiver.cpp \
+    src/common/OffscreenRenderer.cpp
 
 DISTFILES += \
 	src/common/createRoundRect.pdf

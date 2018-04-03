@@ -22,7 +22,7 @@ public:
 
     void clear();
 
-    void addMeshBuffer( AutoMeshBuffer * mb, bool dropAfterAdd = false );
+    void add( AutoMeshBuffer * mb, bool dropAfterAdd = false );
 
 //    void addMeshBuffer(
 //            irr::scene::SMeshBuffer && mb,

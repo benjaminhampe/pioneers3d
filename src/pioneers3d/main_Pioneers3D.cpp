@@ -60,7 +60,7 @@ int main_Pioneers3D( int argc, char** argv )
 
     enumerateTextures( device->getVideoDriver() );
 
-    return pioneers3d::Game_main( &game );
+    return pioneers3d::Game_exec( &game );
 }
 
 #if 0
