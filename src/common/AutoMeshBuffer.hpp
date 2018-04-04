@@ -27,21 +27,70 @@ enumerateMeshBuffer( irr::scene::SMeshBuffer & p )
 class AutoMeshBuffer : public irr::IReferenceCounted
 {
 public:
-//    AutoMeshBuffer();
+    irr::scene::E_PRIMITIVE_TYPE PrimitiveType;	// We need this to enable auto rendering
+    irr::video::E_VERTEX_TYPE VertexType;		// We need this to enable auto rendering
+    irr::video::E_INDEX_TYPE IndexType;			// We need this to enable auto rendering
+    irr::scene::SMeshBuffer MeshBuffer;			// The traditional irrlicht meshbuffer ( aka non-auto, aka broken )
 
-    explicit AutoMeshBuffer(
-                irr::scene::E_PRIMITIVE_TYPE primType = irr::scene::EPT_POINTS,
-                irr::video::E_VERTEX_TYPE vertexType = irr::video::EVT_STANDARD,
-                irr::video::E_INDEX_TYPE indexType = irr::video::EIT_16BIT );
+public:
+    AutoMeshBuffer() : PrimitiveType( irr::scene::EPT_POINTS ) // This works for every mesh type ( aka fallback )
+                     , VertexType( irr::video::EVT_STANDARD )	// Standard Vertex: FVF_POSITION | FVF_NORMAL | FVF_COLOR32 | FVF_TEXCOORD0
+                     , IndexType( irr::video::EIT_16BIT )		// Standard up to 65535 Vertices
+    {
+        MeshBuffer.Material.MaterialType = irr::video::EMT_SOLID;
+        MeshBuffer.Material.Lighting = false;
+        MeshBuffer.Material.FogEnable = false;
+    }
 
-    virtual ~AutoMeshBuffer();
+    AutoMeshBuffer( irr::scene::E_PRIMITIVE_TYPE primType,
+                    irr::video::E_VERTEX_TYPE vertexType = irr::video::EVT_STANDARD,
+                    irr::video::E_INDEX_TYPE indexType = irr::video::EIT_16BIT )
+        : PrimitiveType( primType )
+        , VertexType( vertexType )
+        , IndexType( indexType )
+    {
+        MeshBuffer.Material.MaterialType = irr::video::EMT_SOLID;
+        MeshBuffer.Material.Lighting = false;
+        MeshBuffer.Material.FogEnable = false;
+    }
+
+    virtual ~AutoMeshBuffer() {}
 
     static uint32_t
-    getPrimitiveCount( irr::scene::E_PRIMITIVE_TYPE primitiveType, uint32_t indexCount );
+    getPrimitiveCount( irr::scene::E_PRIMITIVE_TYPE primitiveType, uint32_t indexCount )
+    {
+        switch( primitiveType )
+        {
+            case irr::scene::EPT_POINTS: return indexCount;
+            case irr::scene::EPT_LINES: return indexCount / 2;
+            case irr::scene::EPT_LINE_LOOP: return indexCount - 1;
+            case irr::scene::EPT_TRIANGLES: return indexCount / 3;
+            case irr::scene::EPT_POLYGON: return indexCount;
+            case irr::scene::EPT_QUADS: return indexCount / 4;
+            default: return 0;
+        }
+        return 0;
+    }
 
-    uint32_t getPrimitiveCount() const;
+    uint32_t getPrimitiveCount() const
+    {
+        return getPrimitiveCount( PrimitiveType, MeshBuffer.getIndexCount() );
+    }
 
-    void render( irr::video::IVideoDriver* driver );
+    void render( irr::video::IVideoDriver* driver )
+    {
+        driver->setMaterial( MeshBuffer.Material );
+
+        driver->drawVertexPrimitiveList(
+            MeshBuffer.getVertices(),
+            MeshBuffer.getVertexCount(),
+            MeshBuffer.getIndices(),
+            this->getPrimitiveCount(),
+            VertexType,
+            PrimitiveType,
+            IndexType
+        );
+    }
 
     // material
 
@@ -87,11 +136,6 @@ public:
         }
     }
 
-public:
-    irr::scene::E_PRIMITIVE_TYPE PrimitiveType;
-    irr::video::E_VERTEX_TYPE VertexType;
-    irr::video::E_INDEX_TYPE IndexType;
-    irr::scene::SMeshBuffer MeshBuffer;
 };
 
 inline void

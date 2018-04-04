@@ -76,9 +76,9 @@ HEADERS	+= \
 	src/pioneers3d/Game.hpp \
 	src/pioneers3d/GameUtils.hpp \
 	src/pioneers3d/Types.hpp \
-    src/pioneers3d/GUI_Constants.hpp \
     src/common/BaseEventReceiver.hpp \
-    src/common/OffscreenRenderer.hpp
+    src/common/OffscreenRenderer.hpp \
+    src/pioneers3d/UI_Types.hpp
 SOURCES += \
 	src/common/AutoMeshBuffer.cpp \
 	src/common/AutoSceneNode.cpp \

@@ -73,6 +73,23 @@ toString( glm::vec3 const & v )
     return s.str();
 }
 
+bool
+equals( glm::vec2 a, glm::vec2 b, float32_t eps )
+{
+    if ( irr::core::equals( a.x, b.x, eps ) &&
+         irr::core::equals( a.y, b.y, eps ) ) return true;
+    return false;
+}
+
+bool
+equals( glm::vec3 a, glm::vec3 b, float32_t eps )
+{
+    if ( irr::core::equals( a.x, b.x, eps ) &&
+         irr::core::equals( a.y, b.y, eps ) &&
+         irr::core::equals( a.z, b.z, eps ) ) return true;
+    return false;
+}
+
 //struct SDesktopInfo
 //{
 //    int32_t Width;

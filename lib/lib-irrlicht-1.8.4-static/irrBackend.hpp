@@ -30,6 +30,9 @@ toString( irr::core::dimension2d<T> const & u )
     return s.str();
 }
 
+bool equals( glm::vec2 a, glm::vec2 b, float32_t eps = 0.0001f );
+bool equals( glm::vec3 a, glm::vec3 b, float32_t eps = 0.0001f );
+
 glm::ivec3 getDesktopSize();
 
 float32_t convertToNormalized( int16_t value );

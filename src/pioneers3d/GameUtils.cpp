@@ -2,35 +2,87 @@
 
 namespace pioneers3d {
 
-inline uint32_t getScreenWidth( irr::video::IVideoDriver* driver )
+glm::vec3 Tile_getPosition( Tile_t * tile )
 {
-    if ( !driver ) return 0;
-    return driver->getScreenSize().Width;
+    if ( !tile ) return glm::vec3( 0,0,0 );
+    return tile->BoardPos;
 }
 
-inline uint32_t getScreenHeight( irr::video::IVideoDriver* driver )
+glm::vec3 Tile_getCorner( Tile_t * tile, int i )
 {
-    if ( !driver ) return 0;
-    return driver->getScreenSize().Height;
-}
-
-inline glm::ivec2 getScreenSize( irr::video::IVideoDriver* driver )
-{
-    if ( !driver ) return glm::ivec2(0,0);
-    return glm::ivec2( driver->getScreenSize().Width, driver->getScreenSize().Height );
-}
-
-inline void saveTexture( irr::video::IVideoDriver* driver, irr::video::ITexture* tex, std::string const & fileName )
-{
-    if ( !driver ) return;
-    irr::video::IImage* img = driver->createImage( tex, irr::core::position2di(0,0), tex->getOriginalSize() );
-    if ( img )
+    if ( !tile ) return glm::vec3( 0,0,0 );
+    switch ( i )
     {
-        driver->writeImageToFile( img, fileName.c_str() );
-        img->drop();
+        case 0: return tile->BoardPos + glm::vec3( 0.00f*w, 0.0f, -.50f*h ); // A
+        case 1: return tile->BoardPos + glm::vec3( -.50f*w, 0.0f, -.25f*h ); // B
+        case 2: return tile->BoardPos + glm::vec3( -.50f*w, 0.0f, 0.25f*h ); // C
+        case 3: return tile->BoardPos + glm::vec3( 0.00f*w, 0.0f, 0.50f*h ); // D
+        case 4: return tile->BoardPos + glm::vec3( 0.50f*w, 0.0f, 0.25f*h ); // E
+        case 5: return tile->BoardPos + glm::vec3( 0.50f*w, 0.0f, -.25f*h ); // F
+        default:return tile->BoardPos; // M
     }
 }
 
+Waypoint_t* Game_findWaypoint( Game_t * game, glm::vec3 pos )
+{
+    if ( !game ) return nullptr;
+
+    for ( uint32_t i = 0; i < game->Waypoints.size(); ++i )
+    {
+        Waypoint_t * w = &game->Waypoints[ i ];
+        if ( equals( w->BoardPos, pos ) )
+        {
+            return w;
+        }
+    }
+
+    return nullptr;
+}
+
+void Game_collectWaypoints( Game_t * game, std::vector< Waypoint_t > & waypoints )
+{
+    waypoints.clear();
+
+    for ( uint32_t i = 0; i < game->Tiles.size(); ++i )
+    {
+        Tile_t * tile = &game->Tiles[ i ];
+
+        for ( uint32_t k = 0; k < 6; ++k )
+        {
+            glm::vec3 const pos = Tile_getCorner( tile, k );
+
+            Waypoint_t* found = Game_findWaypoint( game, pos );
+            if ( !found )
+            {
+                Waypoint_t way;
+                way.BoardPos = pos;
+                game->Waypoints.push_back( way );
+            }
+        }
+    }
+}
+
+
+void Game_createWaypoints( Game_t * game )
+{
+    Game_collectWaypoints( game, std::vector< Waypoint_t > & waypoints )
+}
+
+//std::vector< Tile_t* > Game_getTiles( Game_t * game, glm::vec3 pos )
+//{
+//    for ( uint32_t i = 0; i < game->Tiles.size(); ++i )
+//    {
+//        Tile_t * tile = game->Tiles[ i ];
+
+//        if ( tile )
+//        {
+//        for ( uint32_t i = 0; i < game->Tiles.size(); ++i )
+//        {
+//            Tile_getCorner( tile, 0 )tile->)
+//        }
+
+//    }
+//}
 
 irr::video::ITexture*
 GameBuilder_getRessourceCardTexture( Game_t* game, eTileType tileType, bool fg )
