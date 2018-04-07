@@ -84,6 +84,7 @@ fromXMLFile( std::string fileName, irr::SIrrlichtCreationParameters & cfg )
 
     // delete the xml parser after usage
     delete xml;
+    return true;
 }
 
 #endif // DEVICE_HPP

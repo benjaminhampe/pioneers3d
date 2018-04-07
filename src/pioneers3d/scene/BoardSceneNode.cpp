@@ -1,8 +1,9 @@
 #include <pioneers3d/scene/BoardSceneNode.hpp>
 
+#if 0
+
 namespace pioneers3d {
 
-/*
 BoardSceneNode::BoardSceneNode( irr::scene::ISceneManager* smgr, irr::scene::ISceneNode* parent, int id )
     : irr::scene::ISceneNode( parent, smgr, id )
 {
@@ -40,6 +41,7 @@ BoardSceneNode::~BoardSceneNode()
         m_Mesh->drop();
     }
 }
-*/
 
 } // end namespace pioneers3d
+
+#endif

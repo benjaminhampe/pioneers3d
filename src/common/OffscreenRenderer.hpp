@@ -1,6 +1,7 @@
-#ifndef OFFSCREENRENDERER_HPP
-#define OFFSCREENRENDERER_HPP
+#ifndef DE_ALPHASONIC_OFFSCREENRENDERER_HPP
+#define DE_ALPHASONIC_OFFSCREENRENDERER_HPP
 
+#include <common/Types.hpp>
 
 class OffscreenRenderer
 {
@@ -8,4 +9,4 @@ public:
     OffscreenRenderer();
 };
 
-#endif // OFFSCREENRENDERER_HPP
+#endif // DE_ALPHASONIC_OFFSCREENRENDERER_HPP

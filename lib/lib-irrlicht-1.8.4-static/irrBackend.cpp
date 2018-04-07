@@ -1,16 +1,19 @@
 #include "irrBackend.hpp"
-
 #include <assert.h>
-
-
 #include <fstream>
-
 #include <vector>
 #include <array>
 #include <memory>
-
-#include <windows.h>
+// #include <windows.h>
 #include <time.h>
+
+std::string
+toString( irr::core::recti const & r )
+{
+    std::stringstream s;
+    s << r.UpperLeftCorner.X << "," << r.UpperLeftCorner.Y << "," << r.getWidth() << "," << r.getHeight();
+    return s.str();
+}
 
 std::string
 toString( irr::core::vector2df const & v )
@@ -72,24 +75,6 @@ toString( glm::vec3 const & v )
     std::stringstream s; s << v.x << "," << v.y << "," << v.z;
     return s.str();
 }
-
-bool
-equals( glm::vec2 a, glm::vec2 b, float32_t eps )
-{
-    if ( irr::core::equals( a.x, b.x, eps ) &&
-         irr::core::equals( a.y, b.y, eps ) ) return true;
-    return false;
-}
-
-bool
-equals( glm::vec3 a, glm::vec3 b, float32_t eps )
-{
-    if ( irr::core::equals( a.x, b.x, eps ) &&
-         irr::core::equals( a.y, b.y, eps ) &&
-         irr::core::equals( a.z, b.z, eps ) ) return true;
-    return false;
-}
-
 //struct SDesktopInfo
 //{
 //    int32_t Width;
@@ -120,94 +105,134 @@ struct AutoNullDevice
     irr::IrrlichtDevice * Device;
 };
 
-glm::ivec3 getDesktopSize()
-{
-    glm::ivec3 desktop( 0,0,0 );
-
-    //AutoNullDevice device;
-
-    irr::IrrlichtDevice * device = irr::createDevice( irr::video::EDT_NULL );
-    desktop.x = device->getVideoModeList()->getDesktopResolution().Width;
-    desktop.y = device->getVideoModeList()->getDesktopResolution().Height;
-    desktop.z = device->getVideoModeList()->getDesktopDepth();
-    device->drop();
-    return desktop;
-}
-
-float32_t convertToNormalized( int16_t value )
-{
-    // ( make all symmetric around +0.5f )
-    if ( value == 0 )
-        return 0.5f;
-    else if ( value > 0 )
-        return 0.5f + static_cast< float32_t >(value)/65534.0f;
-    else
-        return 0.5f + static_cast< float32_t >(value)/65536.0f;
-}
-
-
-#ifdef GLM_HPP
-
-#endif
 
 
 #if 0
-std::string
-getLocalTimeString()
+
+class irrBackend
 {
-    SYSTEMTIME t;
-    GetLocalTime( &t );
-    std::stringstream s;
-    s   << t.wYear << "-" << t.wMonth << "-" << t.wDay << " "
-        << t.wHour << ":" << t.wMinute << ":" << t.wSecond << "." << t.wMilliseconds;
-    return s.str();
-}
+public:
+    irrBackend();
 
+    static void
+    closeDevice( irr::IrrlichtDevice* & device )
+    {
+        if (device)
+        {
+            device->closeDevice();
+            device->drop();
+            device = nullptr;
+        }
+    }
 
-int64_t
-getPerfTimer()
-{
-    LARGE_INTEGER li;
-    QueryPerformanceCounter( &li );
-    return static_cast< int64_t >( li.QuadPart );
-}
+    static irr::IrrlichtDevice*
+    createNullDevice()
+    {
+        irr::IrrlichtDevice * device = irr::createDevice( irr::video::EDT_NULL );
+        return device;
+    }
 
-int64_t
-getPerfTimerFrequency()
-{
-    LARGE_INTEGER li;
-    QueryPerformanceFrequency( &li );
-    return static_cast< int64_t >( li.QuadPart );
-}
+    static irr::video::IImage*
+    createImage( irr::video::IVideoDriver* driver, int32_t w, int32_t h, irr::video::SColor color = irr::video::SColor(255,0,200,0) )
+    {
+        irr::video::IImage* img = driver->createImage( irr::video::ECF_A8R8G8B8, irr::core::dimension2du(w,h) );
+        img->fill( color );
+        return img;
+    }
 
-std::string
-getPerfTimerString()
-{
-    std::stringstream s;
-    s   << getPerfTimer() << ", f=" << getPerfTimerFrequency() << " Hz\n";
-    return s.str();
-}
+    static irr::video::IImage*
+    loadImage( irr::video::IVideoDriver* driver, std::string fileName )
+    {
+        irr::video::IImage* img = driver->createImageFromFile( fileName.c_str() );
+        return img;
+    }
 
-std::string
-getLocalTimeString()
-{
-    tm * t = localtime( nullptr );
-    std::stringstream s;
-    s   << t->tm_year << "-" << t->tm_mon << "-" << t->tm_mday << " "
-        << t->tm_hour << ":" << t->tm_min << ":" << t->tm_sec;
-    return s.str();
-}
+    static bool
+    saveImage( irr::video::IVideoDriver* driver, irr::video::IImage * img, std::string fileName )
+    {
+        return driver->writeImageToFile( img, fileName.c_str(), 0 );
+    }
 
+    static irr::IrrlichtDevice*
+    createOpenGLDevice( int32_t w, int32_t h, bool fullscreen = false )
+    {
+        irr::SIrrlichtCreationParameters params;
+        params.WindowSize = irr::core::dimension2du(
+            static_cast< int32_t >( w ),
+            static_cast< int32_t >( h ) );
+        params.Bits = 32;
+        params.AntiAlias = irr::video::EAAM_QUALITY;
+        params.Doublebuffer = true;
+        params.Vsync = false;
+        params.DriverType = irr::video::EDT_OPENGL;
+        params.HighPrecisionFPU = true;
+        params.Fullscreen = fullscreen;
+        params.Stencilbuffer = true;
+        params.ZBufferBits = 24;
+        irr::IrrlichtDevice* device = irr::createDeviceEx( params );
+        if (!device)
+        {
+            std::cout << "ERROR: Cannot create device\n";
+        }
+        return device;
+    }
 
-std::string
-getSystemTimeString()
-{
-    SYSTEMTIME t;
-    GetSystemTime( &t );
-    std::stringstream s;
-    s   << t.wYear << "-" << t.wMonth << "-" << t.wDay << " "
-        << t.wHour << ":" << t.wMinute << ":" << t.wSecond << "." << t.wMilliseconds;
-    return s.str();
-}
+    static void
+    runDevice( irr::IrrlichtDevice * device )
+    {
+        if ( !device )
+        {
+            return;
+        }
+
+        irr::video::IVideoDriver* driver = device->getVideoDriver();
+        irr::video::SColor clearColor( 255, 200, 200, 220 );
+        irr::scene::ISceneManager* smgr = device->getSceneManager();
+        irr::scene::ISceneNode* root = smgr->getRootSceneNode();
+        irr::scene::IMesh* mesh = smgr->getGeometryCreator()->createSphereMesh( 50.f, 33, 33 );
+        irr::scene::IMeshSceneNode* sphere = smgr->addMeshSceneNode( mesh, root, -1 );
+        mesh->drop();
+        sphere->setMaterialFlag( irr::video::EMF_LIGHTING, false );
+        sphere->setMaterialFlag( irr::video::EMF_WIREFRAME, true );
+
+        irr::scene::ICameraSceneNode* camera = smgr->addCameraSceneNodeFPS( root, 100.0f, 0.5f, -1 );
+        camera->setPosition( irr::core::vector3df( 0,0,-1000) );
+        camera->setTarget( irr::core::vector3df(0,0,0) );
+        camera->setNearValue( 1.0f );
+        camera->setFarValue( 10000.0f );
+
+        while (device->run())
+        {
+//            if (device->isWindowActive())
+//            {
+                driver->beginScene( true, true, clearColor );
+                smgr->drawAll();
+                driver->endScene();
+//            }
+//            else
+//            {
+//                device->yield();
+//            }
+        }
+    }
+
+    static irr::scene::IMeshSceneNode *
+    createEarthSceneNode( irr::IrrlichtDevice* device )
+    {
+        irr::video::IVideoDriver* driver = device->getVideoDriver();
+        irr::scene::ISceneManager* smgr = device->getSceneManager();
+        irr::scene::ISceneNode* root = smgr->getRootSceneNode();
+        irr::scene::IMesh* sphere = smgr->getGeometryCreator()->createSphereMesh( 50.f, 33, 33 );
+        irr::scene::IMeshSceneNode* node = smgr->addMeshSceneNode( sphere, root, -1 );
+        sphere->drop();
+        node->setMaterialFlag( irr::video::EMF_FOG_ENABLE, false );
+        node->setMaterialFlag( irr::video::EMF_NORMALIZE_NORMALS, true );
+        node->setMaterialFlag( irr::video::EMF_LIGHTING, false );
+        //node->setMaterialFlag( irr::video::EMF_WIREFRAME, true );
+        irr::video::ITexture * dayTex = driver->getTexture( "../../media/earth_day_8k.jpg" );
+        node->setMaterialTexture( 0, dayTex );
+        return node;
+    }
+};
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef DE_ALPHASONIC_COMMON_TYPES_HPP
 #define DE_ALPHASONIC_COMMON_TYPES_HPP
 
-#include <irrlicht.h>
+#include <irrBackend.hpp>
 #include <stdint.h>
 #include <time.h>
 #include <iostream>

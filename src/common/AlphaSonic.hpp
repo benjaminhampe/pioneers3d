@@ -13,7 +13,6 @@
 #include <common/ImageUtils.hpp>
 #include <common/AutoMeshBuffer.hpp>
 #include <common/AutoSceneNode.hpp>
-#include <common/Camera.hpp>
 #include <common/createDevice.hpp>
 #include <common/createCircle.hpp>
 #include <common/createCylinder.hpp>
@@ -21,5 +20,9 @@
 #include <common/createBox.hpp>
 #include <common/createRect.hpp>
 #include <common/createRoundRect.hpp>
+#include <common/Logger.hpp>
+#include <common/sinCosTable.hpp>
+#include <common/Camera.hpp>
+#include <common/OffscreenRenderer.hpp>
 
 #endif // DE_ALPHASONIC_COMMON_HPP

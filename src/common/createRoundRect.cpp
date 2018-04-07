@@ -186,7 +186,7 @@ irr::scene::SMeshBuffer*
 createRoundRectMeshBuffer(
     glm::vec2 size,
     glm::vec2 r,
-    int tesselation,
+    uint32_t tesselation,
     bool bFullyTextured,
     irr::video::SColor const & outerColor,
     irr::video::SColor const & innerColor )

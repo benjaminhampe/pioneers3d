@@ -12,20 +12,20 @@
 #include <pioneers3d/eTileType.hpp>
 #include <pioneers3d/eGameType.hpp>
 #include <pioneers3d/eGameState.hpp>
-#include <pioneers3d/UI_Types.hpp>
 
 namespace pioneers3d {
 
-struct Board_t;
+struct RoadPoint_t;
 struct Waypoint_t;
 struct Tile_t;
+//struct Board_t;
+struct Bank_t;
 struct Player_t;
-
 
 struct RoadPoint_t
 {
 public:
-    glm::vec3 BoardPos;
+    glm::vec3 Pos;
     bool IsEnabled = true; // Can generate ressource cards ( no thief/robber )
     Player_t* Owner = nullptr;
     std::vector< Tile_t* > Tiles; // collect neighbouring tiles 1-1
@@ -34,25 +34,37 @@ public:
 struct Waypoint_t
 {
 public:
-    glm::vec3 BoardPos;
-    int VictoryPoints; // default: 0
-    bool IsEnabled = true; // Can generate ressource cards ( no thief/robber )
-    bool IsRoad = false; // Default: false == can settle, true == only a road
-    Player_t* Owner = nullptr;
-    std::vector< Tile_t* > Tiles; // collect neighbouring tiles 1-3
+    glm::vec3               Pos;
+    int                     Points; // default: 0
+    bool                    IsEnabled = true; // Can generate ressource cards ( no thief/robber )
+    bool                    IsRoad = false; // Default: false == can settle, true == only a road
+    Player_t*               Owner = nullptr;
+    std::vector< Tile_t* >  Tiles; // collect neighbouring tiles 1-3
+    AutoSceneNode*          Node = nullptr;
+    //~Waypoint_t() { if (Node) Node->drop(); }
 };
 
 struct Tile_t
 {
 public:
+    eTileType 					Type = eTileType::WASSER;
     glm::ivec2 					BoardIndex;
-    glm::vec3                   BoardPos;
-    glm::vec3                   TileSize;
-    eTileType 					TileType = eTileType::WASSER;
+    glm::vec3                   Pos;
+    glm::vec3                   Size;
     int32_t 					DiceValue = 0;
     int32_t 					TexAngle60 = 0;
     std::vector< RoadPoint_t* > RoadPoints;
     std::vector< Waypoint_t* >  Waypoints;
+    AutoSceneNode*              Node = nullptr;
+    //~Tile_t() { if (Node) Node->drop(); }
+};
+
+struct Raueber_t
+{
+    glm::ivec2 					BoardIndex;
+    glm::vec3                   Pos;
+    irr::scene::ISceneNode*     Node = nullptr;
+    //~Raueber_t() { if (Node) Node->drop(); }
 };
 
 struct Bank_t
@@ -83,6 +95,7 @@ struct Player_t
     int Type;				// Player type - 0=Human, 1=CPU, 2=HumanTCP/IP, 3=HumanLAN
     std::string Name;       // Player name
     uint32_t Color;			// Player color
+    irr::video::ITexture*   Avatar = nullptr;
     bool IsActive;			// sagt aus ob Player in der Runde aktiviert ist.
 // ---------------------------------------------------------------------------------------
     short Dice1;			// Wuerfelwert
@@ -115,6 +128,85 @@ struct Player_t
     std::string toString() const;
 };
 
+
+struct GUI_Menu_t
+{
+    irr::gui::IGUIWindow* Window = nullptr;
+    irr::gui::IGUIButton* Start = nullptr;
+    irr::gui::IGUIButton* Options = nullptr;
+    irr::gui::IGUIButton* Exit = nullptr;
+};
+
+struct GUI_Card_t
+{
+    irr::gui::IGUIStaticText* Name = nullptr;
+    irr::gui::IGUIImage* Image = nullptr;
+    irr::gui::IGUIStaticText* Value = nullptr;
+};
+
+struct GUI_PlayerAction_t
+{
+    irr::gui::IGUIWindow* Window = nullptr;
+    irr::gui::IGUIButton* Dice = nullptr;
+    irr::gui::IGUIButton* Bank = nullptr;
+    irr::gui::IGUIButton* Trade = nullptr;
+    irr::gui::IGUIButton* BuyCard = nullptr;
+    irr::gui::IGUIButton* BuyRoad = nullptr;
+    irr::gui::IGUIButton* BuySett = nullptr;
+    irr::gui::IGUIButton* BuyCity = nullptr;
+    irr::gui::IGUIButton* EndRound = nullptr;
+};
+
+struct GUI_PlayerInfo_t
+{
+    irr::gui::IGUIWindow* Window = nullptr;
+    irr::gui::IGUIStaticText* Name = nullptr;
+    irr::gui::IGUIImage* Avatar = nullptr;
+
+    GUI_Card_t Holz;
+    GUI_Card_t Lehm;
+    GUI_Card_t Weizen;
+    GUI_Card_t Wolle;
+    GUI_Card_t Erz;
+
+    GUI_Card_t Roads;
+    GUI_Card_t Settlements;
+    GUI_Card_t Cities;
+
+    GUI_Card_t EventCards;
+    GUI_Card_t KnightCards;
+    GUI_Card_t PointCards;
+    //GUI_Card_t EventCards;
+    GUI_Card_t BonusLongestRoad;
+    GUI_Card_t BonusBiggestArmy;
+    irr::gui::IGUIStaticText* LogBox = nullptr;
+};
+
+struct GUI_ChatBox_t
+{
+    irr::gui::IGUIWindow* Window = nullptr;
+    irr::gui::IGUIEditBox* Input = nullptr;
+    irr::gui::IGUIButton* Send = nullptr;
+    irr::gui::IGUIListBox* LogBox = nullptr;
+};
+
+struct GUI_Dice_t
+{
+    irr::gui::IGUIWindow* Window = nullptr;
+    irr::gui::IGUIButton* A = nullptr;
+    irr::gui::IGUIButton* B = nullptr;
+};
+
+struct GameUI_t
+{
+    GUI_Menu_t          MainMenu;
+    GUI_PlayerAction_t  PlayerAction;
+    GUI_PlayerInfo_t    PlayerInfo;
+    GUI_ChatBox_t       Chat;
+    GUI_Dice_t          Dice;
+};
+
+
 struct Game_t
 {
     eGameType 				Type;
@@ -136,7 +228,7 @@ struct Game_t
     // Player_t
     std::vector< Player_t > Players;
     uint32_t 				CurrentPlayer;
-
+    Raueber_t               Raeuber;
     GameUI_t                UI;
 };
 

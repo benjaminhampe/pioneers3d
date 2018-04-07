@@ -1,5 +1,6 @@
 #include "TileSceneNode.hpp"
 
+#if 0
 namespace pioneers3d {
 
 TileSceneNode::TileSceneNode( irr::scene::ISceneManager* smgr, irr::scene::ISceneNode* parent, int id )
@@ -15,3 +16,5 @@ TileSceneNode::~TileSceneNode()
 
 
 } // end namespace pioneers3d
+
+#endif

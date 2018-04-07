@@ -1,7 +1,7 @@
 #ifndef PIONEERS3D_BASE_EVENT_RECEIVER_HPP
 #define PIONEERS3D_BASE_EVENT_RECEIVER_HPP
 
-#include <pioneers3d/Game.hpp>
+#include <pioneers3d/Types.hpp>
 
 namespace pioneers3d {
 

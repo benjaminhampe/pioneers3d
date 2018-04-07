@@ -1,11 +1,12 @@
 #ifndef PIONEERS3D_SCENE_BOARDSCENENODE_HPP
 #define PIONEERS3D_SCENE_BOARDSCENENODE_HPP
 
+#if 0
+
 #include <pioneers3d/Game.hpp>
 
 namespace pioneers3d {
 
-/*
 class BoardSceneNode : public irr::scene::ISceneNode
 {
 public:
@@ -76,8 +77,9 @@ protected:
 
     eTileType m_DefaultTileType = eTileType::WASSER;
 };
-*/
 
 } // end namespace pioneers3d
+
+#endif
 
 #endif // PIONEERS3D_SCENE_BOARDSCENENODE_HPP

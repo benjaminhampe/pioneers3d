@@ -1,7 +1,6 @@
 #include "EventReceiver.hpp"
 
-#include "GameUtils.hpp"
-
+#include "Game_Camera.hpp"
 
 namespace pioneers3d {
 

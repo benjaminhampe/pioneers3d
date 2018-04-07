@@ -1,6 +1,7 @@
 #ifndef PIONEERS3D_SCENE_TileSceneNode_HPP
 #define PIONEERS3D_SCENE_TileSceneNode_HPP
 
+#if 0
 #include <pioneers3d/Types.hpp>
 
 namespace pioneers3d {
@@ -18,5 +19,5 @@ protected:
 };
 
 } // end namespace pioneers3d
-
+#endif
 #endif // PIONEERS3D_SCENE_TileSceneNode_HPP
