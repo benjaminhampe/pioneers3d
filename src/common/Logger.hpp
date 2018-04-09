@@ -98,7 +98,7 @@ public:
         std::cout << "[" << level.toString() << "] " << m_LoggerName << " :: ";
         return *this; // chain together
     }
-
+    Logger & raw() { return *this; }
     Logger & trace() { return this->log( LogLevel::Trace ); }
     Logger & debug() { return this->log( LogLevel::Debug ); }
     Logger & info() { return this->log( LogLevel::Info ); }

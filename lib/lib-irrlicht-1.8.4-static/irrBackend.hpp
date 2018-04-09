@@ -6,6 +6,10 @@
 #include <sstream>
 #include <iostream>
 
+#include <ustring.hpp>
+#include <CXMLWriterUTF8.hpp>
+#include <CGUITTFont.hpp>
+
 typedef float float32_t;
 typedef double float64_t;
 
@@ -103,6 +107,26 @@ saveTexture( irr::video::IVideoDriver* driver, irr::video::ITexture* tex, std::s
         img->drop();
     }
 }
+
+inline irr::gui::CGUITTFont*
+createTTFont( irr::gui::IGUIEnvironment* env, std::string const & fileName, uint32_t pxSize, bool aa = true, bool transparency = true )
+{
+    irr::gui::CGUITTFont* font = irr::gui::CGUITTFont::create( env, fileName.c_str(), pxSize, aa, transparency );
+    return font;
+}
+
+inline void
+addFont( irr::gui::IGUIEnvironment* env, std::string const & fileName, uint32_t pxSize, bool aa = true, bool transparency = true )
+{
+    irr::gui::CGUITTFont* font = irr::gui::CGUITTFont::create( env, fileName.c_str(), pxSize, aa, transparency );
+    if ( !font )
+    {
+        std::cout << "[Error] " << __FUNCTION__ << " :: Cannot create and set font from file (" << fileName << ")\n";
+        return;
+    }
+    env->getSkin()->setFont( font, irr::gui::EGDF_DEFAULT );
+}
+
 
 inline irr::gui::IGUIImage*
 createGUIImage( irr::gui::IGUIEnvironment* env, irr::gui::IGUIElement* parent, irr::core::recti const & pos, irr::video::ITexture* tex  )

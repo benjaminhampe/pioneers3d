@@ -9,12 +9,12 @@ Game_getTexture( Game_t * game, eTexture type )
 {
     if ( !game )
     {
-        std::cout << __FUNCTION__ << " :: Invalid pointer to Game\n";
+        std::cout << __FUNCTION__ << " [Error] :: Invalid pointer to Game\n";
         return nullptr;
     }
     if ( !game->Device )
     {
-        std::cout << __FUNCTION__ << " :: Invalid pointer to IrrlichtDevice\n";
+        std::cout << __FUNCTION__ << " [Error] :: Invalid pointer to IrrlichtDevice\n";
         return nullptr;
     }
 
@@ -22,7 +22,7 @@ Game_getTexture( Game_t * game, eTexture type )
     irr::video::IVideoDriver * driver = game->Device->getVideoDriver();
     if ( !driver )
     {
-        std::cout << __FUNCTION__ << " :: Invalid pointer to IVideoDriver\n";
+        std::cout << __FUNCTION__ << " [Error] :: Invalid pointer to IVideoDriver\n";
         return nullptr;
     }
 
@@ -107,7 +107,7 @@ Game_getTexture( Game_t * game, eTexture type )
 
     if ( tmp.empty() )
     {
-        std::cout << de::alphasonic::LogLevel::Error << " " << __FUNCTION__ << " :: Invalid (empty) filename" << "\n";
+        std::cout << __FUNCTION__ << " [Error] :: Empty filename\n";
         return nullptr;
     }
 
@@ -120,13 +120,8 @@ Game_getTexture( Game_t * game, eTexture type )
 
     if ( !tex )
     {
-        std::cout << de::alphasonic::LogLevel::Error << " " << __FUNCTION__ << " :: "
-            << "Cannot get texture for fileName (" << fileName << ")\n";
-    }
-    else
-    {
-        std::cout << de::alphasonic::LogLevel::Debug << " " << __FUNCTION__ << " :: "
-            << "Return texture for fileName (" << fileName << ")\n";
+        std::cout << __FUNCTION__ << " [Error] :: Cannot get texture (" << fileName << ")\n";
+        return nullptr;
     }
 
     return tex;
@@ -213,6 +208,8 @@ GameBuilder_createRessourceCardTexture( Game_t* game, eTileType tileType, std::s
 
 
     //rtt0->drop();
+
+    return tex;
 }
 
 irr::video::ITexture*

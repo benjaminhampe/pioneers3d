@@ -15,12 +15,19 @@
 
 namespace pioneers3d {
 
+struct Dice_t;
 struct RoadPoint_t;
 struct Waypoint_t;
 struct Tile_t;
 //struct Board_t;
 struct Bank_t;
 struct Player_t;
+
+struct Dice_t
+{
+    int32_t A;
+    int32_t B;
+};
 
 struct RoadPoint_t
 {
@@ -212,22 +219,24 @@ struct Game_t
     eGameType 				Type;
     eGameState 				State;
     std::string             MediaDir;
-    irr::IrrlichtDevice*    Device;
-    irr::IEventReceiver*    Receiver;
+    irr::IrrlichtDevice*    Device = nullptr;
+    irr::IEventReceiver*    Receiver = nullptr;
     irr::video::SColor      ClearColor;
-
+    std::string             FontFileName;
+    irr::gui::CGUITTFont*   FontAwesome = nullptr;
     // RessourcenManager_t
     //std::map< eTexture, irr::video::ITexture* > Textures;
 
     // Board_t
-    glm::ivec2 TileCount;
-    glm::vec3 TileSize;
-    std::vector< Tile_t > Tiles;
+    Dice_t                  Dice;
+    glm::ivec2              TileCount;
+    glm::vec3               TileSize;
+    std::vector< Tile_t >   Tiles;
     std::vector< Waypoint_t > Waypoints;
 
     // Player_t
     std::vector< Player_t > Players;
-    uint32_t 				CurrentPlayer;
+    uint32_t 				CurrentPlayer = 0;
     Raueber_t               Raeuber;
     GameUI_t                UI;
 };

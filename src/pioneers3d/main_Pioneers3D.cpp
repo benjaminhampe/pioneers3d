@@ -7,59 +7,10 @@ int main( int argc, char** argv )
     return main_Pioneers3D( argc, argv );
 }
 
-void enumerateTextures( irr::video::IVideoDriver* driver )
-{
-    std::cout << "TexCount = " << driver->getTextureCount() << "\n";
-
-    for ( uint32_t i = 0; i < driver->getTextureCount(); ++i )
-    {
-        irr::video::ITexture* tex = driver->getTextureByIndex( i );
-        if ( tex )
-        {
-            std::cout << "Tex[" << i << "] = " << tex->getName().getPath().c_str() << "\n";
-        }
-    }
-}
-
 int main_Pioneers3D( int argc, char** argv )
 {
-    std::cout << "// ==========================================================\n";
-    std::cout << __FUNCTION__ << "\n";
-    std::cout << "// ==========================================================\n";
-
-    glm::ivec3 const desktopSize = getDesktopSize();
-    std::cout << "DesktopSize.x = " << desktopSize.x << " px\n";
-    std::cout << "DesktopSize.y = " << desktopSize.y << " px\n";
-    std::cout << "DesktopSize.z = " << desktopSize.z << " bits\n";
-    std::cout << "// ==========================================================\n";
-
-    irr::SIrrlichtCreationParameters cfg;
-    cfg.DriverType = irr::video::EDT_OPENGL;
-    cfg.WindowSize.Width = desktopSize.x;
-    cfg.WindowSize.Height = desktopSize.y;
-    cfg.AntiAlias = irr::video::EAAM_QUALITY;
-    cfg.Bits = 32;
-    cfg.Doublebuffer = true;
-    cfg.Vsync = true;
-    cfg.EventReceiver = nullptr;
-    cfg.Fullscreen = false;
-    cfg.Stencilbuffer = true;
-    irr::IrrlichtDevice* device = irr::createDeviceEx( cfg );
-    assert( device );
-
-    std::cout << toXMLElement( cfg );
-    std::cout << "// ==========================================================\n";
-//    pioneers3d::Game_t game( device );
-//    game.create();
-//    game.save( "standard_test1.xml" );
-//    game.load( "standard_test1.xml" );
-//    game.save( "standard_test2.xml" );
-
     pioneers3d::Game_t game;
-    pioneers3d::Game_createStandard( &game, device );
-
-    enumerateTextures( device->getVideoDriver() );
-
+    pioneers3d::Game_createStandard( &game );
     return pioneers3d::Game_exec( &game );
 }
 

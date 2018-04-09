@@ -18,16 +18,16 @@ public:
     enum EType : uint32_t
     {
         UNKNOWN = 0,
-        WASSER = 1,
-        LAND = 1<<1,
-        HAFEN = 1<<2,
-
-        HOLZ = 1<<4,
-        LEHM = 1<<5,
-        WEIZEN = 1<<6,
-        WOLLE = 1<<7,
-        ERZ = 1<<8,
-        RESSOURCE_MASK = HOLZ | LEHM | WEIZEN | WOLLE | ERZ,
+        WASSER = 1,  // TileType
+        LAND = 1<<1, // TileType
+        //NONE = 1<<2, // RessourceType
+        BANK = 1<<3, // RessourceType
+        HOLZ = 1<<4, // RessourceType
+        LEHM = 1<<5, // RessourceType
+        WEIZEN = 1<<6, // RessourceType
+        WOLLE = 1<<7, // RessourceType
+        ERZ = 1<<8, // RessourceType
+        RESSOURCE_MASK = BANK | HOLZ | LEHM | WEIZEN | WOLLE | ERZ,
         RESSOURCE_COUNT = 5,
         LAND_WUESTE = LAND,
         LAND_HOLZ = LAND | HOLZ,
@@ -35,12 +35,12 @@ public:
         LAND_WEIZEN = LAND | WEIZEN,
         LAND_WOLLE = LAND | WOLLE,
         LAND_ERZ = LAND | ERZ,
-        HAFEN_3zu1 = HAFEN,
-        HAFEN_HOLZ = HAFEN | HOLZ,
-        HAFEN_LEHM = HAFEN | LEHM,
-        HAFEN_WEIZEN = HAFEN | WEIZEN,
-        HAFEN_WOLLE = HAFEN | WOLLE,
-        HAFEN_ERZ = HAFEN | ERZ,
+        HAFEN_3zu1 = WASSER | BANK,
+        HAFEN_HOLZ = WASSER | HOLZ,
+        HAFEN_LEHM = WASSER | LEHM,
+        HAFEN_WEIZEN = WASSER | WEIZEN,
+        HAFEN_WOLLE = WASSER | WOLLE,
+        HAFEN_ERZ = WASSER | ERZ,
         FORCE32BIT = 0x7FFFFFFF
     };
 
@@ -49,9 +49,10 @@ public:
     eTileType( uint32_t type ) : m_TileType( static_cast< EType >( type ) ) {}
     bool isUnknown() const { return m_TileType == UNKNOWN; }
     bool isWasser() const { return 0 != (m_TileType & WASSER); }
-    bool isHafen() const { return 0 != (m_TileType & HAFEN); }
     bool isLand() const { return 0 != (m_TileType & LAND); }
     bool isRessource() const { return 0 != (m_TileType & RESSOURCE_MASK); }
+    bool isHafen() const { return isWasser() && isRessource() ; }
+
     bool has( EType flags ) const { return 0 != (m_TileType & flags); }
 
     void set( EType flags ) { m_TileType = flags; }
@@ -88,6 +89,7 @@ public:
 
         if ( isLand() ) s << "LAND";
         if ( isHafen() ) s << "HAFEN";
+        if ( has( BANK) ) s << "_3zu1";
         if ( has( HOLZ ) ) s << "_HOLZ";
         if ( has( LEHM ) ) s << "_LEHM";
         if ( has( WEIZEN ) ) s << "_WEIZEN";
@@ -103,17 +105,17 @@ public:
         uint32_t tileType = eTileType::UNKNOWN;
              if ( txt == "WASSER" )        { tileType = eTileType::WASSER; }
         else if ( txt == "LAND" )          { tileType = eTileType::LAND; }
-        else if ( txt == "LAND_HOLZ" )     { tileType = eTileType::LAND | eTileType::HOLZ; }
-        else if ( txt == "LAND_LEHM" )     { tileType = eTileType::LAND | eTileType::LEHM; }
-        else if ( txt == "LAND_WEIZEN" )   { tileType = eTileType::LAND | eTileType::WEIZEN; }
-        else if ( txt == "LAND_ERZ" )      { tileType = eTileType::LAND | eTileType::ERZ; }
-        else if ( txt == "LAND_WOLLE")     { tileType = eTileType::LAND | eTileType::WOLLE; }
-        else if ( txt == "HAFEN")          { tileType = eTileType::HAFEN; }
-        else if ( txt == "HAFEN_HOLZ")     { tileType = eTileType::HAFEN | eTileType::HOLZ; }
-        else if ( txt == "HAFEN_LEHM")     { tileType = eTileType::HAFEN | eTileType::LEHM; }
-        else if ( txt == "HAFEN_WEIZEN")   { tileType = eTileType::HAFEN | eTileType::WEIZEN; }
-        else if ( txt == "HAFEN_WOLLE")    { tileType = eTileType::HAFEN | eTileType::WOLLE; }
-        else if ( txt == "HAFEN_ERZ")      { tileType = eTileType::HAFEN | eTileType::ERZ; }
+        else if ( txt == "LAND_HOLZ" )     { tileType = eTileType::LAND_HOLZ; }
+        else if ( txt == "LAND_LEHM" )     { tileType = eTileType::LAND_LEHM; }
+        else if ( txt == "LAND_WEIZEN" )   { tileType = eTileType::LAND_WEIZEN; }
+        else if ( txt == "LAND_ERZ" )      { tileType = eTileType::LAND_ERZ; }
+        else if ( txt == "LAND_WOLLE")     { tileType = eTileType::LAND_WOLLE; }
+        else if ( txt == "HAFEN_3zu1")     { tileType = eTileType::HAFEN_3zu1; }
+        else if ( txt == "HAFEN_HOLZ")     { tileType = eTileType::HAFEN_HOLZ; }
+        else if ( txt == "HAFEN_LEHM")     { tileType = eTileType::HAFEN_LEHM; }
+        else if ( txt == "HAFEN_WEIZEN")   { tileType = eTileType::HAFEN_WEIZEN; }
+        else if ( txt == "HAFEN_WOLLE")    { tileType = eTileType::HAFEN_WOLLE; }
+        else if ( txt == "HAFEN_ERZ")      { tileType = eTileType::HAFEN_ERZ; }
 
         return tileType;
     }

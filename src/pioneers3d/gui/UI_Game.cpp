@@ -16,12 +16,12 @@ void GameUI_create( Game_t * game )
 
     if ( !game )
     {
-        std::cout << __FUNCTION__ << " :: Invalid pointer to Game\n";
+        std::cout << __FUNCTION__ << " [Error] :: Invalid pointer to Game\n";
         return;
     }
     if ( !game->Device )
     {
-        std::cout << __FUNCTION__ << " :: Invalid pointer to IrrlichtDevice\n";
+        std::cout << __FUNCTION__ << " [Error] :: Invalid pointer to IrrlichtDevice\n";
         return;
     }
 
@@ -29,7 +29,7 @@ void GameUI_create( Game_t * game )
     irr::gui::IGUIEnvironment* guienv = game->Device->getGUIEnvironment();
     if ( !guienv )
     {
-        std::cout << __FUNCTION__ << " :: Invalid pointer to IGUIEnvironment\n";
+        std::cout << __FUNCTION__ << " [Error] :: Invalid pointer to IGUIEnvironment\n";
         return;
     }
 
@@ -37,10 +37,9 @@ void GameUI_create( Game_t * game )
 
     GameUI_createChat( game, mkRect( screen.Width/2+100, screen.Height/4, screen.Width/2 - 150, screen.Height/2 ) );
     GameLogger::singleton().setLogBox( game->UI.Chat.LogBox );
-    GAME_LOG_ERROR("Hello World")
 
     GameUI_createMainMenuWindow( game );
-    GameUI_createPlayerAction( game, mkRect( 100, 10, screen.Width - 200, 120 ) );
+    GameUI_createPlayerAction( game, mkRect( 100, 10, 900, 150 ) );
     GameUI_createPlayerInfo( game, mkRect( 10, screen.Height - 210, screen.Width - 100, 200 ) );
     GameUI_createDice( game, mkRect( screen.Width - 300, 10, 250, 200 ) );
 }
@@ -58,7 +57,7 @@ GameUI_createMainMenuWindow( Game_t * game )
     irr::gui::IGUIEnvironment* guienv = device->getGUIEnvironment();
     if ( !guienv )
     {
-        std::cout << __FUNCTION__ << " :: ERROR: Invalid pointer to IGUIEnvironment\n";
+        std::cout << __FUNCTION__ << " [Error] :: Invalid pointer to IGUIEnvironment\n";
         return;
     }
 

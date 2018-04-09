@@ -1,6 +1,7 @@
 #include "EventReceiver.hpp"
 
 #include "Game_Camera.hpp"
+#include <pioneers3d/Game_Textures.hpp>
 
 namespace pioneers3d {
 
@@ -23,12 +24,7 @@ EventReceiver::OnEvent( const irr::SEvent& event )
     {
         irr::SEvent::SGUIEvent const & guiEvent = event.GUIEvent;
         irr::gui::IGUIElement* caller = guiEvent.Caller;
-
-//        assert( caller );
-//        if ( !caller )
-//        {
-//            return false;
-//        }
+        irr::gui::IGUIEnvironment* env = m_Device->getGUIEnvironment();
 
         if ( guiEvent.EventType == irr::gui::EGET_BUTTON_CLICKED )
         {
@@ -36,12 +32,60 @@ EventReceiver::OnEvent( const irr::SEvent& event )
             {
                 if ( caller == m_Game->UI.MainMenu.Exit )
                 {
-                    m_Device->closeDevice();
+                    if ( m_Device )
+                    {
+                        irr::scene::ICameraSceneNode* camera = m_Device->getSceneManager()->getActiveCamera();
+                        if ( camera )
+                        {
+                            camera->setInputReceiverEnabled( false );
+                        }
+                        m_Device->closeDevice();
+                        m_Device = nullptr;
+                    }
                     return true;
                 }
                 if ( caller == m_Game->UI.MainMenu.Start )
                 {
                     m_Game->UI.MainMenu.Window->setVisible( false );
+                    m_Game->State = eGameState::GAME_START;
+                    return true;
+                }
+                if ( caller == m_Game->UI.PlayerAction.Dice )
+                {
+                    m_Game->Dice.A = rand() % 6 + 1;
+                    m_Game->Dice.B = rand() % 6 + 1;
+                    m_Game->UI.Dice.A->setImage( Dice_getTexture( m_Game, m_Game->Dice.A ) );
+                    m_Game->UI.Dice.B->setImage( Dice_getTexture( m_Game, m_Game->Dice.B ) );
+                    return true;
+                }
+                if ( caller == m_Game->UI.PlayerAction.EndRound )
+                {
+
+                    return true;
+                }
+                if ( caller == m_Game->UI.PlayerAction.BuyRoad )
+                {
+
+                    return true;
+                }
+                if ( caller == m_Game->UI.PlayerAction.BuySett )
+                {
+
+                    return true;
+                }
+                if ( caller == m_Game->UI.PlayerAction.BuyCity )
+                {
+
+                    return true;
+                }
+                if ( caller == m_Game->UI.PlayerAction.Trade )
+                {
+
+                    return true;
+                }
+                if ( caller == m_Game->UI.PlayerAction.Bank )
+                {
+
                     return true;
                 }
             }

@@ -35,14 +35,44 @@ public:
         m_Listener.push_back( logbox );
     }
 
-    void error( const char* fn, int line, std::string msgText )
+    void info( std::string msgText )
     {
-        m_Cout.error() << fn << ":" << line << " :: " << msgText << "\n";
+        m_Cout.raw() << msgText << "\n";
 
         if ( m_LogBox )
         {
             uint32_t index = m_LogBox->addItem( irr::core::stringw( msgText.c_str() ).c_str(), -1 );
+            m_LogBox->setItemOverrideColor( index, irr::gui::EGUI_LBC_TEXT, 0xFFFFFFFF );
+        }
+    }
+    void error( const char* fn, int line, std::string msgText )
+    {
+        std::stringstream s; s << "[Error] " << fn << ":" << line << " :: " << msgText;
+        std::cout << s.str() << "\n";
+        if ( m_LogBox )
+        {
+            uint32_t index = m_LogBox->addItem( irr::core::stringw( s.str().c_str() ).c_str(), -1 );
             m_LogBox->setItemOverrideColor( index, irr::gui::EGUI_LBC_TEXT, 0xFFFF0000 );
+        }
+    }
+    void debug( const char* fn, int line, std::string msgText )
+    {
+        std::stringstream s; s << "[Debug] " << fn << ":" << line << " :: " << msgText;
+        std::cout << s.str() << "\n";
+        if ( m_LogBox )
+        {
+            uint32_t index = m_LogBox->addItem( irr::core::stringw( s.str().c_str() ).c_str(), -1 );
+            m_LogBox->setItemOverrideColor( index, irr::gui::EGUI_LBC_TEXT, 0xFFFF00FF );
+        }
+    }
+    void warn( const char* fn, int line, std::string msgText )
+    {
+        std::stringstream s; s << "[Warn] " << fn << ":" << line << " :: " << msgText;
+        std::cout << s.str() << "\n";
+        if ( m_LogBox )
+        {
+            uint32_t index = m_LogBox->addItem( irr::core::stringw( s.str().c_str() ).c_str(), -1 );
+            m_LogBox->setItemOverrideColor( index, irr::gui::EGUI_LBC_TEXT, 0xFFFFBF60 );
         }
     }
 };
@@ -50,6 +80,21 @@ public:
 #define GAME_LOG_ERROR(msgText) \
     { \
         GameLogger::singleton().error( __FUNCTION__, __LINE__, (msgText) ); \
+    }
+
+#define GAME_LOG_INFO(msgText) \
+    { \
+        GameLogger::singleton().info( (msgText) ); \
+    }
+
+#define GAME_LOG_DEBUG(msgText) \
+    { \
+        GameLogger::singleton().debug( __FUNCTION__, __LINE__, (msgText) ); \
+    }
+
+#define GAME_LOG_WARN(msgText) \
+    { \
+        GameLogger::singleton().warn( __FUNCTION__, __LINE__, (msgText) ); \
     }
 
 #if 0

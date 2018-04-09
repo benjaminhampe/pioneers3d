@@ -13,7 +13,7 @@ void
 Game_clear( Game_t* game );
 
 void
-Game_createStandard( Game_t* game, irr::IrrlichtDevice* device );
+Game_createStandard( Game_t* game );
 
 int
 Game_exec( Game_t * game );

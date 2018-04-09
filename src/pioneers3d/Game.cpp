@@ -11,10 +11,24 @@
 
 namespace pioneers3d {
 
+void enumerateTextures( irr::video::IVideoDriver* driver )
+{
+    std::cout << "TexCount = " << driver->getTextureCount() << "\n";
+
+    for ( uint32_t i = 0; i < driver->getTextureCount(); ++i )
+    {
+        irr::video::ITexture* tex = driver->getTextureByIndex( i );
+        if ( tex )
+        {
+            std::cout << "Tex[" << i << "] = " << tex->getName().getPath().c_str() << "\n";
+        }
+    }
+}
+
 void
 Game_clear( Game_t* game )
 {
-    Game_clearWaypoints( game );
+    Waypoints_clear( game );
     Game_clearTiles( game );
     Game_clearPlayers( game );
 }
@@ -32,9 +46,37 @@ Game_toXML( Game_t* game )
 }
 
 void
-Game_createStandard( Game_t* game, irr::IrrlichtDevice* device )
+Game_createStandard( Game_t* game )
 {
+    std::cout << "// ==========================================================\n";
     std::cout << __FUNCTION__ << "()\n";
+    std::cout << "// ==========================================================\n";
+    glm::ivec3 const desktopSize = getDesktopSize();
+    std::cout << "DesktopSize.x = " << desktopSize.x << " px\n";
+    std::cout << "DesktopSize.y = " << desktopSize.y << " px\n";
+    std::cout << "DesktopSize.z = " << desktopSize.z << " bits\n";
+
+    irr::SIrrlichtCreationParameters cfg;
+    cfg.DriverType = irr::video::EDT_OPENGL;
+    cfg.WindowSize.Width = 1280; //1440; //desktopSize.x;
+    cfg.WindowSize.Height = 800; //900; //desktopSize.y;
+    cfg.AntiAlias = irr::video::EAAM_QUALITY;
+    cfg.Bits = 32;
+    cfg.Doublebuffer = true;
+    cfg.Vsync = true;
+    cfg.EventReceiver = nullptr;
+    cfg.Fullscreen = false;
+    cfg.Stencilbuffer = true;
+    irr::IrrlichtDevice* device = irr::createDeviceEx( cfg );
+    assert( device );
+    std::cout << "// ==========================================================\n";
+    std::cout << toXMLElement( cfg );
+    std::cout << "// ==========================================================\n";
+//    pioneers3d::Game_t game( device );
+//    game.create();
+//    game.save( "standard_test1.xml" );
+//    game.load( "standard_test1.xml" );
+//    game.save( "standard_test2.xml" );
 
     assert( device );
 
@@ -42,13 +84,14 @@ Game_createStandard( Game_t* game, irr::IrrlichtDevice* device )
 
     game->Device = device;
     game->MediaDir = "../../media/";
-    game->ClearColor = irr::video::SColor( 255, 225, 225, 255 );
 
     device->setResizable( true );
     device->setWindowCaption( L"Pioneers3D (c) 2018 by Benjamin Hampe <benjaminhampe@gmx.de>" );
 
     irr::video::IVideoDriver* driver = device->getVideoDriver();
     irr::scene::ISceneManager* smgr = device->getSceneManager();
+    irr::gui::IGUIEnvironment* env = device->getGUIEnvironment();
+    //addFont( env, game->MediaDir + "fonts/FontAwesome.ttf", 8, true, true );
 
     //GameBuilder_createRessourceCardTexture( game, eTileType::HOLZ, "card_holz.jpg" );
     //GameBuilder_createRessourceCardTexture( game, eTileType::LEHM, "card_lehm.jpg" );
@@ -56,14 +99,19 @@ Game_createStandard( Game_t* game, irr::IrrlichtDevice* device )
     //GameBuilder_createRessourceCardTexture( game, eTileType::WOLLE, "card_wolle.jpg" );
     //GameBuilder_createRessourceCardTexture( game, eTileType::ERZ, "card_erz.jpg" );
 
+    game->ClearColor = irr::video::SColor( 255, 225, 225, 255 );
+    game->FontFileName = game->MediaDir + "fonts/FontAwesome.ttf";
+    game->FontAwesome = irr::gui::CGUITTFont::create( env, irr::core::stringw( game->FontFileName.c_str() ).c_str(), 32, true, false );
+
     game->Type = eGameType::STANDARD;
-    game->State = eGameState::GAME_INIT_BOARD;
+    game->State = eGameState::IDLE;
     game->Receiver = new EventReceiver( game );
     game->TileSize = glm::vec3( 100.0f, 20.0f, 100.0f );
     game->TileCount = glm::ivec2( 7, 7 );
 
     Game_createStandardTiles( game );
-    Game_createWaypoints( game );
+    Waypoints_create( game, 10.0f, 3.33f, 23, false );
+    Waypoints_create( game, 7.5f, 2.5f, 23, true );
     Game_createRaeuber( game );
     Game_createPlayers( game );
 
@@ -103,7 +151,9 @@ Game_createStandard( Game_t* game, irr::IrrlichtDevice* device )
 
     GameUI_create( game );
 
-    Game_printWaypoints( game );
+    Waypoints_print( game );
+
+    enumerateTextures( device->getVideoDriver() );
 }
 
 /// Start main loop:
@@ -151,6 +201,9 @@ Game_exec( Game_t * game )
                     {
                         guienv->drawAll();
                     }
+                    irr::core::dimension2du textSize = game->FontAwesome->getDimension( L"FPS" );
+                    //std::cout << toString( textSize ) << "\n";
+                    game->FontAwesome->draw( L"FPS", mkRect(30,30,textSize.Width,textSize.Height), 0xFFFFFF00, false, false, 0);
 
                     driver->endScene();
                 }
@@ -173,6 +226,9 @@ Game_exec( Game_t * game )
                     s << ", CAM-EYE(" << toString( camera->getTarget() ) << ")";
                     s << ", CAM-ROT(" << toString( camera->getRotation() ) << ")";
                 }
+
+                s << ", POLY(" << device->getVideoDriver()->getPrimitiveCountDrawn() << ")";
+                s << ", TEX(" << device->getVideoDriver()->getTextureCount() << ")";
 
                 device->setWindowCaption( irr::core::stringw( s.str().c_str() ).c_str() );
             }

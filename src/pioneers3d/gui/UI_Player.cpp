@@ -70,9 +70,9 @@ GameUI_createPlayerAction( Game_t * game, irr::core::recti const & pos )
 
     auto addButton = [game,env,&x,y,win] ( irr::gui::IGUIButton* & button, std::string name, eTexture tex ) -> void
     {
-        button = env->addButton( mkRect( x+10, y+5, 100, 80 ), win, -1, irr::core::stringw( name.c_str() ).c_str(), irr::core::stringw( name.c_str() ).c_str() );
+        button = env->addButton( mkRect( x+2, y+2, 80, 80 ), win, -1, L"", irr::core::stringw( name.c_str() ).c_str() );
         button->setImage( Game_getTexture( game, tex ) );
-        x += 110;
+        x += 85;
     };
 
     addButton( game->UI.PlayerAction.Dice, "Dice", eTexture::PLAYER_ACTION_DICE );

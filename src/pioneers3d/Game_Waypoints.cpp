@@ -7,21 +7,24 @@
 
 namespace pioneers3d {
 
-void Game_printWaypoints( Game_t * game )
+void Waypoints_print( Game_t * game )
 {
     if (!game) return;
-    GAME_LOG_ERROR( de::alphasonic::sprintf( "Waypoint.size() = %d", game->Waypoints.size() ) );
 
-    for ( size_t i = 0; i < game->Waypoints.size(); ++i )
-    {
-        Waypoint_t * w = &game->Waypoints[ i ];
-        if ( w )
-        {
-            GAME_LOG_ERROR( de::alphasonic::sprintf( "Waypoint[%d].Pos = (%s)", i, toString(w->Pos).c_str() ) );
-        }
-    }
+    uint32_t n = game->Waypoints.size();
+
+    std::cout << "Waypoints.size() = " << n << "\n";
+
+//    for ( size_t i = 0; i < n; ++i )
+//    {
+//        Waypoint_t * w = &game->Waypoints[ i ];
+//        if ( w )
+//        {
+//            std::cout << "Waypoint["<<i<<"]", i, toString(w->Pos).c_str() ) );
+//        }
+//    }
 }
-void Game_clearWaypoints( Game_t* game )
+void Waypoints_clear( Game_t* game )
 {
     if (!game) return;
 //    for ( size_t i = 0; i < game->Waypoints.size(); ++i )
@@ -45,7 +48,7 @@ Waypoint_t* Waypoint_findByPosition( Game_t * game, glm::vec3 pos )
         Waypoint_t * w = &game->Waypoints[ i ];
         if ( equals( w->Pos, pos ) )
         {
-            GAME_LOG_ERROR( de::alphasonic::sprintf( "Found waypoint[%d] at pos(%s)", i, toString(pos).c_str() ) )
+            //std::cout << __FUNCTION__ << " [Found] :: Waypoint(" << i << ") at pos(" << toString(pos) << ")\n";
             return w;
         }
     }
@@ -53,60 +56,83 @@ Waypoint_t* Waypoint_findByPosition( Game_t * game, glm::vec3 pos )
     return nullptr;
 }
 
-void Game_createWaypoints( Game_t * game )
+void Waypoint_add( Game_t * game, float32_t r,float32_t h, uint32_t tesselation, glm::vec3 pos, bool isRoad )
 {
-    if ( !game ) { GAME_LOG_ERROR("Invalid pointer to Game") return; }
-    if ( !game->Device ) { GAME_LOG_ERROR("Invalid pointer to IrrlichtDevice") return; }
+    assert ( game );
+    assert ( game->Device );
     irr::scene::ISceneManager* smgr = game->Device->getSceneManager();
-    if ( !smgr ) { GAME_LOG_ERROR("Invalid pointer to ISceneManager") return; }
-    game->Waypoints.clear();
 
-    auto addWaypoint = [game,smgr] ( glm::vec3 pos ) -> void
+    Waypoint_t* found = Waypoint_findByPosition( game, pos );
+    if ( found )
     {
-        assert ( game );
+        // std::cout << __FUNCTION__ << "(" << r << "," << h << "," << toString(pos) << ")\n";
+        return;
+    }
 
-        Waypoint_t* found = Waypoint_findByPosition( game, pos );
-        if ( found )
-            return;
+    irr::video::ITexture* tex = nullptr;
+    irr::video::SColor color = 0xFFFFFFFF;
+    if ( isRoad )
+    {
+        tex = Game_getTexture( game, eTexture::CHIP_W ); // W - Waypoint - A simple waypoint for roads
+        color = 0xFFFFFF00;
+    }
+    else
+    {
+        tex = Game_getTexture( game, eTexture::CHIP_S ); // S - Settlement point - A waypoint that can have buildings.
+        color = 0xFFFF0000;
+    }
 
-        //Waypoint_t* found = Game_findWaypoint( game, pos );
-        //if ( !found )
-        //return;
-        irr::video::ITexture* tex = Game_getTexture( game, eTexture::CHIP_S );
+    AutoSceneNode* node = new AutoSceneNode( smgr, smgr->getRootSceneNode(), -1 );
+    node->setPosition( pos );
 
-        AutoSceneNode* node = new AutoSceneNode( smgr, smgr->getRootSceneNode(), -1 );
-        node->setPosition( pos );
+    AutoMeshBuffer* hull = createCylinderHull( glm::vec3(0.0f, 0.5f*h, 0.0f), r, h, color.color, tesselation, 1 );
+    //hull->MeshBuffer.Material.setTexture( 0, tex );
+    node->add( hull, true );
 
-        AutoMeshBuffer* hull = createCylinderHull( glm::vec3(0.0f, 2.5f, 0.0f), 10.0f, 5.0f, 0xFFFFFFFF, 16, 1 );
-        hull->MeshBuffer.Material.setTexture( 0, tex );
-        node->add( hull, true );
+    AutoMeshBuffer* top = createCircleXZ( glm::vec3( 0.0f, h, 0.0f ), r, tesselation );
+    top->MeshBuffer.Material.setTexture( 0, tex );
+    node->add( top, true );
 
-        AutoMeshBuffer* top = createCircleXZ( glm::vec3( 0.0f, 5.0f, 0.0f ), 10.0f, 16 );
-        top->MeshBuffer.Material.setTexture( 0, tex );
-        node->add( top, true );
+    Waypoint_t way;
+    way.IsRoad = isRoad;
+    way.Pos = pos;
+    way.Node = node;
+    game->Waypoints.push_back( way );
 
-        Waypoint_t way;
-        way.Pos = pos;
-        way.Node = node;
-        game->Waypoints.push_back( way );
-    };
+    std::cout << __FUNCTION__ << ((isRoad) ? "R" : "S") << "(" << r << "," << h << "," << toString(pos) << ")\n";
+}
+
+void Waypoints_create( Game_t * game, float32_t radius, float32_t height, uint32_t tesselation, bool isRoad )
+{
+    assert ( game );
 
     for ( uint32_t i = 0; i < game->Tiles.size(); ++i )
     {
         Tile_t * tile = &game->Tiles[ i ];
 
-        for ( uint32_t k = 0; k < 6; ++k )
+        for ( uint32_t k = 1; k <= 6; ++k )
         {
-            glm::vec3 const pos = Tile_getCorner( tile, k, game->TileSize.x, game->TileSize.z );
-
-            if ( tile->Type != eTileType::WASSER && tile->Type != eTileType::LAND_WUESTE )
+            if ( !tile->Type.isWasser() && tile->Type != eTileType::LAND_WUESTE )
             {
-                addWaypoint( pos );
+                float32_t w = game->TileSize.x;
+                float32_t h = game->TileSize.z;
+
+                glm::vec3 pos;
+                if ( isRoad )
+                {
+                    pos = Tile_getEdgeCenter( tile, k, w, h );
+                }
+                else
+                {
+                    pos = Tile_getCorner( tile, k, w, h );
+                }
+
+                Waypoint_add( game, radius, height, tesselation, pos, isRoad );
             }
         }
     }
 
-    GAME_LOG_ERROR( de::alphasonic::sprintf( "added (%d) waypoints", game->Waypoints.size() ) )
+    std::cout << __FUNCTION__ << "() :: added ("<< game->Waypoints.size() << ") waypoints of type (" << ( isRoad ? "R" : "S" )<< ").\n";
 }
 
 } // end namespace pioneers3d
