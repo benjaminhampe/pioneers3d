@@ -4,7 +4,23 @@
 #include <pioneers3d/Types.hpp>
 #include <pioneers3d/EventReceiver.hpp>
 
+#include <pioneers3d/gui/UI_Card.hpp>
+#include <pioneers3d/gui/UI_HelpWindow.hpp>
 namespace pioneers3d {
+
+inline void Textures_print( irr::video::IVideoDriver* driver )
+{
+    std::cout << "TexCount = " << driver->getTextureCount() << "\n";
+
+    for ( uint32_t i = 0; i < driver->getTextureCount(); ++i )
+    {
+        irr::video::ITexture* tex = driver->getTextureByIndex( i );
+        if ( tex )
+        {
+            std::cout << "Tex[" << i << "] = " << tex->getName().getPath().c_str() << "\n";
+        }
+    }
+}
 
 std::string
 Game_toXML( Game_t* game );

@@ -1,7 +1,7 @@
 #include "Game_Raeuber.hpp"
 
 #include <pioneers3d/Game_Logger.hpp>
-#include <pioneers3d/Game_Textures.hpp>
+#include <pioneers3d/Game_Texture.hpp>
 
 namespace pioneers3d {
 

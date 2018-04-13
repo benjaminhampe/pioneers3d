@@ -10,6 +10,7 @@
 #include <common/Types.hpp>
 #include <common/BaseEventReceiver.hpp>
 #include <common/StringUtils.hpp>
+#include <common/FontUtils.hpp>
 #include <common/ImageUtils.hpp>
 #include <common/AutoMeshBuffer.hpp>
 #include <common/AutoSceneNode.hpp>

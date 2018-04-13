@@ -9,6 +9,7 @@
 #include <ustring.hpp>
 #include <CXMLWriterUTF8.hpp>
 #include <CGUITTFont.hpp>
+#include <BaseWindow.hpp>
 
 typedef float float32_t;
 typedef double float64_t;
@@ -46,6 +47,12 @@ convertToNormalized( int16_t value )
         return 0.5f + static_cast< float32_t >(value)/65534.0f;
     else
         return 0.5f + static_cast< float32_t >(value)/65536.0f;
+}
+
+inline irr::core::recti
+mkRect( int32_t x, int32_t y, irr::core::dimension2du size )
+{
+    return irr::core::recti( irr::core::position2di( x, y ), size );
 }
 
 inline irr::core::recti

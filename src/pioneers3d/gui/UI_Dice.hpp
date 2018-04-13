@@ -5,7 +5,7 @@
 
 namespace pioneers3d {
 
-void GameUI_createDice( Game_t * game, irr::core::recti const & pos );
+void DiceUI_create( Game_t * game, irr::core::recti const & pos );
 
 } // end namespace pioneers3d
 

@@ -5,6 +5,7 @@
 
 namespace pioneers3d {
 
+void BankUI_create( Game_t * game, irr::core::recti const & pos );
 
 } // end namespace pioneers3d
 

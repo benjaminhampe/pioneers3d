@@ -79,15 +79,9 @@ HEADERS	+= \
 	src/pioneers3d/eTileType.hpp \
 	src/pioneers3d/Types.hpp \
 	src/pioneers3d/Game.hpp \
-	src/pioneers3d/Game_Textures.hpp \
-	src/pioneers3d/Game_Waypoints.hpp \
 	src/pioneers3d/Game_Camera.hpp \
-	src/pioneers3d/Game_Tiles.hpp \
-	src/pioneers3d/Game_Players.hpp \
 	src/pioneers3d/EventReceiver.hpp \
-	src/pioneers3d/gui/MainMenu.hpp \
 	src/pioneers3d/gui/UI_Player.hpp \
-	src/pioneers3d/gui/UI_Game.hpp \
 	src/pioneers3d/gui/UI_Trade.hpp \
 	src/pioneers3d/gui/UI_Dice.hpp \
 	src/pioneers3d/gui/UI_Camera.hpp \
@@ -95,7 +89,20 @@ HEADERS	+= \
 	src/pioneers3d/gui/UI_Chat.hpp \
 	src/pioneers3d/Game_Logger.hpp \
 	src/pioneers3d/gui/UI_Bank.hpp \
-	src/pioneers3d/gui/UI_Card.hpp
+	src/pioneers3d/gui/UI_Card.hpp \
+    src/pioneers3d/Game_Bank.hpp \
+    src/pioneers3d/Game_Action.hpp \
+    src/common/FontUtils.hpp \
+    src/pioneers3d/gui/UI_Action.hpp \
+    src/pioneers3d/Game_Tile.hpp \
+    src/pioneers3d/Game_Waypoint.hpp \
+    src/pioneers3d/Game_Texture.hpp \
+    src/pioneers3d/Game_Player.hpp \
+    src/pioneers3d/gui/UI_MainMenu.hpp \
+    src/pioneers3d/gui/UI_HelpWindow.hpp \
+    src/pioneers3d/Game_Font.hpp \
+    src/pioneers3d/eAction.hpp \
+    src/pioneers3d/gui/UI_Window.hpp
 
 SOURCES += \
 	src/common/AutoMeshBuffer.cpp \
@@ -120,14 +127,8 @@ SOURCES += \
 	src/pioneers3d/Game.cpp \
 	src/pioneers3d/main_Pioneers3D.cpp \
 	src/pioneers3d/Types.cpp \
-	src/pioneers3d/Game_Textures.cpp \
-	src/pioneers3d/Game_Waypoints.cpp \
 	src/pioneers3d/Game_Camera.cpp \
-	src/pioneers3d/Game_Tiles.cpp \
-	src/pioneers3d/Game_Players.cpp \
-	src/pioneers3d/gui/MainMenu.cpp \
 	src/pioneers3d/gui/UI_Player.cpp \
-	src/pioneers3d/gui/UI_Game.cpp \
 	src/pioneers3d/gui/UI_Trade.cpp \
 	src/pioneers3d/gui/UI_Dice.cpp \
 	src/pioneers3d/gui/UI_Camera.cpp \
@@ -135,4 +136,16 @@ SOURCES += \
 	src/pioneers3d/gui/UI_Chat.cpp \
 	src/pioneers3d/Game_Logger.cpp \
 	src/pioneers3d/gui/UI_Bank.cpp \
-	src/pioneers3d/gui/UI_Card.cpp
+	src/pioneers3d/gui/UI_Card.cpp \
+    src/pioneers3d/Game_Bank.cpp \
+    src/pioneers3d/Game_Action.cpp \
+    src/common/FontUtils.cpp \
+    src/pioneers3d/gui/UI_Action.cpp \
+    src/pioneers3d/Game_Player.cpp \
+    src/pioneers3d/Game_Texture.cpp \
+    src/pioneers3d/Game_Waypoint.cpp \
+    src/pioneers3d/Game_Tile.cpp \
+    src/pioneers3d/gui/UI_MainMenu.cpp \
+    src/pioneers3d/gui/UI_HelpWindow.cpp \
+    src/pioneers3d/Game_Font.cpp \
+    src/pioneers3d/gui/UI_Window.cpp

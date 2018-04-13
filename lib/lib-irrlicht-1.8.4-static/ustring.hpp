@@ -171,11 +171,12 @@ enum EUTF_ENDIAN
 //! \return An array that contains a byte order mark.
 inline core::array<u8> getUnicodeBOM(EUTF_ENCODE mode)
 {
-#define COPY_ARRAY(source, size) \
-    memcpy(ret.pointer(), source, size); \
-    ret.set_used(size)
+    #define COPY_ARRAY(source, size) \
+        memcpy(ret.pointer(), source, size); \
+        ret.set_used(size)
 
     core::array<u8> ret(4);
+
     switch (mode)
     {
         case EUTFE_UTF8:
@@ -207,10 +208,11 @@ inline core::array<u8> getUnicodeBOM(EUTF_ENCODE mode)
         case EUTFE_UTF32_LE:
             COPY_ARRAY(BOM_ENCODE_UTF32_LE, BOM_ENCODE_UTF32_LEN);
             break;
+        default:
+            break;
     }
     return ret;
-
-#undef COPY_ARRAY
+    #undef COPY_ARRAY
 }
 
 //! Detects if the given data stream starts with a unicode BOM.

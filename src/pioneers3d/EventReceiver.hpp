@@ -2,6 +2,7 @@
 #define PIONEERS3D_BASE_EVENT_RECEIVER_HPP
 
 #include <pioneers3d/Types.hpp>
+#include <pioneers3d/Game_Camera.hpp>
 
 namespace pioneers3d {
 
@@ -15,6 +16,8 @@ public:
 
 public:
     Game_t* m_Game = nullptr;
+
+    CylinderCamera m_Camera;
 };
 
 

@@ -1,6 +1,6 @@
 #include "Game_Camera.hpp"
 
-#include <pioneers3d/gui/UI_Game.hpp>
+#include <pioneers3d/gui/UI_HelpWindow.hpp>
 #include <pioneers3d/EventReceiver.hpp>
 
 namespace pioneers3d {

@@ -1,11 +1,11 @@
 #include "UI_Chat.hpp"
-
+#include <pioneers3d/gui/UI_Window.hpp>
 namespace pioneers3d {
 
 void GameUI_createChat( Game_t * game, irr::core::recti const & pos )
 {
     irr::gui::IGUIEnvironment* env = game->Device->getGUIEnvironment();
-    irr::gui::IGUIWindow* win = env->addWindow( pos, false, L"Chat & Logs:", env->getRootGUIElement() );
+    GUI_Window_t* win = GameUI_addWindow( game, "Chat & Logs:", pos, env, env->getRootGUIElement() );
     irr::core::recti r_client = win->getClientRect();
     int x = r_client.UpperLeftCorner.X;
     int y = r_client.UpperLeftCorner.Y;

@@ -41,10 +41,12 @@ HEADERS += \
 	$$PWD/irrBackend.hpp \
     $$PWD/ustring.hpp \
     $$PWD/CGUITTFont.hpp \
-    $$PWD/CXMLWriterUTF8.hpp
+    $$PWD/CXMLWriterUTF8.hpp \
+    $$PWD/BaseWindow.hpp
     $$PWD/ustring.hpp
 
 SOURCES += \
 	$$PWD/irrBackend.cpp \
     $$PWD/CGUITTFont.cpp \
-    $$PWD/CXMLWriterUTF8.cpp
+    $$PWD/CXMLWriterUTF8.cpp \
+    $$PWD/BaseWindow.cpp

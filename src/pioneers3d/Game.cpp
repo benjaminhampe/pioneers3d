@@ -1,36 +1,33 @@
 #include "Game.hpp"
 
-#include <pioneers3d/gui/UI_Game.hpp>
 #include <pioneers3d/Game_Logger.hpp>
-#include <pioneers3d/Game_Textures.hpp>
-#include <pioneers3d/Game_Tiles.hpp>
-#include <pioneers3d/Game_Waypoints.hpp>
-#include <pioneers3d/Game_Players.hpp>
+#include <pioneers3d/Game_Font.hpp>
+#include <pioneers3d/Game_Texture.hpp>
+#include <pioneers3d/Game_Tile.hpp>
+#include <pioneers3d/Game_Waypoint.hpp>
+#include <pioneers3d/Game_Player.hpp>
 #include <pioneers3d/Game_Camera.hpp>
 #include <pioneers3d/Game_Raeuber.hpp>
 
+#include <pioneers3d/gui/UI_Action.hpp>
+#include <pioneers3d/gui/UI_Card.hpp>
+#include <pioneers3d/gui/UI_Bank.hpp>
+#include <pioneers3d/gui/UI_Trade.hpp>
+#include <pioneers3d/gui/UI_Dice.hpp>
+#include <pioneers3d/gui/UI_Player.hpp>
+#include <pioneers3d/gui/UI_Chat.hpp>
+#include <pioneers3d/gui/UI_Camera.hpp>
+#include <pioneers3d/gui/UI_MainMenu.hpp>
+#include <pioneers3d/gui/UI_HelpWindow.hpp>
+
 namespace pioneers3d {
-
-void enumerateTextures( irr::video::IVideoDriver* driver )
-{
-    std::cout << "TexCount = " << driver->getTextureCount() << "\n";
-
-    for ( uint32_t i = 0; i < driver->getTextureCount(); ++i )
-    {
-        irr::video::ITexture* tex = driver->getTextureByIndex( i );
-        if ( tex )
-        {
-            std::cout << "Tex[" << i << "] = " << tex->getName().getPath().c_str() << "\n";
-        }
-    }
-}
 
 void
 Game_clear( Game_t* game )
 {
     Waypoints_clear( game );
-    Game_clearTiles( game );
-    Game_clearPlayers( game );
+    Tiles_clear( game );
+    Players_clear( game );
 }
 
 std::string
@@ -99,22 +96,20 @@ Game_createStandard( Game_t* game )
     //GameBuilder_createRessourceCardTexture( game, eTileType::WOLLE, "card_wolle.jpg" );
     //GameBuilder_createRessourceCardTexture( game, eTileType::ERZ, "card_erz.jpg" );
 
+    Game_createFonts( game );
     game->ClearColor = irr::video::SColor( 255, 225, 225, 255 );
-    game->FontFileName = game->MediaDir + "fonts/FontAwesome.ttf";
-    game->FontAwesome = irr::gui::CGUITTFont::create( env, irr::core::stringw( game->FontFileName.c_str() ).c_str(), 32, true, false );
-
     game->Type = eGameType::STANDARD;
     game->State = eGameState::IDLE;
     game->Receiver = new EventReceiver( game );
     game->TileSize = glm::vec3( 100.0f, 20.0f, 100.0f );
     game->TileCount = glm::ivec2( 7, 7 );
 
-    Game_createStandardTiles( game );
+    Tiles_createStandard( game );
     Waypoints_create( game, 10.0f, 3.33f, 23, false );
     Waypoints_create( game, 7.5f, 2.5f, 23, true );
     Game_createRaeuber( game );
-    Game_createPlayers( game );
-
+    Players_create( game );
+/*
     // create camera
     {
         irr::SKeyMap keyMap[6];
@@ -136,7 +131,7 @@ Game_createStandard( Game_t* game )
         camera->setPosition( irr::core::vector3df(0,300,-300) );
         camera->setTarget( irr::core::vector3df(0,-60,-60) );
     }
-
+*/
     // addSkyBox( AutoSceneNode* )
     {
         irr::video::ITexture* top = Game_getTexture( game, eTexture::SKYBOX_TOP );
@@ -149,11 +144,29 @@ Game_createStandard( Game_t* game )
         smgr->addSkyBoxSceneNode( top, bottom, left, right, front, back, smgr->getRootSceneNode(), -1 );
     }
 
-    GameUI_create( game );
+    if ( env )
+    {
+        std::cout << __FUNCTION__ << " [Begin] :: Create GUI...\n";
 
+        irr::core::dimension2du const screen = driver->getScreenSize();
+
+        GameUI_createChat( game, mkRect( screen.Width/2+100, screen.Height/4, screen.Width/2 - 150, screen.Height/2 ) );
+        GameLogger::singleton().setLogBox( game->UI.Chat.LogBox );
+        MainMenuUI_create( game );
+        ActionUI_create( game, mkRect( 100, 10, 900, 150 ) );
+        PlayerUI_create( game, mkRect( 10, screen.Height - 210, screen.Width - 100, 200 ) );
+        DiceUI_create( game, mkRect( screen.Width - 300, 10, 250, 200 ) );
+        BankUI_create( game, mkRect( 10, (screen.Height - 200)/2, 400, 160 ) );
+        HelpWindowUI_create( game );
+
+        std::cout << __FUNCTION__ << " [End] :: Create GUI...\n";
+    }
+
+    std::cout << __FUNCTION__ << " [Begin] :: Debug\n";
     Waypoints_print( game );
 
-    enumerateTextures( device->getVideoDriver() );
+    Textures_print( device->getVideoDriver() );
+    std::cout << __FUNCTION__ << " [End] :: Debug\n";
 }
 
 /// Start main loop:
@@ -201,10 +214,9 @@ Game_exec( Game_t * game )
                     {
                         guienv->drawAll();
                     }
-                    irr::core::dimension2du textSize = game->FontAwesome->getDimension( L"FPS" );
-                    //std::cout << toString( textSize ) << "\n";
-                    game->FontAwesome->draw( L"FPS", mkRect(30,30,textSize.Width,textSize.Height), 0xFFFFFF00, false, false, 0);
 
+                    std::stringstream s; s << "FPS(" << std::to_string( driver->getFPS() ) << ")";
+                    Font_draw( Game_getFont( game, eFontType::FPS_COUNTER ), s.str(), 30,30, 0xFFFFFF00 );
                     driver->endScene();
                 }
 
@@ -239,9 +251,6 @@ Game_exec( Game_t * game )
         }
 
     }
-
-    GameLogger::singleton().setLogBox( nullptr );
-    device->drop();
     return 0;
 }
 

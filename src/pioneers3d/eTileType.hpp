@@ -43,6 +43,11 @@ public:
         HAFEN_ERZ = WASSER | ERZ,
         FORCE32BIT = 0x7FFFFFFF
     };
+    static eTileType holz() { return eTileType::HOLZ; }
+    static eTileType lehm() { return eTileType::LEHM; }
+    static eTileType weizen() { return eTileType::WEIZEN; }
+    static eTileType wolle() { return eTileType::WOLLE; }
+    static eTileType erz() { return eTileType::ERZ; }
 
     eTileType() : m_TileType( UNKNOWN ) {}
     eTileType( EType type ) : m_TileType( type ) {}
@@ -53,29 +58,37 @@ public:
     bool isRessource() const { return 0 != (m_TileType & RESSOURCE_MASK); }
     bool isHafen() const { return isWasser() && isRessource() ; }
 
-    bool has( EType flags ) const { return 0 != (m_TileType & flags); }
+    bool contains( EType flags ) const
+    {
+        return (m_TileType & flags) != 0;
+    }
 
     void set( EType flags ) { m_TileType = flags; }
     EType get() const { return m_TileType; }
     operator EType () const { return m_TileType; }
 
+//    bool isRessource( eTileType tileType ) const
+//    {
+//        return ((m_TileType & RESSOURCE_MASK) & tileType) != 0;
+//    }
+
     uint32_t getRessourceColor() const
     {
-             if ( has( HOLZ ) ) return 0xFF00C000;
-        else if ( has( LEHM ) ) return 0xFF0000FF;
-        else if ( has( WEIZEN ) ) return 0xFFFFFF00;
-        else if ( has( WOLLE ) ) return 0xFF60FF60;
-        else if ( has( ERZ ) ) return 0xFFFF0000;
+             if ( contains( HOLZ ) ) return 0xFF00C000;
+        else if ( contains( LEHM ) ) return 0xFF0000FF;
+        else if ( contains( WEIZEN ) ) return 0xFFFFFF00;
+        else if ( contains( WOLLE ) ) return 0xFF60FF60;
+        else if ( contains( ERZ ) ) return 0xFFFF0000;
         else return 0xFFFF00FF;
     }
 
     std::string getRessourceString() const
     {
-             if ( has( HOLZ ) ) return "holz";
-        else if ( has( LEHM ) ) return "lehm";
-        else if ( has( WEIZEN ) ) return "weizen";
-        else if ( has( WOLLE ) ) return "wolle";
-        else if ( has( ERZ ) ) return "erz";
+             if ( contains( HOLZ ) ) return "holz";
+        else if ( contains( LEHM ) ) return "lehm";
+        else if ( contains( WEIZEN ) ) return "weizen";
+        else if ( contains( WOLLE ) ) return "wolle";
+        else if ( contains( ERZ ) ) return "erz";
         else return "";
     }
 
@@ -89,12 +102,12 @@ public:
 
         if ( isLand() ) s << "LAND";
         if ( isHafen() ) s << "HAFEN";
-        if ( has( BANK) ) s << "_3zu1";
-        if ( has( HOLZ ) ) s << "_HOLZ";
-        if ( has( LEHM ) ) s << "_LEHM";
-        if ( has( WEIZEN ) ) s << "_WEIZEN";
-        if ( has( WOLLE ) ) s << "_WOLLE";
-        if ( has( ERZ ) ) s << "_ERZ";
+        if ( contains( BANK) ) s << "_3zu1";
+        if ( contains( HOLZ ) ) s << "_HOLZ";
+        if ( contains( LEHM ) ) s << "_LEHM";
+        if ( contains( WEIZEN ) ) s << "_WEIZEN";
+        if ( contains( WOLLE ) ) s << "_WOLLE";
+        if ( contains( ERZ ) ) s << "_ERZ";
 
         return s.str();
     }

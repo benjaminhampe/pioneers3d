@@ -1,88 +1,64 @@
 #include "UI_Player.hpp"
 
-#include <pioneers3d/Game_Textures.hpp>
+#include <pioneers3d/Game_Texture.hpp>
+#include <pioneers3d/Game_Player.hpp>
 #include <pioneers3d/gui/UI_Card.hpp>
+#include <pioneers3d/gui/UI_Window.hpp>
 
 namespace pioneers3d {
 
-void GameUI_updatePlayerAction( Game_t * game )
+void
+PlayerUI_update( Game_t * game )
 {
 
 }
 
 void
-GameUI_createPlayerInfo( Game_t * game, irr::core::recti const & pos )
+PlayerUI_create( Game_t * game, irr::core::recti const & pos )
 {
     std::cout << __FUNCTION__ << "(" << toString( pos ) << ")\n";
-    //irr::IrrlichtDevice* device = game->Device;
-    //irr::video::IVideoDriver* driver = device->getVideoDriver();
-    //irr::core::dimension2du screen = driver->getScreenSize();
+
     irr::gui::IGUIEnvironment* env = game->Device->getGUIEnvironment();
-    irr::gui::IGUIWindow* win = env->addWindow( pos, false, L"PlayerInfo", env->getRootGUIElement() );
+    GUI_Window_t* win = GameUI_addWindow( game, "Player", pos, env, env->getRootGUIElement() );
     irr::core::recti r_client = win->getClientRect();
-
-    game->UI.PlayerInfo.Window = win;
-
-    // Game_createBank( game, win, game->UI.PlayerInfo.Cards, irr::core::recti( 10, 10, 500, 200 ) );
-    //int w = r_client.getWidth();
-    //int h = r_client.getHeight();
+    irr::gui::IGUIFont* font = Font_create( env, game->MediaDir + "fonts/DejaVuSansMono.ttf", 12, true, true );
     int x = r_client.UpperLeftCorner.X;
     int y = r_client.UpperLeftCorner.Y;
     int dx = 64;
     int dy = 128;
-    int b = 10;
-    createGUIImage( env, win, mkRect(x+b,y+32,64,64), Game_getPlayerTexture( game, 1 ) ); x += dx + b;
+    int b = 5;
+    game->UI.Player.Window = win;
+    createGUIImage( env, win, mkRect(x+b,   y+b,96,96), Game_getPlayerTexture( game, 1 ) );
+    createGUIImage( env, win, mkRect(x+b,   y+b+96+b,32,32), Game_getTexture( game, eTexture::STAT_ROAD ) );
+    createGUIImage( env, win, mkRect(x+b+32,y+b+96+b,32,32), Game_getTexture( game, eTexture::STAT_SETTLEMENT ) );
+    createGUIImage( env, win, mkRect(x+b+64,y+b+96+b,32,32), Game_getTexture( game, eTexture::STAT_CITY ) );
+    x += 96 + b;
 
-    auto addCard = [game,env,win,&x,y,dx,dy,b] ( GUI_Card_t & card, std::string name, std::string value, eTexture tex )
+    auto addCard = [game,env,win,font,&x,y,dx,dy,b] ( GUI_Card_t* & card, std::string name, std::string value, eTexture tex, uint32_t color )
     {
-        GUI_Card_create( env, win, mkRect(x,y,dx,dy), card, name, Game_getTexture( game, tex), value );
+        card = new GUI_Card_t( env, win, -1, mkRect(x,y,dx,dy) );
+        card->setTexture( Game_getTexture( game, tex ) );
+        Text_t t_title( name, color, font );
+        Text_t t_value( value, 0xFFFFFFFF, font );
+        card->setTitle( std::move( t_title ) );
+        card->setValue( std::move( t_value ) );
         x += dx + b;
     };
 
-    addCard( game->UI.PlayerInfo.Holz, "Holz", "1", eTexture::PLAYER_HOLZ );
-    addCard( game->UI.PlayerInfo.Lehm, "Lehm", "0", eTexture::PLAYER_LEHM );
-    addCard( game->UI.PlayerInfo.Weizen, "Weizen", "0", eTexture::PLAYER_WEIZEN );
-    addCard( game->UI.PlayerInfo.Wolle, "Wolle", "0", eTexture::PLAYER_WOLLE );
-    addCard( game->UI.PlayerInfo.Erz, "Erz", "0", eTexture::PLAYER_ERZ );
+    addCard( game->UI.Player.Holz, "Holz", "0", eTexture::CARD_HOLZ,      eTileType::holz().getRessourceColor() );
+    addCard( game->UI.Player.Lehm, "Lehm", "0", eTexture::CARD_LEHM,      eTileType::lehm().getRessourceColor() );
+    addCard( game->UI.Player.Weizen, "Weizen", "0", eTexture::CARD_WEIZEN, eTileType::weizen().getRessourceColor() );
+    addCard( game->UI.Player.Wolle, "Wolle", "0", eTexture::CARD_WOLLE,   eTileType::wolle().getRessourceColor() );
+    addCard( game->UI.Player.Erz, "Erz", "0", eTexture::CARD_ERZ,         eTileType::erz().getRessourceColor() );
 
-    addCard( game->UI.PlayerInfo.Roads, "Roads", "0", eTexture::PLAYER_ROAD );
-    addCard( game->UI.PlayerInfo.Settlements, "Settlements", "0", eTexture::PLAYER_SETTLEMENT );
-    addCard( game->UI.PlayerInfo.Cities, "Cities", "0", eTexture::PLAYER_CITY );
-
-    addCard( game->UI.PlayerInfo.EventCards, "Event Cards", "0", eTexture::PLAYER_EVENT_CARD );
-    addCard( game->UI.PlayerInfo.KnightCards, "Knight Cards", "0", eTexture::PLAYER_KNIGHT_CARD );
-    addCard( game->UI.PlayerInfo.PointCards, "Point Cards", "0", eTexture::PLAYER_POINT_CARD );
-
-    addCard( game->UI.PlayerInfo.BonusLongestRoad, "Bonus", "Longest Road", eTexture::PLAYER_BONUS_LONGEST_ROAD );
-    addCard( game->UI.PlayerInfo.BonusLongestRoad, "Bonus", "Biggest Army", eTexture::PLAYER_BONUS_BIGGEST_ARMY );
-}
-
-void
-GameUI_createPlayerAction( Game_t * game, irr::core::recti const & pos )
-{
-    irr::IrrlichtDevice* device = game->Device;
-    irr::gui::IGUIEnvironment* env = device->getGUIEnvironment();
-    irr::gui::IGUIWindow* win = env->addWindow( pos, false, L"Player Action Menu | Player (0) Benni", env->getRootGUIElement() );
-    irr::core::recti rc = win->getClientRect();
-    int x = rc.UpperLeftCorner.X;
-    int y = rc.UpperLeftCorner.Y;
-    game->UI.PlayerAction.Window = win;
-
-    auto addButton = [game,env,&x,y,win] ( irr::gui::IGUIButton* & button, std::string name, eTexture tex ) -> void
-    {
-        button = env->addButton( mkRect( x+2, y+2, 80, 80 ), win, -1, L"", irr::core::stringw( name.c_str() ).c_str() );
-        button->setImage( Game_getTexture( game, tex ) );
-        x += 85;
-    };
-
-    addButton( game->UI.PlayerAction.Dice, "Dice", eTexture::PLAYER_ACTION_DICE );
-    addButton( game->UI.PlayerAction.Bank, "Bank", eTexture::PLAYER_ACTION_BANK );
-    addButton( game->UI.PlayerAction.Trade, "Trade", eTexture::PLAYER_ACTION_TRADE );
-    addButton( game->UI.PlayerAction.BuyCard, "Buy Event Card", eTexture::PLAYER_ACTION_BUY_EVENT_CARD );
-    addButton( game->UI.PlayerAction.BuyRoad, "Buy Road", eTexture::PLAYER_ACTION_BUY_ROAD );
-    addButton( game->UI.PlayerAction.BuySett, "Buy Settlement", eTexture::PLAYER_ACTION_BUY_SETTLEMENT );
-    addButton( game->UI.PlayerAction.BuyCity, "Buy City", eTexture::PLAYER_ACTION_BUY_CITY );
-    addButton( game->UI.PlayerAction.EndRound, "End Round", eTexture::PLAYER_ACTION_ENDTURN );
+//    addCard( game->UI.Player.Roads, "Roads", "0", eTexture::STAT_ROAD,  0xFFCCCCCC );
+//    addCard( game->UI.Player.Settlements, "Settlements", "0", eTexture::STAT_SETTLEMENT, 0xFFDDDDDD );
+//    addCard( game->UI.Player.Cities, "Cities", "0", eTexture::STAT_CITY, 0xFFEEEEEE );
+    addCard( game->UI.Player.EventCards, "Event Cards", "0", eTexture::CARD_EVENT, 0xFFFFFFFF );
+    addCard( game->UI.Player.KnightCards, "Knight Cards", "0", eTexture::CARD_KNIGHT, 0xFFFFFFFF );
+    addCard( game->UI.Player.PointCards, "Point Cards", "0", eTexture::CARD_POINT, 0xFFFFFFFF );
+    addCard( game->UI.Player.BonusRoad, "Bonus", "Longest Road", eTexture::CARD_BONUS_ROAD, 0xFFFFFFFF );
+    addCard( game->UI.Player.BonusArmy, "Bonus", "Biggest Army", eTexture::CARD_BONUS_ARMY, 0xFFFFFFFF );
 }
 
 

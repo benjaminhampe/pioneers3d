@@ -51,36 +51,38 @@ enum class eTexture : uint32_t
     TILE_WEIZEN,
     TILE_WOLLE,
     TILE_ERZ,
+    CARD_HOLZ, // Composed ressource card texture
+    CARD_LEHM,  // Composed ressource card texture
+    CARD_WEIZEN,    // Composed ressource card texture
+    CARD_WOLLE, // Composed ressource card texture
+    CARD_ERZ,   // Composed ressource card texture
+    CARD_EVENT,  // Composed event card texture
+    CARD_KNIGHT,  // Composed event card texture
+    CARD_POINT,  // Composed event card texture
+    CARD_INVENTION,  // Composed event card texture
+    CARD_BONUS,  // Composed event card texture
+    CARD_BONUS_ARMY,  // Composed event card texture
+    CARD_BONUS_ROAD,  // Composed event card texture
+    STAT_ROAD,  // Composed icon texture
+    STAT_SETTLEMENT,  // Composed icon texture
+    STAT_CITY,  // Composed icon texture
+    ACTION_DICE,
+    ACTION_PLACE_ROBBER,
+    ACTION_ENDTURN,
+    ACTION_TRADE,
+    ACTION_BANK,
+    ACTION_BUY_EVENT_CARD,
+    ACTION_PLAY_EVENT_CARD,
+    ACTION_BUY_ROAD,
+    ACTION_BUY_SETTLEMENT,
+    ACTION_BUY_CITY,
     PLAYER_ICON,
     PLAYER_ICON_1,
     PLAYER_ICON_2,
     PLAYER_ICON_3,
     PLAYER_ICON_4,
-    PLAYER_HOLZ,
-    PLAYER_LEHM,
-    PLAYER_WEIZEN,
-    PLAYER_WOLLE,
-    PLAYER_ERZ,
-    PLAYER_ROAD,
-    PLAYER_SETTLEMENT,
-    PLAYER_CITY,
-    PLAYER_EVENT_CARD,
-    PLAYER_KNIGHT_CARD,
-    PLAYER_POINT_CARD,
-    PLAYER_BONUS_UNKNOWN,
-    PLAYER_BONUS_LONGEST_ROAD,
-    PLAYER_BONUS_BIGGEST_ARMY,
-    PLAYER_ACTION_DICE,
-    PLAYER_ACTION_ENDTURN,
-    PLAYER_ACTION_TRADE,
-    PLAYER_ACTION_BANK,
-    PLAYER_ACTION_BUY_EVENT_CARD,
-    PLAYER_ACTION_PLAY_EVENT_CARD,
-    PLAYER_ACTION_BUY_ROAD,
-    PLAYER_ACTION_BUY_SETTLEMENT,
-    PLAYER_ACTION_BUY_CITY,
     TEX_ROBBER,
-    TEX_TILE_BORDER,
+    TEX_TILE_BG,
     TEX_ROAD,
     TEX_SETTLEMENT = TEX_ROAD,
     TEX_CITY = TEX_ROAD,

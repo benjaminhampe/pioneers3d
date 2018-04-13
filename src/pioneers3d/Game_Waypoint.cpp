@@ -1,7 +1,7 @@
-#include "Game_Waypoints.hpp"
+#include "Game_Waypoint.hpp"
 
-#include <pioneers3d/Game_Textures.hpp>
-#include <pioneers3d/Game_Tiles.hpp>
+#include <pioneers3d/Game_Texture.hpp>
+#include <pioneers3d/Game_Tile.hpp>
 
 #include <pioneers3d/Game_Logger.hpp>
 
