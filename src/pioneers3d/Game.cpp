@@ -1,33 +1,33 @@
 #include "Game.hpp"
 
 #include <pioneers3d/Game_Logger.hpp>
+#include <pioneers3d/Game_EventReceiver.hpp>
 #include <pioneers3d/Game_Font.hpp>
 #include <pioneers3d/Game_Texture.hpp>
+#include <pioneers3d/Game_Chat.hpp>
 #include <pioneers3d/Game_Tile.hpp>
 #include <pioneers3d/Game_Waypoint.hpp>
 #include <pioneers3d/Game_Player.hpp>
 #include <pioneers3d/Game_Camera.hpp>
 #include <pioneers3d/Game_Raeuber.hpp>
-
-#include <pioneers3d/gui/UI_Action.hpp>
-#include <pioneers3d/gui/UI_Card.hpp>
-#include <pioneers3d/gui/UI_Bank.hpp>
-#include <pioneers3d/gui/UI_Trade.hpp>
-#include <pioneers3d/gui/UI_Dice.hpp>
-#include <pioneers3d/gui/UI_Player.hpp>
-#include <pioneers3d/gui/UI_Chat.hpp>
-#include <pioneers3d/gui/UI_Camera.hpp>
-#include <pioneers3d/gui/UI_MainMenu.hpp>
-#include <pioneers3d/gui/UI_HelpWindow.hpp>
+#include <pioneers3d/Game_UI.hpp>
 
 namespace pioneers3d {
 
 void
 Game_clear( Game_t* game )
 {
-    Waypoints_clear( game );
-    Tiles_clear( game );
-    Players_clear( game );
+    clearWaypoints( game );
+    clearTiles( game );
+    clearPlayers( game );
+}
+
+
+void
+Game_destroy( Game_t* game )
+{
+    Chat_destroy( game );
+    Game_clearFonts( game );
 }
 
 std::string
@@ -76,9 +76,7 @@ Game_createStandard( Game_t* game )
 //    game.save( "standard_test2.xml" );
 
     assert( device );
-
     srand( (unsigned int)time(NULL) );
-
     game->Device = device;
     game->MediaDir = "../../media/";
 
@@ -97,41 +95,22 @@ Game_createStandard( Game_t* game )
     //GameBuilder_createRessourceCardTexture( game, eTileType::ERZ, "card_erz.jpg" );
 
     Game_createFonts( game );
+    Chat_create( game );
     game->ClearColor = irr::video::SColor( 255, 225, 225, 255 );
     game->Type = eGameType::STANDARD;
     game->State = eGameState::IDLE;
     game->Receiver = new EventReceiver( game );
     game->TileSize = glm::vec3( 100.0f, 20.0f, 100.0f );
     game->TileCount = glm::ivec2( 7, 7 );
+    game->TileSelector = smgr->createMetaTriangleSelector();
+    game->WaypointSelector = smgr->createMetaTriangleSelector();
 
-    Tiles_createStandard( game );
-    Waypoints_create( game, 10.0f, 3.33f, 23, false );
-    Waypoints_create( game, 7.5f, 2.5f, 23, true );
+    createStandardTiles( game );
+    createWaypoints( game, 10.0f, 5.00f, 13, false );
+    createWaypoints( game, 7.5f, 3.33f, 13, true );
     Game_createRaeuber( game );
-    Players_create( game );
-/*
-    // create camera
-    {
-        irr::SKeyMap keyMap[6];
-        keyMap[0].Action = irr::EKA_MOVE_FORWARD;
-        keyMap[0].KeyCode = irr::KEY_KEY_W;
-        keyMap[1].Action = irr::EKA_MOVE_BACKWARD;
-        keyMap[1].KeyCode = irr::KEY_KEY_S;
-        keyMap[2].Action = irr::EKA_STRAFE_LEFT;
-        keyMap[2].KeyCode = irr::KEY_KEY_A;
-        keyMap[3].Action = irr::EKA_STRAFE_RIGHT;
-        keyMap[3].KeyCode = irr::KEY_KEY_D;
-        keyMap[4].Action = irr::EKA_JUMP_UP;
-        keyMap[4].KeyCode = irr::KEY_SPACE;
-        keyMap[5].Action = irr::EKA_CROUCH;
-        keyMap[5].KeyCode = irr::KEY_KEY_C;
-        irr::scene::ICameraSceneNode* camera = smgr->addCameraSceneNodeFPS( smgr->getRootSceneNode(), 65.f,0.5f,-1,keyMap,6,false,1.0f, false, true );
-        camera->setNearValue( 1.0f );
-        camera->setFarValue( 10000.0f );
-        camera->setPosition( irr::core::vector3df(0,300,-300) );
-        camera->setTarget( irr::core::vector3df(0,-60,-60) );
-    }
-*/
+    createStandardPlayers( game );
+
     // addSkyBox( AutoSceneNode* )
     {
         irr::video::ITexture* top = Game_getTexture( game, eTexture::SKYBOX_TOP );
@@ -151,7 +130,7 @@ Game_createStandard( Game_t* game )
         irr::core::dimension2du const screen = driver->getScreenSize();
 
         GameUI_createChat( game, mkRect( screen.Width/2+100, screen.Height/4, screen.Width/2 - 150, screen.Height/2 ) );
-        GameLogger::singleton().setLogBox( game->UI.Chat.LogBox );
+        //GameLogger::singleton().setLogBox( game->UI.Chat.LogBox );
         MainMenuUI_create( game );
         ActionUI_create( game, mkRect( 100, 10, 900, 150 ) );
         PlayerUI_create( game, mkRect( 10, screen.Height - 210, screen.Width - 100, 200 ) );
@@ -159,14 +138,39 @@ Game_createStandard( Game_t* game )
         BankUI_create( game, mkRect( 10, (screen.Height - 200)/2, 400, 160 ) );
         HelpWindowUI_create( game );
 
+        setWindowVisible( game, eWindow::ALL, false );
+        setWindowVisible( game, eWindow::ACTION, true );
+        setPlayerAction( game, getCurrentPlayer( game ), eAction::DICE );
+        //setWindowVisible( game, eWindow::DICE , true );
+
         std::cout << __FUNCTION__ << " [End] :: Create GUI...\n";
     }
 
     std::cout << __FUNCTION__ << " [Begin] :: Debug\n";
-    Waypoints_print( game );
-
-    Textures_print( device->getVideoDriver() );
+    printWaypoints( game );
+    printTextures( device->getVideoDriver() );
     std::cout << __FUNCTION__ << " [End] :: Debug\n";
+
+    Game_start( game );
+}
+
+/// Reset all variables to start:
+void
+Game_start( Game_t * game )
+{
+    assert( game );
+    game->UI.Menu.Window->setVisible( false );
+    game->State = eGameState::GAME_START;
+    setWaypointsVisible( game, false );
+    setWaypointsVisible( game, true, true );
+    game->Player = 0;
+    for ( uint32_t i = 0; i < getPlayerCount( game ); ++i )
+    {
+        setPlayerAction( game, i, eAction::DICE );
+    }
+
+    ActionUI_update( game );
+
 }
 
 /// Start main loop:
@@ -182,7 +186,7 @@ Game_exec( Game_t * game )
     irr::video::IVideoDriver* driver = device->getVideoDriver();
     irr::scene::ISceneManager* smgr = device->getSceneManager();
     irr::gui::IGUIEnvironment* guienv = device->getGUIEnvironment();
-
+    irr::core::dimension2du screenSize = driver->getScreenSize();
     uint64_t startTime = device->getTimer()->getRealTime();
     uint64_t currTime = device->getTimer()->getRealTime();
     uint64_t lastScreenUpdateTime = device->getTimer()->getRealTime();
@@ -205,9 +209,17 @@ Game_exec( Game_t * game )
                 {
                     driver->beginScene( true, true, game->ClearColor );
 
+                    screenSize = driver->getScreenSize();
+
                     if ( smgr )
                     {
                         smgr->drawAll();
+
+                        Tile_t * selectedTile = findTileUnderMouse( game );
+                        if ( selectedTile )
+                        {
+                            //std::cout << "[Tile] " << __FUNCTION__ << " :: " << Tile_toString( selectedTile ) << ")\n";
+                        }
                     }
 
                     if ( guienv )
@@ -217,6 +229,20 @@ Game_exec( Game_t * game )
 
                     std::stringstream s; s << "FPS(" << std::to_string( driver->getFPS() ) << ")";
                     Font_draw( Game_getFont( game, eFontType::FPS_COUNTER ), s.str(), 30,30, 0xFFFFFF00 );
+
+                    {
+                        int currPlayer = getCurrentPlayer( game );
+                        if ( isPlayer( game, currPlayer ) )
+                        {
+                            Player_t* player = getPlayer( game, currPlayer );
+                            std::stringstream s; s << "Player[" << currPlayer << "] " << player->Name << " (" << player->Id << ")";
+                            Font_draw( Game_getFont( game, eFontType::FPS_COUNTER ), s.str(), 10,screenSize.Height/2-10, getPlayerColor( game, currPlayer ) );
+                        }
+
+                    }
+
+                    Chat_draw( game, screenSize.Width - 400, screenSize.Height/2 - 200 );
+
                     driver->endScene();
                 }
 
@@ -229,7 +255,7 @@ Game_exec( Game_t * game )
                 std::stringstream s;
                 s << "Pioneers3D ";
                 s << "- FPS(" << driver->getFPS() << ")";
-                s << ", WIN(" << toString( driver->getScreenSize() ) << ")";
+                s << ", WIN(" << toString( screenSize ) << ")";
 
                 irr::scene::ICameraSceneNode* camera = smgr->getActiveCamera();
                 if ( camera )

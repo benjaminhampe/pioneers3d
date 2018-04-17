@@ -27,11 +27,7 @@ Font_draw(
     int32_t y,
     uint32_t color )
 {
-    if ( !font )
-    {
-        return;
-    }
-
+    if ( !font ) { return; }
     irr::core::stringw text( txt.c_str() );
     irr::core::dimension2du size = font->getDimension( text.c_str() );
     font->draw( text, mkRect( x, y, size.Width, size.Height ), color, false, false, 0 );
@@ -73,7 +69,6 @@ void Text_draw( Text_t * p, int32_t x, int32_t y )
     if ( !p ) { return; }
     irr::core::dimension2du const txtSize = Font_getPixelSize( p->Font, p->Text );
     Font_draw( p->Font, p->Text, mkRect( x, y, txtSize.Width, txtSize.Height ), p->Color );
-
 }
 
 void Text_draw( Text_t * p, irr::core::recti const & pos )

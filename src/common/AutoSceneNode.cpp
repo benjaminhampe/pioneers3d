@@ -43,9 +43,9 @@ AutoSceneNode::render()
 
     driver->setTransform( irr::video::ETS_WORLD, getAbsoluteTransformation() );
 
-    for ( size_t i = 0; i < m_MeshBuffer.size(); ++i )
+    for ( size_t i = 0; i < m_Mesh.MeshBuffers.size(); ++i )
     {
-        AutoMeshBuffer* p = m_MeshBuffer[ i ];
+        AutoMeshBuffer* p = m_Mesh.MeshBuffers[ i ];
         if ( p )
         {
             p->render( driver );
@@ -59,40 +59,14 @@ void
 AutoSceneNode::clear()
 {
     AUTOSCENENODE_LOG_SIMPLE
-    for ( uint32_t i = 0; i < getMeshBufferCount(); ++i )
-    {
-        AutoMeshBuffer* p = m_MeshBuffer[ i ];
-        if ( p )
-        {
-            p->drop();
-        }
-    }
-
-    m_MeshBuffer.clear();
+    m_Mesh.clear();
 }
 
 void
 AutoSceneNode::add( AutoMeshBuffer * mb, bool dropAfterAdd )
 {
     AUTOSCENENODE_LOG_SIMPLE
-
-    //AutoMeshBuffer* child = find( mb );
-
-    if ( !mb )
-    {
-        return;
-    }
-
-    mb->grab();
-
-    m_MeshBuffer.emplace_back( mb );
-
-    m_BoundingBox.addInternalBox( mb->MeshBuffer.BoundingBox );
-
-    if ( dropAfterAdd )
-    {
-        mb->drop(); // remove old owner from ref count
-    }
+    m_Mesh.addAutoMeshBuffer( mb, dropAfterAdd );
 }
 
 //void
@@ -110,36 +84,34 @@ AutoSceneNode::add( AutoMeshBuffer * mb, bool dropAfterAdd )
 irr::u32
 AutoSceneNode::getMeshBufferCount() const
 {
-    return static_cast< irr::u32 >( m_MeshBuffer.size() );
+    return m_Mesh.getMeshBufferCount();
 }
 
 AutoMeshBuffer*
 AutoSceneNode::getAutoMeshBuffer( irr::u32 i )
 {
     assert( getMeshBufferCount() > i );
-    return m_MeshBuffer[ i ];
+    return m_Mesh.MeshBuffers[ i ];
 }
 
 irr::scene::SMeshBuffer*
 AutoSceneNode::getMeshBuffer( irr::u32 i )
 {
     assert( getMeshBufferCount() > i );
-    assert( m_MeshBuffer[ i ] );
-    return &(m_MeshBuffer[ i ]->MeshBuffer);
+    return static_cast< irr::scene::SMeshBuffer* >( m_Mesh.getMeshBuffer( i ) );
 }
 
 irr::u32
 AutoSceneNode::getMaterialCount() const
 {
-    return static_cast< irr::u32 >( m_MeshBuffer.size() );
+    return m_Mesh.getMaterialCount();
 }
 
 irr::video::SMaterial&
 AutoSceneNode::getMaterial( irr::u32 i )
 {
     assert( getMaterialCount() > i );
-    assert( m_MeshBuffer[ i ] );
-    return m_MeshBuffer[ i ]->MeshBuffer.Material;
+    return m_Mesh.getMaterial( i );
 }
 
 irr::core::aabbox3d<irr::f32> const &

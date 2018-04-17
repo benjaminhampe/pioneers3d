@@ -22,6 +22,8 @@ struct Player_t;
 enum class eFontType : uint32_t
 {
     DEFAULT = 0,
+    CHAT_BG,
+    CHAT,
     AWESOME,
     FPS_COUNTER,
     H1,
@@ -38,14 +40,23 @@ struct Font_t
     int32_t Style;
     irr::gui::CGUITTFont* Font;
 };
-// ---------------------------------------------------------------------------------------
+
 typedef std::vector< Font_t > Fonts_t;
+
 // ---------------------------------------------------------------------------------------
 struct Dice_t
 {
     int32_t A;
     int32_t B;
+    Dice_t() : A(1), B(1) { srand( static_cast< uint32_t >( time( nullptr ) ) ); }
+    void randomizeA() { A = rand()%6 + 1; }
+    void randomizeB() { B = rand()%6 + 1; }
+    void randomize() { randomizeA(); randomizeB(); }
+    int32_t sum() const { return A + B; }
+    int32_t max() const { return std::max(A,B); }
+    int32_t min() const { return std::min(A,B); }
 };
+
 // ---------------------------------------------------------------------------------------
 struct RoadPoint_t
 {
@@ -81,6 +92,8 @@ public:
     std::vector< RoadPoint_t* > RoadPoints;
     std::vector< Waypoint_t* >  Waypoints;
     AutoSceneNode*              Node = nullptr;
+    irr::scene::ITriangleSelector* TriangleSelector = nullptr;
+
     //~Tile_t() { if (Node) Node->drop(); }
 };
 // ---------------------------------------------------------------------------------------
@@ -109,7 +122,7 @@ struct Player_t
     std::string Name;       // Player name
     uint32_t Color;			// Player color
     irr::video::ITexture*   Avatar = nullptr;
-    eAction                 ActionMask = eAction::UNKNOWN;
+    eAction                 Action = eAction::UNKNOWN;
     bool IsActive = false;			// sagt aus ob Player in der Runde aktiviert ist.
     short Dice1 = 0;			// Wuerfelwert
     short Dice2 = 0;			// Wuerfelwert
@@ -145,19 +158,9 @@ struct Player_t
 };
 // =============================================================================================
 
-class GUI_Window_t : public irr::gui::BaseWindow
-{
-public:
-    GUI_Window_t( irr::gui::IGUIEnvironment* env, irr::gui::IGUIElement* parent, int id, irr::core::recti const & pos );
-
-    virtual ~GUI_Window_t();
-
-    bool OnEvent( irr::SEvent const & event ) override;
-};
-
 struct GUI_Menu_t
 {
-    GUI_Window_t* Window = nullptr;
+    BaseWindow* Window = nullptr;
     irr::gui::IGUIButton* Start = nullptr;
     irr::gui::IGUIButton* Options = nullptr;
     irr::gui::IGUIButton* Exit = nullptr;
@@ -186,7 +189,7 @@ public:
 
 struct GUI_Bank_t
 {
-    GUI_Window_t * Window = nullptr;
+    BaseWindow * Window = nullptr;
     GUI_Card_t * Holz;
     GUI_Card_t * Lehm;
     GUI_Card_t * Weizen;
@@ -196,7 +199,7 @@ struct GUI_Bank_t
 
 struct GUI_Action_t
 {
-    GUI_Window_t* Window = nullptr;
+    BaseWindow* Window = nullptr;
     irr::gui::IGUIButton* Dice = nullptr;
     irr::gui::IGUIButton* Bank = nullptr;
     irr::gui::IGUIButton* Trade = nullptr;
@@ -214,7 +217,7 @@ struct GUI_Action_t
 
 struct GUI_Player_t
 {
-    GUI_Window_t* Window = nullptr;
+    BaseWindow* Window = nullptr;
     irr::gui::IGUIStaticText* Name = nullptr;
     irr::gui::IGUIImage* Avatar = nullptr;
     GUI_Card_t * Roads;
@@ -238,7 +241,7 @@ struct GUI_Player_t
 
 struct GUI_ChatBox_t
 {
-    GUI_Window_t* Window = nullptr;
+    BaseWindow* Window = nullptr;
     irr::gui::IGUIEditBox* Input = nullptr;
     irr::gui::IGUIButton* Send = nullptr;
     irr::gui::IGUIListBox* LogBox = nullptr;
@@ -246,7 +249,7 @@ struct GUI_ChatBox_t
 
 struct GUI_Dice_t
 {
-    GUI_Window_t* Window = nullptr;
+    BaseWindow* Window = nullptr;
     irr::gui::IGUIButton* A = nullptr;
     irr::gui::IGUIButton* B = nullptr;
 };
@@ -261,31 +264,35 @@ struct GameUI_t
     GUI_ChatBox_t       Chat;
     GUI_Dice_t          Dice;
 
-    std::vector< GUI_Window_t* > Windows;
+    std::vector< irr::gui::IGUIWindow* > Windows;
 };
 
 struct Game_t
 {
-    eGameType 				Type;
-    eGameState 				State;
-    eAction                 Action;
-
     std::string             MediaDir;
     irr::IrrlichtDevice*    Device = nullptr;
     irr::IEventReceiver*    Receiver = nullptr;
     irr::video::SColor      ClearColor;
+    // game stats
+    uint32_t                RoundCounter = 0;
+    Bank_t                  RessourceCounter;
+    void*                   Chat;
+
+    irr::scene::ISceneNode* HitSceneNode = nullptr;
+    irr::scene::ISceneNode* HitSceneNodeLast = nullptr;
+
     std::string             FontFileName;
-
     Fonts_t                 Fonts;
-
-    // Board_t
+    eGameType 				Type;
+    eGameState 				State;
+    eAction                 Action;
     Dice_t                  Dice;
     glm::ivec2              TileCount;
     glm::vec3               TileSize;
     std::vector< Tile_t >   Tiles;
+    irr::scene::IMetaTriangleSelector* TileSelector = nullptr;
     std::vector< Waypoint_t > Waypoints;
-
-    // Player_t
+    irr::scene::IMetaTriangleSelector* WaypointSelector = nullptr;
     std::vector< Player_t > Players;
     int32_t 				Player = -1;
     Raueber_t               Raeuber;

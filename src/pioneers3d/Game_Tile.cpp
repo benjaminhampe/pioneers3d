@@ -4,7 +4,55 @@
 
 namespace pioneers3d {
 
-void Tiles_clear( Game_t* game )
+std::string Tile_toString( Tile_t * tile )
+{
+    std::stringstream s;
+    s << "Type: " << tile->Type.toString() << "; "
+      << "x: "<< tile->BoardIndex.x << "; "
+      << "y: "<< tile->BoardIndex.y;
+    return s.str();
+}
+
+Tile_t *
+findTileUnderMouse( Game_t * game )
+{
+    if ( !game || !game->Device ) return nullptr;
+    irr::IrrlichtDevice* device = game->Device;
+    irr::scene::ISceneManager* smgr = device->getSceneManager();
+    irr::core::position2di mousePos = device->getCursorControl()->getPosition();
+    irr::core::line3df screenRay = smgr->getSceneCollisionManager()->getRayFromScreenCoordinates( mousePos, smgr->getActiveCamera() );
+    irr::core::vector3df hitPosition;
+    irr::core::triangle3df hitTriangle;
+    irr::scene::ISceneNode* hitSceneNode = nullptr;
+    if ( smgr->getSceneCollisionManager()->getCollisionPoint( screenRay, game->TileSelector, hitPosition, hitTriangle, hitSceneNode ) )
+    {
+        //std::cout << "[Hit] " << __FUNCTION__ << " :: " << toString( hitPosition ) << ")\n";
+        for ( uint32_t i = 0; i < game->Tiles.size(); ++i )
+        {
+            Tile_t & tile = game->Tiles[ i ];
+            if ( tile.Node && tile.Node == hitSceneNode )
+            {
+                std::cout << "[Tile] " << __FUNCTION__ << " :: " << Tile_toString( &tile ) << "\n";
+                return &tile;
+            }
+        }
+
+        game->HitSceneNode = hitSceneNode;
+        if ( game->HitSceneNode != game->HitSceneNodeLast )
+        {
+            if (game->HitSceneNodeLast) game->HitSceneNodeLast->setDebugDataVisible( irr::scene::EDS_OFF );
+            if (game->HitSceneNode) game->HitSceneNode->setDebugDataVisible( irr::scene::EDS_FULL );
+            game->HitSceneNodeLast = game->HitSceneNode;
+        }
+    }
+    else
+    {
+        //
+    }
+    return nullptr;
+}
+
+void clearTiles( Game_t* game )
 {
     if (!game) return;
 //    for ( size_t i = 0; i < game->Tiles.size(); ++i )
@@ -34,66 +82,61 @@ void Tiles_clear( Game_t* game )
 //    }
 //}
 
-void Tiles_createStandard( Game_t* game )
+void createStandardTiles( Game_t* game )
 {
-    auto addTile = [game] ( eTileType tileType, int i, int j, int diceValue, int angle60 ) -> void
-    {
-        Tile_add( game, tileType, i, j, diceValue, angle60 );
-    };
-
     // <!-- Zeile -3: (4-tiles) -->
-    addTile( eTileType::HAFEN_LEHM, -2, -3, 0, 3);
-    addTile( eTileType::WASSER, -1, -3, 0, 3);
-    addTile( eTileType::HAFEN_3zu1, 0, -3, 0, 3);
-    addTile( eTileType::WASSER, 1, -3, 0, 2);
+    addTile( game, eTileType::HAFEN_LEHM, -2, -3, 0, 3);
+    addTile( game, eTileType::WASSER, -1, -3, 0, 3);
+    addTile( game, eTileType::HAFEN_3zu1, 0, -3, 0, 3);
+    addTile( game, eTileType::WASSER, 1, -3, 0, 2);
 
     // <!-- Zeile -2: (5-tiles) -->
-    addTile( eTileType::WASSER, -2, -2, 0, 4);
-    addTile( eTileType::LAND_WEIZEN, -1, -2, 3, 0);
-    addTile( eTileType::LAND_WEIZEN, 0, -2, 6, 0);
-    addTile( eTileType::LAND_ERZ, 1, -2, 11, 0);
-    addTile( eTileType::HAFEN_WEIZEN, 2, -2, 0, 1);
+    addTile( game, eTileType::WASSER, -2, -2, 0, 4);
+    addTile( game, eTileType::LAND_WEIZEN, -1, -2, 3, 0);
+    addTile( game, eTileType::LAND_WEIZEN, 0, -2, 6, 0);
+    addTile( game, eTileType::LAND_ERZ, 1, -2, 11, 0);
+    addTile( game, eTileType::HAFEN_WEIZEN, 2, -2, 0, 1);
 
     // <!-- Zeile -1: (6-tiles) -->
-    addTile( eTileType::HAFEN_3zu1, -3, -1, 0, 3);
-    addTile( eTileType::LAND_HOLZ, -2, -1, 3, 0);
-    addTile( eTileType::LAND_ERZ, -1, -1, 5, 0);
-    addTile( eTileType::LAND_LEHM, 0, -1, 10, 0);
-    addTile( eTileType::LAND_HOLZ, 1, -1, 11, 0);
-    addTile( eTileType::WASSER, 2, -1, 0, 2);
+    addTile( game, eTileType::HAFEN_3zu1, -3, -1, 0, 3);
+    addTile( game, eTileType::LAND_HOLZ, -2, -1, 3, 0);
+    addTile( game, eTileType::LAND_ERZ, -1, -1, 5, 0);
+    addTile( game, eTileType::LAND_LEHM, 0, -1, 10, 0);
+    addTile( game, eTileType::LAND_HOLZ, 1, -1, 11, 0);
+    addTile( game, eTileType::WASSER, 2, -1, 0, 2);
 
     // <!-- Zeile 0: (7-tiles) -->
-    addTile( eTileType::WASSER, -3, 0, 0, 4);
-    addTile( eTileType::LAND_WOLLE, -2, 0, 9, 0);
-    addTile( eTileType::LAND_LEHM, -1, 0, 8, 0);
-    addTile( eTileType::LAND_WUESTE, 0, 0, 0, 0);
-    addTile( eTileType::LAND_ERZ, 1, 0, 8, 0);
-    addTile( eTileType::LAND_WOLLE, 2, 0, 10, 0);
-    addTile( eTileType::HAFEN_3zu1, 3, 0, 0, 1);
+    addTile( game, eTileType::WASSER, -3, 0, 0, 4);
+    addTile( game, eTileType::LAND_WOLLE, -2, 0, 9, 0);
+    addTile( game, eTileType::LAND_LEHM, -1, 0, 8, 0);
+    addTile( game, eTileType::LAND_WUESTE, 0, 0, 0, 0);
+    addTile( game, eTileType::LAND_ERZ, 1, 0, 8, 0);
+    addTile( game, eTileType::LAND_WOLLE, 2, 0, 10, 0);
+    addTile( game, eTileType::HAFEN_3zu1, 3, 0, 0, 1);
 
     // <!-- Zeile +1: (6-tiles) -->
-    addTile( eTileType::HAFEN_HOLZ, -3, 1, 0, 4);
-    addTile( eTileType::LAND_LEHM, -2, 1, 2, 0);
-    addTile( eTileType::LAND_HOLZ, -1, 1, 5, 0);
-    addTile( eTileType::LAND_WOLLE, 0, 1, 12, 0);
-    addTile( eTileType::LAND_WOLLE, 1, 1, 4, 0);
-    addTile( eTileType::WASSER, 2, 1, 0, 1);
+    addTile( game, eTileType::HAFEN_HOLZ, -3, 1, 0, 4);
+    addTile( game, eTileType::LAND_LEHM, -2, 1, 2, 0);
+    addTile( game, eTileType::LAND_HOLZ, -1, 1, 5, 0);
+    addTile( game, eTileType::LAND_WOLLE, 0, 1, 12, 0);
+    addTile( game, eTileType::LAND_WOLLE, 1, 1, 4, 0);
+    addTile( game, eTileType::WASSER, 2, 1, 0, 1);
 
     // <!-- Zeile 2: (5-tiles) -->
-    addTile( eTileType::WASSER, -2, 2, 0, 5);
-    addTile( eTileType::LAND_WEIZEN, -1, 2, 4, 0);
-    addTile( eTileType::LAND_HOLZ, 0, 2, 6, 0);
-    addTile( eTileType::LAND_WEIZEN, 1, 2, 9, 0);
-    addTile( eTileType::HAFEN_3zu1, 2, 2, 0, 1);
+    addTile( game, eTileType::WASSER, -2, 2, 0, 5);
+    addTile( game, eTileType::LAND_WEIZEN, -1, 2, 4, 0);
+    addTile( game, eTileType::LAND_HOLZ, 0, 2, 6, 0);
+    addTile( game, eTileType::LAND_WEIZEN, 1, 2, 9, 0);
+    addTile( game, eTileType::HAFEN_3zu1, 2, 2, 0, 1);
 
     // <!-- Zeile 3: (4-tiles) -->
-    addTile( eTileType::HAFEN_ERZ, -2, 3, 0, 5);
-    addTile( eTileType::WASSER, -1, 3, 0, 0);
-    addTile( eTileType::HAFEN_WOLLE, 0, 3, 0, 0);
-    addTile( eTileType::WASSER, 1, 3, 0, 0);
+    addTile( game, eTileType::HAFEN_ERZ, -2, 3, 0, 5);
+    addTile( game, eTileType::WASSER, -1, 3, 0, 0);
+    addTile( game, eTileType::HAFEN_WOLLE, 0, 3, 0, 0);
+    addTile( game, eTileType::WASSER, 1, 3, 0, 0);
 }
 
-void Tile_add( Game_t* game, eTileType tileType, int i, int j, int diceValue, int angle60 )
+void addTile( Game_t* game, eTileType tileType, int i, int j, int diceValue, int angle60 )
 {
     //irr::video::IVideoDriver* driver = game->Device->getVideoDriver();
     irr::scene::ISceneManager* smgr = game->Device->getSceneManager();
@@ -107,16 +150,23 @@ void Tile_add( Game_t* game, eTileType tileType, int i, int j, int diceValue, in
     tile.Pos = glm::vec3( w * i + w * 0.5f * ( safeMod( j, 2 ) == 1 ), 0.0f, 3.0f/4.0f * h * j );
     tile.DiceValue = diceValue;
     tile.TexAngle60 = angle60;
-    game->Tiles.push_back( std::move( tile ) );
 
     // create scene
     AutoSceneNode* node = new AutoSceneNode( smgr, smgr->getRootSceneNode(), -1 );
+    tile.Node = node;
     node->setPosition( tile.Pos );
 
     // ground hexagon
     AutoMeshBuffer* hexagon = createHexagon( w, h );
     hexagon->MeshBuffer.Material.setTexture( 0, Game_getTileTexture( game, tileType ) );
     node->add( hexagon, true );
+
+    // Create triangle-selector for hexagon collision detection ( only )
+    irr::scene::ITriangleSelector* selector = smgr->createTriangleSelector( node->getMesh(), node );
+    node->setTriangleSelector( selector );
+    game->TileSelector->addTriangleSelector( selector );
+    tile.TriangleSelector = selector;
+    selector->drop();
 
     // chip cylinder for land tiles
     if ( tileType.isLand() || tileType.isHafen() )
@@ -146,18 +196,21 @@ void Tile_add( Game_t* game, eTileType tileType, int i, int j, int diceValue, in
             node->add( createRotatedBox( getHexagonPoint( w, h, k )*0.5f, glm::vec3(1,1,20), glm::vec3(0,k*60,0), 0xFFFFFFFF ), true );
             node->add( createRotatedBox( getHexagonPoint( w, h, k+1 )*0.5f, glm::vec3(1,1,20), glm::vec3(0,(k+1)*60,0), 0xFFFFFFFF ), true );
         }
+
+
     }
+    game->Tiles.push_back( std::move( tile ) );
 }
 
 glm::vec3
-Tile_getPosition( Tile_t * tile )
+getTilePosition( Tile_t * tile )
 {
     if ( !tile ) return glm::vec3( 0,0,0 );
     return tile->Pos;
 }
 
 glm::vec3
-Tile_getCorner( Tile_t * tile, int i, float32_t tileWidth, float32_t tileheight )
+getTileCorner( Tile_t * tile, int i, float32_t tileWidth, float32_t tileheight )
 {
     if ( !tile ) return glm::vec3( 0,0,0 );
     switch ( i )
@@ -173,7 +226,7 @@ Tile_getCorner( Tile_t * tile, int i, float32_t tileWidth, float32_t tileheight 
 }
 
 glm::vec3
-Tile_getEdgeCenter( Tile_t * tile, int i, float32_t tileWidth, float32_t tileheight )
+getTileEdgeCenter( Tile_t * tile, int i, float32_t tileWidth, float32_t tileheight )
 {
     if ( !tile ) return glm::vec3( 0,0,0 );
     int32_t a = 1, b = 2;
@@ -188,8 +241,8 @@ Tile_getEdgeCenter( Tile_t * tile, int i, float32_t tileWidth, float32_t tilehei
         default: break; // A-B
     }
 
-    glm::vec3 const A = Tile_getCorner( tile, a, tileWidth, tileheight );
-    glm::vec3 const B = Tile_getCorner( tile, b, tileWidth, tileheight );
+    glm::vec3 const A = getTileCorner( tile, a, tileWidth, tileheight );
+    glm::vec3 const B = getTileCorner( tile, b, tileWidth, tileheight );
     return A + (B-A)*0.5f; // Center of egde (a,b)
 }
 
@@ -206,3 +259,61 @@ int32_t safeMod( int32_t a, int32_t b )
 } // end namespace pioneers3d
 
 
+
+
+/*
+const char* const s_xmlStandardTiles = {
+R"(
+<!-- Zeile -3: (4-tiles) -->
+<tile type="HAFEN_LEHM" x="-2" y="-3" dice="0" a="3" />
+<tile type="WASSER" 	x="-1" y="-3" dice="0" a="3" />
+<tile type="HAFEN_3zu1" x="0" y="-3" dice="0" a="3" />
+<tile type="WASSER" 	x="1" y="-3" dice="0" a="2" />
+
+<!-- Zeile -2: (5-tiles) -->
+<tile type="WASSER" 	 x="-2" y="-2" dice="0" a="4" />
+<tile type="LAND_WEIZEN" x="-1" y="-2" dice="3" a="0" />
+<tile type="LAND_WEIZEN" x="0" y="-2" dice="6" a="0" />
+<tile type="LAND_ERZ" 	 x="1" y="-2" dice="11" a="0" />
+<tile type="HAFEN_WEIZEN" x="2" y="-2" dice="0" a="1" />
+
+<!-- Zeile -1: (6-tiles) -->
+<tile type="HAFEN_3zu1" x="-3" y="-1" dice="0" a="3" />
+<tile type="LAND_HOLZ" 	x="-2" y="-1" dice="3" a="0" />
+<tile type="LAND_ERZ" 	x="-1" y="-1" dice="5" a="0" />
+<tile type="LAND_LEHM" 	x="0" y="-1" dice="10" a="0" />
+<tile type="LAND_HOLZ" 	x="1" y="-1" dice="11" a="0" />
+<tile type="WASSER" 	x="2" y="-1" dice="0" a="2" />
+
+<!-- Zeile 0: (7-tiles) -->
+<tile type="WASSER" x="-3" y="0" dice="0" a="4" />
+<tile type="LAND_WOLLE" x="-2" y="0" dice="9" a="0" />
+<tile type="LAND_LEHM" x="-1" y="0" dice="8" a="0" />
+<tile type="LAND_WUESTE" x="0" y="0" dice="0" a="0" />
+<tile type="LAND_ERZ" x="1" y="0" dice="8" a="0" />
+<tile type="LAND_WOLLE" x="2" y="0" dice="10" a="0" />
+<tile type="HAFEN_3zu1" x="3" y="0" dice="0" a="1" />
+
+<!-- Zeile +1: (6-tiles) -->
+<tile type="HAFEN_HOLZ" x="-3" y="1" dice="0" a="4" />
+<tile type="LAND_LEHM"  x="-2" y="1" dice="2" a="0" />
+<tile type="LAND_HOLZ"  x="-1" y="1" dice="5" a="0" />
+<tile type="LAND_WOLLE" x="0" y="1" dice="12" a="0" />
+<tile type="LAND_WOLLE" x="1" y="1" dice="4" a="0" />
+<tile type="WASSER" 	x="2" y="1" dice="0" a="1" />
+
+<!-- Zeile 2: (5-tiles) -->
+<tile type="LAND_WASSER" x="-2" y="2" dice="0" a="5" />
+<tile type="LAND_WEIZEN" x="-1" y="2" dice="4" a="0" />
+<tile type="LAND_HOLZ" 	 x="0" y="2" dice="6" a="0" />
+<tile type="LAND_WEIZEN" x="1" y="2" dice="9" a="0" />
+<tile type="HAFEN_3zu1"  x="2" y="2" dice="0" a="1" />
+
+<!-- Zeile 3: (4-tiles) -->
+<tile type="HAFEN_ERZ" 	x="-2" y="3" dice="0" a="5" />
+<tile type="WASSER" 	x="-1" y="3" dice="0" a="0" />
+<tile type="HAFEN_3zu1" x="0" y="3" dice="0" a="0" />
+<tile type="WASSER" 	x="1" y="3" dice="0" a="0" />
+)"
+};
+*/

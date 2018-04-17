@@ -53,9 +53,9 @@ public:
     eTileType( EType type ) : m_TileType( type ) {}
     eTileType( uint32_t type ) : m_TileType( static_cast< EType >( type ) ) {}
     bool isUnknown() const { return m_TileType == UNKNOWN; }
-    bool isWasser() const { return 0 != (m_TileType & WASSER); }
-    bool isLand() const { return 0 != (m_TileType & LAND); }
-    bool isRessource() const { return 0 != (m_TileType & RESSOURCE_MASK); }
+    bool isWasser() const { return (m_TileType & WASSER); }
+    bool isLand() const { return (m_TileType & LAND); }
+    bool isRessource() const { return (m_TileType & RESSOURCE_MASK); }
     bool isHafen() const { return isWasser() && isRessource() ; }
 
     bool contains( EType flags ) const
@@ -95,19 +95,31 @@ public:
     std::string
     toString() const
     {
-        if ( isUnknown() ) return "UNKNOWN";
-        if ( isWasser() ) return "WASSER";
+        if ( m_TileType == UNKNOWN ) return "UNKNOWN";
+        if ( m_TileType == WASSER ) return "WASSER";
 
         std::stringstream s;
 
-        if ( isLand() ) s << "LAND";
-        if ( isHafen() ) s << "HAFEN";
-        if ( contains( BANK) ) s << "_3zu1";
-        if ( contains( HOLZ ) ) s << "_HOLZ";
-        if ( contains( LEHM ) ) s << "_LEHM";
-        if ( contains( WEIZEN ) ) s << "_WEIZEN";
-        if ( contains( WOLLE ) ) s << "_WOLLE";
-        if ( contains( ERZ ) ) s << "_ERZ";
+        if ( isLand() )
+        {
+            s << "LAND";
+                 if ( contains( HOLZ ) ) s << "_HOLZ";
+            else if ( contains( LEHM ) ) s << "_LEHM";
+            else if ( contains( WEIZEN ) ) s << "_WEIZEN";
+            else if ( contains( WOLLE ) ) s << "_WOLLE";
+            else if ( contains( ERZ ) ) s << "_ERZ";
+            else s << "_WUESTE";
+        }
+        else if ( isHafen() )
+        {
+            s << "HAFEN";
+                 if ( contains( HOLZ ) ) s << "_HOLZ";
+            else if ( contains( LEHM ) ) s << "_LEHM";
+            else if ( contains( WEIZEN ) ) s << "_WEIZEN";
+            else if ( contains( WOLLE ) ) s << "_WOLLE";
+            else if ( contains( ERZ ) ) s << "_ERZ";
+            else s << "_3zu1";
+        }
 
         return s.str();
     }

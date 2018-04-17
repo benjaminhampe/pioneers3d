@@ -9,6 +9,7 @@
 
 #include <common/Types.hpp>
 #include <common/BaseEventReceiver.hpp>
+#include <common/BaseWindow.hpp>
 #include <common/StringUtils.hpp>
 #include <common/FontUtils.hpp>
 #include <common/ImageUtils.hpp>

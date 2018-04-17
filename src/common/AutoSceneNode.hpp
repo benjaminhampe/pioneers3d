@@ -2,6 +2,7 @@
 #define DE_ALPHASONIC_AUTO_SCENE_NODE_HPP
 
 #include <common/AutoMeshBuffer.hpp>
+#include <common/AutoMesh.hpp>
 
 class AutoSceneNode : public irr::scene::ISceneNode
 {
@@ -40,9 +41,15 @@ public:
     {
         irr::scene::ISceneNode::setPosition( irr::core::vector3df( pos.x, pos.y, pos.z ) );
     }
+
+    AutoMesh * getMesh() { return &m_Mesh; }
+
 protected:
     irr::core::aabbox3d<irr::f32> m_BoundingBox;
-    std::vector< AutoMeshBuffer* > m_MeshBuffer;
+
+    AutoMesh m_Mesh;
+
+    // std::vector< AutoMeshBuffer* > m_MeshBuffer;
 };
 
 #endif // DE_ALPHASONIC_AUTO_RENDER_SCENE_NODE_HPP

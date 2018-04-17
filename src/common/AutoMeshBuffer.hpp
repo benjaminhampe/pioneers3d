@@ -136,6 +136,34 @@ public:
         }
     }
 
+/// IMeshBuffer interface:
+///
+    //! returns an axis aligned bounding box
+    irr::core::aabbox3d<irr::f32> const & getBoundingBox() const
+    {
+        return MeshBuffer.BoundingBox;
+    }
+
+    //! set user axis aligned bounding box
+    void setBoundingBox( irr::core::aabbox3df const & box )
+    {
+        MeshBuffer.BoundingBox = box;
+    }
+
+    //! Get material of this meshbuffer
+    /** \return Material of this buffer */
+    irr::video::SMaterial const & getMaterial() const
+    {
+        return MeshBuffer.Material;
+    }
+
+    //! Get material of this meshbuffer
+    /** \return Material of this buffer */
+    irr::video::SMaterial & getMaterial()
+    {
+        return MeshBuffer.Material;
+    }
+
 };
 
 inline void

@@ -9,7 +9,7 @@
 #include <ustring.hpp>
 #include <CXMLWriterUTF8.hpp>
 #include <CGUITTFont.hpp>
-#include <BaseWindow.hpp>
+#include <CGUIWindow.hpp>
 
 typedef float float32_t;
 typedef double float64_t;

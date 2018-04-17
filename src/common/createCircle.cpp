@@ -17,7 +17,7 @@ createCircle( glm::vec3 const & pos, float r, uint32_t segments, uint32_t color 
     // push center of circle as first vertex
     p->MeshBuffer.Vertices.push_back( irr::video::S3DVertex( pos.x, pos.y, pos.z, 0, 0, -1, color, 0.5f, 0.5f ) );
 
-    for ( int i = 0; i < segments; ++i )
+    for ( uint32_t i = 0; i < segments; ++i )
     {
         float const w = phi * i;
         float const s = sinf( w );
@@ -42,7 +42,7 @@ createCircle( glm::vec3 const & pos, float r, uint32_t segments, uint32_t color 
         p->MeshBuffer.Indices.push_back( c );
     };
 
-    for ( int i = 1; i <= segments; ++i )
+    for ( uint32_t i = 1; i <= segments; ++i )
     {
         if ( i == segments )
         {
@@ -58,7 +58,7 @@ createCircle( glm::vec3 const & pos, float r, uint32_t segments, uint32_t color 
 }
 
 AutoMeshBuffer*
-createCircleXZ( glm::vec3 const & pos, float r, int segments )
+createCircleXZ( glm::vec3 const & pos, float r, uint32_t segments )
 {
     assert( r > 0.0f );
 
@@ -80,7 +80,7 @@ createCircleXZ( glm::vec3 const & pos, float r, int segments )
     // push 3d center point of circle as first vertex
     addVertex( 0.0f, 0.0f, 0.0f, 0.5f, 0.5f );
 
-    for ( int i = 0; i < segments; ++i )
+    for ( uint32_t i = 0; i < segments; ++i )
     {
         float const w = phi * i;
         float const s = sinf( w );
@@ -102,7 +102,7 @@ createCircleXZ( glm::vec3 const & pos, float r, int segments )
         p->MeshBuffer.Indices.push_back( c );
     };
 
-    for ( int i = 1; i <= segments; ++i )
+    for ( uint32_t i = 1; i <= segments; ++i )
     {
         if ( i == segments )
         {

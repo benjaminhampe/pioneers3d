@@ -3,21 +3,23 @@
 #include <pioneers3d/Game_Logger.hpp>
 #include <pioneers3d/Game_Texture.hpp>
 
+#define LOG_ERROR(x) { std::cout << "[Error] " << __FUNCTION__ << " :: " << (x) << "\n"; }
+
 namespace pioneers3d {
 
 void Game_createRaeuber( Game_t* game )
 {
-    if ( !game ) { GAME_LOG_ERROR("Invalid pointer to Game") return; }
-    if ( !game->Device ) { GAME_LOG_ERROR("Invalid pointer to IrrlichtDevice") return; }
+    if ( !game ) { LOG_ERROR("Invalid pointer to Game") return; }
+    if ( !game->Device ) { LOG_ERROR("Invalid pointer to IrrlichtDevice") return; }
     irr::scene::ISceneManager * smgr = game->Device->getSceneManager();
-    if ( !smgr ) { GAME_LOG_ERROR("Invalid pointer to ISceneManager") return; }
+    if ( !smgr ) { LOG_ERROR("Invalid pointer to ISceneManager") return; }
     irr::scene::ISceneNode * root = smgr->getRootSceneNode();
     std::string const fileName = game->MediaDir + "raeuber/raeuber.x";
     irr::scene::IAnimatedMesh* mesh = game->Device->getSceneManager()->getMesh( irr::io::path( fileName.c_str() ) );
 
     if ( !mesh )
     {
-        GAME_LOG_ERROR("Cannot get mesh from file")
+        LOG_ERROR("Cannot get mesh from file")
         return;
     }
 

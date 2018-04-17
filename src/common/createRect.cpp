@@ -19,8 +19,7 @@ void addRect( AutoMeshBuffer* p, glm::vec3 pos, glm::vec2 size, uint32_t color)
     p->MeshBuffer.Indices.push_back( n + 3 );
 }
 
-AutoMeshBuffer*
-    createRect( glm::vec3 pos, glm::vec2 size, uint32_t color )
+AutoMeshBuffer* createRect( glm::vec3 pos, glm::vec2 size, uint32_t color )
 {
     AutoMeshBuffer* p = new AutoMeshBuffer( irr::scene::EPT_TRIANGLES );
 
@@ -59,4 +58,6 @@ AutoMeshBuffer*
 
     addTriangle( 0, 1, 2 ); 	// ABC = 012
     addTriangle( 0, 2, 3 ); 	// ACD = 023
+
+    return p;
 }

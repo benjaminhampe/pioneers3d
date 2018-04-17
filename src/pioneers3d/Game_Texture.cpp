@@ -92,8 +92,8 @@ Game_getTexture( Game_t * game, eTexture type )
         case eTexture::ACTION_ENDTURN:          tmp = "action/endturn.png"; break;
         case eTexture::ACTION_TRADE:            tmp = "action/trade.png"; break;
         case eTexture::ACTION_BANK:             tmp = "action/bank.png"; break;
-        case eTexture::ACTION_BUY_EVENT_CARD:   tmp = "action/buy_event_card.png"; break;
         case eTexture::ACTION_PLAY_EVENT_CARD:  tmp = "action/play_event_card.png"; break;
+        case eTexture::ACTION_BUY_EVENT_CARD:   tmp = "action/buy_event_card.png"; break;
         case eTexture::ACTION_BUY_ROAD:         tmp = "action/buy_road.png"; break;
         case eTexture::ACTION_BUY_SETTLEMENT:   tmp = "action/buy_settlement.png"; break;
         case eTexture::ACTION_BUY_CITY:         tmp = "action/buy_city.png"; break;

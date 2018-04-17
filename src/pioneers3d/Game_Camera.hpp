@@ -28,7 +28,7 @@ public:
                 irr::core::vector3df( Pos.x, Pos.y, Pos.z ),
                 irr::core::vector3df( Eye.x, Eye.y, Eye.z ), id, true );
 
-        Camera->setNearValue( 1.0f );
+        Camera->setNearValue( .1f );
         Camera->setFarValue( 10000.0f );
 
         updatePosition();
@@ -101,13 +101,13 @@ public:
 
     void rotateLeft( float32_t speed )
     {
-        setAngleY( Angle + speed );
+        setAngleY( Angle - speed );
         updatePosition();
     }
 
     void rotateRight( float32_t speed )
     {
-        setAngleY( Angle - speed );
+        setAngleY( Angle + speed );
         updatePosition();
     }
 

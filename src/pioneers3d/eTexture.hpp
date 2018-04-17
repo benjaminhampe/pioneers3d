@@ -66,6 +66,7 @@ enum class eTexture : uint32_t
     STAT_ROAD,  // Composed icon texture
     STAT_SETTLEMENT,  // Composed icon texture
     STAT_CITY,  // Composed icon texture
+
     ACTION_DICE,
     ACTION_PLACE_ROBBER,
     ACTION_ENDTURN,

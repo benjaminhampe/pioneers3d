@@ -3,33 +3,6 @@
 namespace pioneers3d {
 
 // =============================================================================================
-GUI_Window_t::GUI_Window_t( irr::gui::IGUIEnvironment* env, irr::gui::IGUIElement* parent, int id, irr::core::recti const & pos )
-    : irr::gui::BaseWindow( env, parent, id, pos )
-{}
-
-GUI_Window_t::~GUI_Window_t()
-{}
-
-bool
-GUI_Window_t::OnEvent( irr::SEvent const & event )
-{
-    if ( event.EventType == irr::EET_GUI_EVENT )
-    {
-        irr::SEvent::SGUIEvent guiEvent = event.GUIEvent;
-
-        if ( guiEvent.Caller == getCloseButton() &&
-             guiEvent.EventType == irr::gui::EGET_BUTTON_CLICKED )
-        {
-            this->setVisible( false );
-            return true;
-        }
-
-    }
-
-    return irr::gui::BaseWindow::OnEvent( event );
-}
-
-// =============================================================================================
 
 GUI_Card_t::GUI_Card_t(
         irr::gui::IGUIEnvironment* env,

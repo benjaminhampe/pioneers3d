@@ -5,6 +5,7 @@
 
 namespace pioneers3d {
 
+/*
 class GameLogger
 {
     std::string m_LoggerName;
@@ -116,6 +117,8 @@ void GAME_PRINT( const char* fn, int line, const char* formatString, ... );
 
 void GAME_ERROR( const char* fn, int line, const char* formatString, ... );
 #endif
+*/
+
 } // end namespace pioneers3d
 
 #endif // GAME_LOGGER_HPP

@@ -1,5 +1,19 @@
 #include "ImageUtils.hpp"
 
+void printTextures( irr::video::IVideoDriver* driver )
+{
+    std::cout << "TexCount = " << driver->getTextureCount() << "\n";
+
+    for ( uint32_t i = 0; i < driver->getTextureCount(); ++i )
+    {
+        irr::video::ITexture* tex = driver->getTextureByIndex( i );
+        if ( tex )
+        {
+            std::cout << "Tex[" << i << "] = " << tex->getName().getPath().c_str() << "\n";
+        }
+    }
+}
+
 irr::video::IImage*
 loadImage( irr::video::IVideoDriver* driver, std::string const & fileName )
 {

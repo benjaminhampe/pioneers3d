@@ -3,6 +3,9 @@
 
 #include <common/Types.hpp>
 
+void
+printTextures( irr::video::IVideoDriver* driver );
+
 irr::video::IImage*
 loadImage( irr::video::IVideoDriver* driver, std::string const & fileName );
 
@@ -14,5 +17,5 @@ createTextureFromImage(
     irr::video::IVideoDriver* driver,
     irr::video::IImage* img,
     std::string const & imgName = "" );
-	
+
 #endif // DE_ALPHASONIC_CREATE_IMAGE_UTILS_HPP
