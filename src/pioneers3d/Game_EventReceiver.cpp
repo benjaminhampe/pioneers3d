@@ -1,11 +1,13 @@
 #include "Game_EventReceiver.hpp"
 
-#include <pioneers3d/Game_Logger.hpp>
+#include <pioneers3d/Game_Chat.hpp>
 #include <pioneers3d/Game_Font.hpp>
 #include <pioneers3d/Game_Camera.hpp>
 #include <pioneers3d/Game_Texture.hpp>
 #include <pioneers3d/Game_Action.hpp>
-#include <pioneers3d/Game_Action.hpp>
+#include <pioneers3d/Game_Player.hpp>
+#include <pioneers3d/Game_Waypoint.hpp>
+#include <pioneers3d/Game_Tile.hpp>
 #include <pioneers3d/Game.hpp>
 
 namespace pioneers3d {
@@ -32,9 +34,75 @@ EventReceiver::OnEvent( const irr::SEvent& event )
 
         if ( keyEvent.Key == irr::KEY_ESCAPE && !keyEvent.PressedDown )
         {
-            m_Game->UI.Menu.Window->setVisible( !m_Game->UI.Menu.Window->isVisible() );
-            Game_setCameraInput( m_Game, !m_Game->UI.Menu.Window->isVisible() );
+            if ( m_Game->State == eGameState::NOT_RUNNING || m_Game->State == eGameState::IDLE )
+            {
+                m_Game->UI.Menu.Window->setVisible( !m_Game->UI.Menu.Window->isVisible() );
+                Game_setCameraInput( m_Game, !m_Game->UI.Menu.Window->isVisible() );
+            }
+            else
+            {
+                if ( m_Game->State == eGameState::PLACE_OBJECT )
+                {
+                    Action_Abort( m_Game );
+                }
+            }
             return true;
+        }
+    }
+
+
+    if ( event.EventType == irr::EET_MOUSE_INPUT_EVENT )
+    {
+        irr::SEvent::SMouseInput const & mouseEvent = event.MouseInput;
+
+        if ( mouseEvent.Event == irr::EMIE_MOUSE_MOVED )
+        {
+            if ( m_Game->State == eGameState::PLACE_OBJECT &&
+                 m_Game->PlaceObject &&
+                 m_Game->PlaceObjectType == ePlaceObjectType::ROAD &&
+                 m_Game->SelectedWaypointR )
+            {
+                m_Game->PlaceObject->setRotation( irr::core::vector3df( 0, m_Game->SelectedWaypointR->Angle, 0 ) );
+            }
+        }
+
+        if ( mouseEvent.Event == irr::EMIE_LMOUSE_LEFT_UP )
+        {
+            if ( m_Game->State == eGameState::PLACE_OBJECT )
+            {
+                if ( m_Game->PlaceObjectType == ePlaceObjectType::ROBBER )
+                {
+//                    Waypoint_t * waypoint = m_Game->SelectedWaypointRoad;
+//                    if ( waypoint )
+//                    {
+//                        m_Game->PlaceSceneNode->setPosition( toVec3df( waypoint->Pos ) );
+//                        waypoint->Owner = getPlayer( m_Game, m_Game->Player );
+
+//                        m_Game->State = eGameState::IDLE;
+//                    }
+                }
+
+                if ( m_Game->PlaceObjectType == ePlaceObjectType::ROAD )
+                {
+                    Waypoint_t * w = m_Game->SelectedWaypointR;
+                    if ( w )
+                    {
+                        Player_addRoad( m_Game, w );
+                        m_Game->State = eGameState::IDLE;
+                    }
+
+                }
+
+                if ( m_Game->PlaceObjectType == ePlaceObjectType::SETTLEMENT )
+                {
+                    Waypoint_t * w = m_Game->SelectedWaypointS;
+                    if ( w )
+                    {
+                        Player_addSettlement( m_Game, w );
+                        m_Game->State = eGameState::IDLE;
+                    }
+                }
+            }
         }
     }
 
@@ -47,7 +115,7 @@ EventReceiver::OnEvent( const irr::SEvent& event )
     {
         irr::SEvent::SGUIEvent const & guiEvent = event.GUIEvent;
         irr::gui::IGUIElement* caller = guiEvent.Caller;
-        irr::gui::IGUIEnvironment* env = m_Device->getGUIEnvironment();
+        //irr::gui::IGUIEnvironment* env = m_Device->getGUIEnvironment();
 
         if ( guiEvent.EventType == irr::gui::EGET_BUTTON_CLICKED )
         {

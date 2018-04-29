@@ -64,6 +64,44 @@ Font_draw(
     font->draw( tmp, mkRect( x-1, y-1, txtSize.Width+2, txtSize.Height+2 ), color, false, false, 0 );
 }
 
+void Font_drawBig( irr::gui::IGUIFont* font, std::string txt, int32_t x, int32_t y, uint32_t color )
+{
+    Font_draw( font, txt, x-1, y-1, color );
+    Font_draw( font, txt, x,   y-1, color );
+    Font_draw( font, txt, x+1, y-1, color );
+    Font_draw( font, txt, x-1, y,   color );
+    Font_draw( font, txt, x,   y,   color );
+    Font_draw( font, txt, x+1, y,   color );
+    Font_draw( font, txt, x-1, y+1, color );
+    Font_draw( font, txt, x,   y+1, color );
+    Font_draw( font, txt, x+1, y+1, color );
+}
+
+void Font_drawShadow( irr::gui::IGUIFont* font, std::string txt, int32_t x, int32_t y, uint32_t color )
+{
+    if (!font) return;
+    uint32_t shadowColor = 0xFF202020;
+    uint32_t highlightColor = 0xFFFFFFFF;
+    Font_draw( font, txt, x,   y-1, shadowColor );
+    Font_draw( font, txt, x+1, y-1, shadowColor );
+    Font_draw( font, txt, x,   y+1, highlightColor );
+    Font_draw( font, txt, x+1, y+1, highlightColor );
+    Font_draw( font, txt, x,   y,   color );
+    Font_draw( font, txt, x+1, y,   color );
+
+//    Font_draw( font, item.Text, tx-1, ty, color );
+//    Font_draw( font, item.Text, tx+2, ty, bgColor );
+//    Font_draw( font, item.Text, tx-1, ty+1, bgColor );
+//    Font_draw( font, item.Text, tx,   ty+1, item.Color );
+//    Font_draw( font, item.Text, tx+1, ty+1, item.Color );
+//    Font_draw( font, item.Text, tx+2, ty+1, bgColor );
+//    Font_draw( font, item.Text, tx, ty+2, bgColor );
+//    Font_draw( font, item.Text, tx+1, ty+2, bgColor );
+
+
+}
+
+
 void Text_draw( Text_t * p, int32_t x, int32_t y )
 {
     if ( !p ) { return; }

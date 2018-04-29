@@ -13,25 +13,49 @@ namespace pioneers3d {
 
 enum class eGameState : uint32_t
 {
-    IDLE = 0,
-    //GAME_INIT_PLAYER,
-    //GAME_INIT_BOARD,
-    GAME_START,
-    GAME_LOOP,
-    GAME_END,
-    DICE,
-    PLACE_ROBBER,
-    PLACE_FIRST_ROAD,
-    PLACE_FIRST_SETTLEMENT,
-    PLACE_SECOND_ROAD,
-    PLACE_SECOND_SETTLEMENT,
-    PLAYER_1,
-    PLAYER_2,
-    PLAYER_3,
-    PLAYER_4,
+    NOT_RUNNING = 0,
+    IDLE,
+    PLACE_OBJECT, /// @see eGameObject
+//    PLACE_ROBBER,
+//    PLACE_ROAD,
+//    PLACE_SETTLEMENT,
+//    PLACE_CITY,
+    COUNT
+};
+
+// Uses to differentiate between PLACE_OBJECT objects.
+enum class ePlaceObjectType : uint32_t
+{
+    ROBBER = 0,
+    ROAD,
+    SETTLEMENT,
+    CITY,
     COUNT
 };
 
 } // end namespace pioneers3d
+
+inline std::string toString( pioneers3d::eGameState egs )
+{
+    switch( egs )
+    {
+    case pioneers3d::eGameState::NOT_RUNNING: return "NOT_RUNNING";
+    case pioneers3d::eGameState::IDLE: return "IDLE";
+    case pioneers3d::eGameState::PLACE_OBJECT: return "PLACE_OBJECT";
+    default: return "UNKNOWN";
+    }
+}
+
+inline std::string toString( pioneers3d::ePlaceObjectType pot )
+{
+    switch( pot )
+    {
+    case pioneers3d::ePlaceObjectType::ROBBER: return "ROBBER";
+    case pioneers3d::ePlaceObjectType::ROAD: return "ROAD";
+    case pioneers3d::ePlaceObjectType::SETTLEMENT: return "SETTLEMENT";
+    case pioneers3d::ePlaceObjectType::CITY: return "CITY";
+    default: return "UNKNOWN";
+    }
+}
 
 #endif // PIONEERS3D_E_GAMESTATE_HPP

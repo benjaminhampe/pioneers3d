@@ -22,24 +22,11 @@ Game_clear( Game_t* game )
     clearPlayers( game );
 }
 
-
 void
 Game_destroy( Game_t* game )
 {
     Chat_destroy( game );
     Game_clearFonts( game );
-}
-
-std::string
-Game_toXML( Game_t* game )
-{
-    std::stringstream s;
-    s   << "<game "
-        << XML_ATTRIBUTE( "type", game->Type.toString() )
-        << ">\n"
-        << "\n"
-        << "</game>";
-    return s.str();
 }
 
 void
@@ -52,6 +39,8 @@ Game_createStandard( Game_t* game )
     std::cout << "DesktopSize.x = " << desktopSize.x << " px\n";
     std::cout << "DesktopSize.y = " << desktopSize.y << " px\n";
     std::cout << "DesktopSize.z = " << desktopSize.z << " bits\n";
+
+    srand( (unsigned int)time(NULL) );
 
     irr::SIrrlichtCreationParameters cfg;
     cfg.DriverType = irr::video::EDT_OPENGL;
@@ -69,24 +58,28 @@ Game_createStandard( Game_t* game )
     std::cout << "// ==========================================================\n";
     std::cout << toXMLElement( cfg );
     std::cout << "// ==========================================================\n";
+    device->setResizable( true );
+    device->setWindowCaption( L"Pioneers3D (c) 2018 by Benjamin Hampe <benjaminhampe@gmx.de>" );
+    irr::video::IVideoDriver* driver = device->getVideoDriver();
+    irr::scene::ISceneManager* smgr = device->getSceneManager();
+    irr::gui::IGUIEnvironment* env = device->getGUIEnvironment();
+    //addFont( env, game->MediaDir + "fonts/FontAwesome.ttf", 8, true, true );
 //    pioneers3d::Game_t game( device );
 //    game.create();
 //    game.save( "standard_test1.xml" );
 //    game.load( "standard_test1.xml" );
 //    game.save( "standard_test2.xml" );
 
-    assert( device );
-    srand( (unsigned int)time(NULL) );
     game->Device = device;
     game->MediaDir = "../../media/";
-
-    device->setResizable( true );
-    device->setWindowCaption( L"Pioneers3D (c) 2018 by Benjamin Hampe <benjaminhampe@gmx.de>" );
-
-    irr::video::IVideoDriver* driver = device->getVideoDriver();
-    irr::scene::ISceneManager* smgr = device->getSceneManager();
-    irr::gui::IGUIEnvironment* env = device->getGUIEnvironment();
-    //addFont( env, game->MediaDir + "fonts/FontAwesome.ttf", 8, true, true );
+    game->ClearColor = irr::video::SColor( 255, 225, 225, 255 );
+    game->Type = eGameType::STANDARD;
+    game->State = eGameState::IDLE;
+    game->TileSize = glm::vec3( 100.0f, 20.0f, 100.0f );
+    game->TileCount = glm::ivec2( 7, 7 );
+    //game->TileSelector = smgr->createMetaTriangleSelector();
+    //game->WaypointSelector = smgr->createMetaTriangleSelector();
+    game->Receiver = new EventReceiver( game );
 
     //GameBuilder_createRessourceCardTexture( game, eTileType::HOLZ, "card_holz.jpg" );
     //GameBuilder_createRessourceCardTexture( game, eTileType::LEHM, "card_lehm.jpg" );
@@ -96,15 +89,6 @@ Game_createStandard( Game_t* game )
 
     Game_createFonts( game );
     Chat_create( game );
-    game->ClearColor = irr::video::SColor( 255, 225, 225, 255 );
-    game->Type = eGameType::STANDARD;
-    game->State = eGameState::IDLE;
-    game->Receiver = new EventReceiver( game );
-    game->TileSize = glm::vec3( 100.0f, 20.0f, 100.0f );
-    game->TileCount = glm::ivec2( 7, 7 );
-    game->TileSelector = smgr->createMetaTriangleSelector();
-    game->WaypointSelector = smgr->createMetaTriangleSelector();
-
     createStandardTiles( game );
     createWaypoints( game, 10.0f, 5.00f, 13, false );
     createWaypoints( game, 7.5f, 3.33f, 13, true );
@@ -123,28 +107,7 @@ Game_createStandard( Game_t* game )
         smgr->addSkyBoxSceneNode( top, bottom, left, right, front, back, smgr->getRootSceneNode(), -1 );
     }
 
-    if ( env )
-    {
-        std::cout << __FUNCTION__ << " [Begin] :: Create GUI...\n";
-
-        irr::core::dimension2du const screen = driver->getScreenSize();
-
-        GameUI_createChat( game, mkRect( screen.Width/2+100, screen.Height/4, screen.Width/2 - 150, screen.Height/2 ) );
-        //GameLogger::singleton().setLogBox( game->UI.Chat.LogBox );
-        MainMenuUI_create( game );
-        ActionUI_create( game, mkRect( 100, 10, 900, 150 ) );
-        PlayerUI_create( game, mkRect( 10, screen.Height - 210, screen.Width - 100, 200 ) );
-        DiceUI_create( game, mkRect( screen.Width - 300, 10, 250, 200 ) );
-        BankUI_create( game, mkRect( 10, (screen.Height - 200)/2, 400, 160 ) );
-        HelpWindowUI_create( game );
-
-        setWindowVisible( game, eWindow::ALL, false );
-        setWindowVisible( game, eWindow::ACTION, true );
-        setPlayerAction( game, getCurrentPlayer( game ), eAction::DICE );
-        //setWindowVisible( game, eWindow::DICE , true );
-
-        std::cout << __FUNCTION__ << " [End] :: Create GUI...\n";
-    }
+    UI_create( game );
 
     std::cout << __FUNCTION__ << " [Begin] :: Debug\n";
     printWaypoints( game );
@@ -154,24 +117,26 @@ Game_createStandard( Game_t* game )
     Game_start( game );
 }
 
-/// Reset all variables to start:
+
 void
 Game_start( Game_t * game )
 {
-    assert( game );
-    game->UI.Menu.Window->setVisible( false );
-    game->State = eGameState::GAME_START;
-    setWaypointsVisible( game, false );
-    setWaypointsVisible( game, true, true );
+    setWindowVisible( game, eWindow::ALL, false );
+    setWindowVisible( game, eWindow::INIT_DICE, true );
+    Waypoints_R_setVisible( game, false );
+    Waypoints_S_setVisible( game, false );
+
+    game->Round = 0;
     game->Player = 0;
     for ( uint32_t i = 0; i < getPlayerCount( game ); ++i )
     {
-        setPlayerAction( game, i, eAction::DICE );
+        Player_setAction( game, i, eAction::DICE );
     }
 
-    ActionUI_update( game );
-
+    UI_update( game );
+    game->State = eGameState::IDLE;
 }
+
 
 /// Start main loop:
 int
@@ -199,6 +164,35 @@ Game_exec( Game_t * game )
     {
         currTime = device->getTimer()->getRealTime();
 
+        if ( game->State == eGameState::PLACE_OBJECT )
+        {
+            if ( game->EnableCollisionDetectionForWaypoints )
+            {
+                game->SelectedWaypointR = Waypoint_mouseOver( game, true );
+                game->SelectedWaypointS = Waypoint_mouseOver( game, false );
+            }
+
+            if ( game->EnableCollisionDetectionForTiles )
+            {
+                game->SelectedTile = findTileUnderMouse( game );
+            }
+
+            if ( game->PlaceObject )
+            {
+                irr::IrrlichtDevice* device = game->Device;
+                irr::scene::ISceneManager* smgr = device->getSceneManager();
+                irr::core::position2di mousePos = device->getCursorControl()->getPosition();
+                irr::core::line3df screenRay = smgr->getSceneCollisionManager()->getRayFromScreenCoordinates( mousePos, smgr->getActiveCamera() );
+                irr::core::plane3df xzPlane( irr::core::vector3df(0,0,0), irr::core::vector3df(0,1,0) );
+                irr::core::vector3df hitPosition;
+                if ( xzPlane.getIntersectionWithLine( screenRay.start, screenRay.getVector(), hitPosition ) )
+                {
+                    game->PlaceObject->setPosition( hitPosition );
+                }
+
+            } // endif PlaceObject
+        } // endif PLACE_OBJECT
+
         if ( device->isWindowActive() )
         {
             if ( currTime - lastScreenUpdateTime >= updateScreenMs )
@@ -214,12 +208,6 @@ Game_exec( Game_t * game )
                     if ( smgr )
                     {
                         smgr->drawAll();
-
-                        Tile_t * selectedTile = findTileUnderMouse( game );
-                        if ( selectedTile )
-                        {
-                            //std::cout << "[Tile] " << __FUNCTION__ << " :: " << Tile_toString( selectedTile ) << ")\n";
-                        }
                     }
 
                     if ( guienv )
@@ -227,18 +215,34 @@ Game_exec( Game_t * game )
                         guienv->drawAll();
                     }
 
-                    std::stringstream s; s << "FPS(" << std::to_string( driver->getFPS() ) << ")";
-                    Font_draw( Game_getFont( game, eFontType::FPS_COUNTER ), s.str(), 30,30, 0xFFFFFF00 );
+                    int y = screenSize.Height/2;
+                    int lineHeight = 50;
 
                     {
-                        int currPlayer = getCurrentPlayer( game );
-                        if ( isPlayer( game, currPlayer ) )
-                        {
-                            Player_t* player = getPlayer( game, currPlayer );
-                            std::stringstream s; s << "Player[" << currPlayer << "] " << player->Name << " (" << player->Id << ")";
-                            Font_draw( Game_getFont( game, eFontType::FPS_COUNTER ), s.str(), 10,screenSize.Height/2-10, getPlayerColor( game, currPlayer ) );
-                        }
-
+                        std::stringstream s; s << "FPS(" << std::to_string( driver->getFPS() ) << ")";
+                        Font_draw( Game_getFont( game, eFontType::FPS_COUNTER ), s.str(), 10,10+y, 0xFFFFFF00 );
+                        y += lineHeight;
+                    }
+                    {
+                        std::stringstream s; s << "Round = " << game->Round;
+                        Font_draw( Game_getFont( game, eFontType::FPS_COUNTER ), s.str(), 10,10+y, 0xFF00DF00 );
+                        y += lineHeight;
+                    }
+                    {
+                        std::stringstream s; s << "eGameState = " << toString( game->State );
+                        Font_draw( Game_getFont( game, eFontType::FPS_COUNTER ), s.str(), 10,10+y, 0xFFFFDF00 );
+                        y += lineHeight;
+                    }
+                    if ( game->State == eGameState::PLACE_OBJECT )
+                    {
+                        std::stringstream s; s << "ePlaceObjectType = " << toString( game->PlaceObjectType );
+                        Font_draw( Game_getFont( game, eFontType::FPS_COUNTER ), s.str(), 10,10+y, 0xFFFFAF00 );
+                        y += lineHeight;
+                    }
+                    {
+                        std::stringstream s; s << "Player = " << ( game->Player+1 ) << ", " << Player_getName( game );
+                        Font_draw( Game_getFont( game, eFontType::FPS_COUNTER ), s.str(), 10,10+y, 0xFFFF9520 );
+                        y += lineHeight;
                     }
 
                     Chat_draw( game, screenSize.Width - 400, screenSize.Height/2 - 200 );
@@ -250,6 +254,19 @@ Game_exec( Game_t * game )
 
             if ( currTime - lastWindowTitleUpdateTime >= updateWindowTitleMs )
             {
+                if ( game->SelectedWaypointR )
+                {
+                std::cout << "[Waypoint_R] " << Waypoint_toString( *game->SelectedWaypointR ) << "\n";
+                }
+                if ( game->SelectedWaypointS )
+                {
+                std::cout << "[Waypoint_S] " << Waypoint_toString( *game->SelectedWaypointS ) << "\n";
+                }
+                if ( game->SelectedTile )
+                {
+                std::cout << "[Tile] " << Tile_toString( *game->SelectedTile ) << "\n";
+                }
+
                 lastWindowTitleUpdateTime = currTime;
 
                 std::stringstream s;
@@ -291,6 +308,19 @@ Game_save( std::string const & fileName )
 {
 
 }
+
+std::string
+Game_toXML( Game_t* game )
+{
+    std::stringstream s;
+    s   << "<game "
+        << XML_ATTRIBUTE( "type", game->Type.toString() )
+        << ">\n"
+        << "\n"
+        << "</game>";
+    return s.str();
+}
+
 
 } // end namespace pioneers3d
 

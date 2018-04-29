@@ -1,18 +1,16 @@
 #include "Game_Chat.hpp"
 
 #include <pioneers3d/Game_Font.hpp>
+#include <pioneers3d/Game_Player.hpp>
 
 namespace pioneers3d {
 
 struct ChatItem_t
 {
-    int32_t Player;
-    std::string Name;
     uint32_t Color;
     std::string Text;
-
-    ChatItem_t() : Player(-1), Name(""), Color(0xFFFFFFFF), Text("Hello World!") {}
-    ChatItem_t( int32_t pl, std::string name, uint32_t color, std::string txt ) : Player(pl), Name(name), Color(color), Text(txt) {}
+    ChatItem_t() : Color(0xFFFFFFFF), Text("Hello World!") {}
+    ChatItem_t( std::string txt, uint32_t color ) : Color(color), Text(txt) {}
 };
 
 struct Chat_t
@@ -45,20 +43,29 @@ void Chat_clear( Game_t * game )
     chat->Items.clear();
 }
 
-
-void Chat_addMessage( Game_t * game, uint32_t color, std::string txt )
+void Chat_print( Game_t * game, std::string txt, uint32_t color )
 {
     if (!game) return;
     Chat_t* chat = (Chat_t*)game->Chat;
     if (!chat) return;
-    chat->Items.emplace_back( ChatItem_t( -1, "", color, txt) );
+    chat->Items.emplace_back( ChatItem_t( txt, color ) );
 }
 
-void Chat_addItem( Game_t * game, int32_t pl, std::string name, uint32_t color, std::string txt )
+void Chat_log( Game_t * game, de::alphasonic::LogLevel const & level, std::string const & txt )
 {
+    //std::stringstream s;
+    //s << level.toString() << " :: " << txt;
+    Chat_print( game, txt, level.getColor() );
+}
+
+void Chat_printPlayerMessage( Game_t * game, uint32_t player, std::string txt )
+{
+    if (!game) return;
     Chat_t* chat = (Chat_t*)game->Chat;
     if (!chat) return;
-    chat->Items.emplace_back( ChatItem_t( pl, name, color, txt) );
+    uint32_t color = Player_getColor( game, player );
+    std::string name = Player_getName( game, player );
+    chat->Items.emplace_back( ChatItem_t( de::alphasonic::sprintf("(%d) %s %s", player + 1, name.c_str(), txt.c_str()), color ) );
 }
 
 std::string Chat_toString( Game_t * game )
@@ -71,7 +78,7 @@ std::string Chat_toString( Game_t * game )
     for ( size_t i = 0; i < chat->Items.size(); ++i )
     {
         ChatItem_t const & item = chat->Items[ i ];
-        s << "[" << item.Player << "]" << item.Name << "" << item.Text;
+        s << item.Text << "\n";
     }
 
     return s.str();
@@ -87,7 +94,7 @@ void Chat_draw( Game_t * game, int32_t x, int32_t y )
     int32_t tx = x;
     int32_t ty = y;
     size_t maxItems = chat->Items.size();
-    size_t drawnItems = 10;
+    size_t drawnItems = 15;
     size_t iStart = 0;
     if ( maxItems >= drawnItems )
     {
@@ -108,6 +115,7 @@ void Chat_draw( Game_t * game, int32_t x, int32_t y )
         {
             bgColor = 0xFFFFFFFF;
         }
+
         Font_draw( font, item.Text, tx-1, ty, bgColor );
         Font_draw( font, item.Text, tx-1, ty+1, bgColor );
         Font_draw( font, item.Text, tx+2, ty, bgColor );

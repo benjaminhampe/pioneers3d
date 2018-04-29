@@ -32,7 +32,7 @@ setWindowVisible( Game_t * game, eWindow window, bool visible )
     if ( window & eWindow::BANK ) { game->UI.Bank.Window->setVisible( visible); }
     if ( window & eWindow::DICE ) { game->UI.Dice.Window->setVisible( visible); }
     if ( window & eWindow::PLAYER ) { game->UI.Player.Window->setVisible( visible); }
-    if ( window & eWindow::CHAT ) { game->UI.Chat.Window->setVisible( visible); }
+    //if ( window & eWindow::CHAT ) { game->UI.Chat.Window->setVisible( visible); }
 }
 
 BaseWindow*
@@ -44,47 +44,53 @@ addWindow( Game_t * game, std::string const & title,
     return win;
 }
 
-void BankUI_create( Game_t * game, irr::core::recti const & pos )
+void UI_create( Game_t * game )
 {
-    std::cout << __FUNCTION__ << "(" << toString( pos ) << ")\n";
+    std::cout << __FUNCTION__ << "\n";
+    assert( game );
+    assert( game->Device );
     irr::gui::IGUIEnvironment* env = game->Device->getGUIEnvironment();
-    BaseWindow* win = addWindow( game, "Bank", pos, env, env->getRootGUIElement() );
-    irr::core::recti r_client = win->getClientRect();
-    game->UI.Bank.Window = win;
-    int x = r_client.UpperLeftCorner.X;
-    int y = r_client.UpperLeftCorner.Y;
-    int dx = 64;
-    int dy = 128;
-    int b = 0;
+    assert( env );
 
-    irr::gui::IGUIFont* font = Game_getFont( game, eFontType::DEFAULT );
+    irr::core::dimension2du const screen = game->Device->getVideoDriver()->getScreenSize();
+    UI_createStartWindow( game, mkRect( screen.Width/2 - 200, 50, 400, 450 ) );
+    //UI_createChatWindow( game, mkRect( screen.Width/2+100, screen.Height/4, screen.Width/2 - 150, screen.Height/2 ) );
+    UI_createActionWindow( game, mkRect( 100, 10, 900, 150 ) );
+    UI_createPlayerWindow( game, mkRect( 10, screen.Height - 210, screen.Width - 100, 200 ) );
+    UI_createDiceWindow( game, mkRect( screen.Width - 300, 10, 250, 200 ) );
+    UI_createBankWindow( game, mkRect( 10, (screen.Height - 200)/2, 400, 160 ) );
+    UI_createHelpWindow( game );
 
-    auto addCard = [game,env,win,font,&x,y,dx,dy,b] ( GUI_Card_t* & card, std::string name, std::string value, eTileType tt )
-    {
-        card = new GUI_Card_t( env, win, -1, mkRect(x,y,dx,dy) );
-        card->setTexture( Game_getCardTexture( game, tt ) );
-        Text_t t_title( name, tt.getRessourceColor(), font );
-        Text_t t_value( value, 0xFFFFFFFF, font );
-        card->setTitle( std::move( t_title ) );
-        card->setValue( std::move( t_value ) );
-        x += dx + b;
-    };
-
-    addCard( game->UI.Bank.Holz, "Holz", "0", eTileType::HOLZ );
-    addCard( game->UI.Bank.Lehm, "Lehm", "0", eTileType::LEHM );
-    addCard( game->UI.Bank.Weizen, "Weizen", "0", eTileType::WEIZEN );
-    addCard( game->UI.Bank.Wolle, "Wolle", "0", eTileType::WOLLE );
-    addCard( game->UI.Bank.Erz, "Erz", "0", eTileType::ERZ );
+    setWindowVisible( game, eWindow::ALL, false );
+    setWindowVisible( game, eWindow::ACTION, true );
+    setWindowVisible( game, eWindow::PLAYER, true );
 }
 
-
-void GameUI_createCamera( Game_t * game, irr::core::recti const & pos )
+void UI_update( Game_t * game )
 {
+    UI_updateActionWindow( game );
+    UI_updatePlayerWindow( game );
+}
+
+void UI_createStartWindow( Game_t * game, irr::core::recti const & pos )
+{
+    std::cout << __FUNCTION__ << "()\n";
+    irr::gui::IGUIEnvironment* env = game->Device->getGUIEnvironment();
+    BaseWindow* win = addWindow( game, "GAME MENU", pos, env, env->getRootGUIElement() );
+    irr::core::recti r_client = win->getClientRect();
+    int bW = 200;
+    int bH = 100;
+    int x1 = (r_client.getWidth() - bW) / 2;
+    int x2 = (r_client.getWidth() + bW) / 2;
+    int y = 50;
+    game->UI.Menu.Window = win;
+    game->UI.Menu.Start = env->addButton( irr::core::recti( x1, y, x2, y+bH ), win, -1, L"Start Game", L"Starts a new game..." ); y += bH + 25;
+    game->UI.Menu.Options = env->addButton( irr::core::recti( x1, y, x2, y+bH ), win, -1, L"Options", L"Enter game settings..." ); y += bH + 25;
+    game->UI.Menu.Exit = env->addButton( irr::core::recti( x1, y, x2, y+bH ), win, -1, L"Exit Game", L"Exit game and program..." ); y += bH + 25;
 
 }
 
-void
-DiceUI_create( Game_t * game, irr::core::recti const & pos )
+void UI_createDiceWindow( Game_t * game, irr::core::recti const & pos )
 {
     std::cout << __FUNCTION__ << "(" << toString( pos ) << ")\n";
     irr::gui::IGUIEnvironment* env = game->Device->getGUIEnvironment();
@@ -102,8 +108,7 @@ DiceUI_create( Game_t * game, irr::core::recti const & pos )
     game->UI.Dice.B = createImageButton( env, win, mkRect(x+w-1-b-dx,y+b,dx,dy), "Dice 2", Game_getDiceTexture( game, 1+(rand()%6) ) );
 }
 
-void
-ActionUI_create( Game_t * game, irr::core::recti const & pos )
+void UI_createActionWindow( Game_t * game, irr::core::recti const & pos )
 {
     irr::IrrlichtDevice* device = game->Device;
     irr::gui::IGUIEnvironment* env = device->getGUIEnvironment();
@@ -135,12 +140,11 @@ ActionUI_create( Game_t * game, irr::core::recti const & pos )
     addButton( game->UI.Action.PlaceCity, "Place City", eTexture::ACTION_BUY_CITY );
 }
 
-void
-ActionUI_update( Game_t * game )
+void UI_updateActionWindow( Game_t * game )
 {
-    int32_t currPlayer = getCurrentPlayer( game );
+    uint32_t playerIndex = game->Player;
 
-    Player_t* player = getPlayer( game, currPlayer );
+    Player_t* player = getPlayer( game, playerIndex );
 
     auto setButton = [game] ( irr::gui::IGUIButton* & button, bool visibleAndEnabled ) -> void
     {
@@ -148,29 +152,22 @@ ActionUI_update( Game_t * game )
         button->setEnabled( visibleAndEnabled );
     };
 
-    setButton( game->UI.Action.EndRound, player->Action.contains( eAction::ENDTURN ) );
-    setButton( game->UI.Action.Dice, player->Action.contains( eAction::DICE ) );
-    setButton( game->UI.Action.Bank, player->Action.contains( eAction::BANK ) );
-    setButton( game->UI.Action.Trade, player->Action.contains( eAction::TRADE ) );
-    setButton( game->UI.Action.PlayCard, player->Action.contains( eAction::PLAY_EVENT_CARD ) );
-    setButton( game->UI.Action.BuyCard, player->Action.contains( eAction::BUY_EVENT_CARD ) );
-    setButton( game->UI.Action.BuyRoad, player->Action.contains( eAction::BUY_ROAD ) );
-    setButton( game->UI.Action.BuySett, player->Action.contains( eAction::BUY_SETTLEMENT ) );
-    setButton( game->UI.Action.BuyCity, player->Action.contains( eAction::BUY_CITY ) );
-    setButton( game->UI.Action.PlaceRobber, player->Action.contains( eAction::PLACE_ROBBER ) );
-    setButton( game->UI.Action.PlaceRoad, player->Action.contains( eAction::PLACE_ROAD ) );
-    setButton( game->UI.Action.PlaceSett, player->Action.contains( eAction::PLACE_SETTLEMENT ) );
-    setButton( game->UI.Action.PlaceCity, player->Action.contains( eAction::PLACE_CITY ) );
+    setButton( game->UI.Action.EndRound, player->Action.isEnabled( eAction::ENDTURN ) );
+    setButton( game->UI.Action.Dice, player->Action.isEnabled( eAction::DICE ) );
+    setButton( game->UI.Action.Bank, player->Action.isEnabled( eAction::BANK ) );
+    setButton( game->UI.Action.Trade, player->Action.isEnabled( eAction::TRADE ) );
+    setButton( game->UI.Action.PlayCard, player->Action.isEnabled( eAction::PLAY_EVENT_CARD ) );
+    setButton( game->UI.Action.BuyCard, player->Action.isEnabled( eAction::BUY_EVENT_CARD ) );
+    setButton( game->UI.Action.BuyRoad, player->Action.isEnabled( eAction::BUY_ROAD ) );
+    setButton( game->UI.Action.BuySett, player->Action.isEnabled( eAction::BUY_SETTLEMENT ) );
+    setButton( game->UI.Action.BuyCity, player->Action.isEnabled( eAction::BUY_CITY ) );
+    setButton( game->UI.Action.PlaceRobber, player->Action.isEnabled( eAction::PLACE_ROBBER ) );
+    setButton( game->UI.Action.PlaceRoad, player->Action.isEnabled( eAction::PLACE_ROAD ) );
+    setButton( game->UI.Action.PlaceSett, player->Action.isEnabled( eAction::PLACE_SETTLEMENT ) );
+    setButton( game->UI.Action.PlaceCity, player->Action.isEnabled( eAction::PLACE_CITY ) );
 }
 
-void
-PlayerUI_update( Game_t * game )
-{
-
-}
-
-void
-PlayerUI_create( Game_t * game, irr::core::recti const & pos )
+void UI_createPlayerWindow( Game_t * game, irr::core::recti const & pos )
 {
     std::cout << __FUNCTION__ << "(" << toString( pos ) << ")\n";
 
@@ -217,7 +214,13 @@ PlayerUI_create( Game_t * game, irr::core::recti const & pos )
     addCard( game->UI.Player.BonusArmy, "Bonus", "Biggest Army", eTexture::CARD_BONUS_ARMY, 0xFFFFFFFF );
 }
 
-void GameUI_createChat( Game_t * game, irr::core::recti const & pos )
+void UI_updatePlayerWindow( Game_t * game )
+{
+
+}
+
+/*
+void UI_createChatWindow( Game_t * game, irr::core::recti const & pos )
 {
     irr::gui::IGUIEnvironment* env = game->Device->getGUIEnvironment();
     BaseWindow* win = addWindow( game, "Chat & Logs:", pos, env, env->getRootGUIElement() );
@@ -232,46 +235,49 @@ void GameUI_createChat( Game_t * game, irr::core::recti const & pos )
     game->UI.Chat.Send = env->addButton( mkRect( x+ w - 64 - 2*b, y+b, 64, 32 ), win, -1, L"Bank", L"Bank" );
     game->UI.Chat.LogBox = env->addListBox( mkRect( x+b, y+32+2*b, w-2*b, h-32-3*b ), win, -1, true );
 }
+*/
 
-
-void
-MainMenuUI_create( Game_t * game )
+void UI_createBankWindow( Game_t * game, irr::core::recti const & pos )
 {
-    std::cout << __FUNCTION__ << "()\n";
-
-    irr::IrrlichtDevice* device = game->Device;
-    irr::video::IVideoDriver* driver = device->getVideoDriver();
-    //irr::scene::ISceneManager* smgr = device->getSceneManager();
-    irr::core::dimension2du screen = driver->getScreenSize();
-    irr::gui::IGUIEnvironment* env = device->getGUIEnvironment();
-    if ( !env )
-    {
-        std::cout << __FUNCTION__ << " [Error] :: Invalid pointer to IGUIEnvironment\n";
-        return;
-    }
-    irr::core::recti r_win( screen.Width/2 - 200, 50, screen.Width/2 + 200, 450 );
-
-    BaseWindow* win = addWindow( game, "GAME MENU", r_win, env, env->getRootGUIElement() );
-
+    std::cout << __FUNCTION__ << "(" << toString( pos ) << ")\n";
+    irr::gui::IGUIEnvironment* env = game->Device->getGUIEnvironment();
+    BaseWindow* win = addWindow( game, "Bank", pos, env, env->getRootGUIElement() );
     irr::core::recti r_client = win->getClientRect();
-    int bW = 200;
-    int bH = 100;
-    int x1 = (r_client.getWidth() - bW) / 2;
-    int x2 = (r_client.getWidth() + bW) / 2;
-    int y = 50;
-    game->UI.Menu.Window = win;
-    game->UI.Menu.Start = env->addButton( irr::core::recti( x1, y, x2, y+bH ), win, -1, L"Start Game", L"Starts a new game..." ); y += bH + 25;
-    game->UI.Menu.Options = env->addButton( irr::core::recti( x1, y, x2, y+bH ), win, -1, L"Options", L"Enter game settings..." ); y += bH + 25;
-    game->UI.Menu.Exit = env->addButton( irr::core::recti( x1, y, x2, y+bH ), win, -1, L"Exit Game", L"Exit game and program..." ); y += bH + 25;
+    game->UI.Bank.Window = win;
+    int x = r_client.UpperLeftCorner.X;
+    int y = r_client.UpperLeftCorner.Y;
+    int dx = 64;
+    int dy = 128;
+    int b = 0;
 
+    irr::gui::IGUIFont* font = Game_getFont( game, eFontType::DEFAULT );
+
+    auto addCard = [game,env,win,font,&x,y,dx,dy,b] ( GUI_Card_t* & card, std::string name, std::string value, eTileType tt )
+    {
+        card = new GUI_Card_t( env, win, -1, mkRect(x,y,dx,dy) );
+        card->setTexture( Game_getCardTexture( game, tt ) );
+        Text_t t_title( name, tt.getRessourceColor(), font );
+        Text_t t_value( value, 0xFFFFFFFF, font );
+        card->setTitle( std::move( t_title ) );
+        card->setValue( std::move( t_value ) );
+        x += dx + b;
+    };
+
+    addCard( game->UI.Bank.Holz, "Holz", "0", eTileType::HOLZ );
+    addCard( game->UI.Bank.Lehm, "Lehm", "0", eTileType::LEHM );
+    addCard( game->UI.Bank.Weizen, "Weizen", "0", eTileType::WEIZEN );
+    addCard( game->UI.Bank.Wolle, "Wolle", "0", eTileType::WOLLE );
+    addCard( game->UI.Bank.Erz, "Erz", "0", eTileType::ERZ );
 }
 
-
-void
-HelpWindowUI_create( Game_t * game )
+void UI_createHelpWindow( Game_t * game )
 {
 
 }
 
+void UI_createCameraEditorWindow( Game_t * game, irr::core::recti const & pos )
+{
+
+}
 
 } // end namespace pioneers3d

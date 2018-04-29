@@ -5,6 +5,8 @@
 
 namespace pioneers3d {
 
+void Action_Abort( Game_t* game );
+
 void Action_Dice( Game_t* game );
 void Action_Bank( Game_t* game );
 void Action_Trade( Game_t* game );

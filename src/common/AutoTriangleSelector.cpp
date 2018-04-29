@@ -1,1 +1,0 @@
-#include "AutoTriangleSelector.hpp"

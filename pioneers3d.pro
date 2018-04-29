@@ -1,11 +1,12 @@
 TARGET = Pioneers3D
 TEMPLATE = app
 DEFINES += USE_WINDOWS
-CONFIG += console c++14
+CONFIG += console c++17
 CONFIG -= app_bundle
 CONFIG -= qt
 QMAKE_CXXFLAGS += -Wno-unused-parameter
 QMAKE_CXXFLAGS += -Wno-unused-variable
+# QMAKE_CXXFLAGS += -Werror-no-return-type
 QMAKE_CXXFLAGS += -Wno-comment
 # QT += core gui widgets
 
@@ -54,26 +55,18 @@ INCLUDEPATH += $$PWD/src
 HEADERS	+= \
 	src/common/AlphaSonic.hpp \
 	src/common/AutoMeshBuffer.hpp \
-	src/common/AutoSceneNode.hpp \
-	src/common/Camera.hpp \
-	src/common/createBox.hpp \
-	src/common/createCircle.hpp \
-	src/common/createCylinder.hpp \
-	src/common/createDevice.hpp \
-	src/common/createHexagon.hpp \
-	src/common/createRect.hpp \
-	src/common/createRoundRect.hpp \
-	src/common/createTriangle.hpp \
-	src/common/ImageUtils.hpp \
 	src/common/sinCosTable.hpp \
+	src/common/AutoMeshBufferUtils.hpp \
+	src/common/createRoundRect.hpp \
+	src/common/Camera.hpp \
+	src/common/createDevice.hpp \
+	src/common/ImageUtils.hpp \
 	src/common/StringUtils.hpp \
 	src/common/Types.hpp \
 	src/common/BaseEventReceiver.hpp \
 	src/common/OffscreenRenderer.hpp \
 	src/common/Logger.hpp \
-    src/common/FontUtils.hpp \
-    src/common/AutoMesh.hpp \
-    src/common/AutoTriangleSelector.hpp \
+	src/common/FontUtils.hpp \
 	src/pioneers3d/scene/BoardSceneNode.hpp \
 	src/pioneers3d/scene/TileSceneNode.hpp \
 	src/pioneers3d/eGameState.hpp \
@@ -86,39 +79,32 @@ HEADERS	+= \
 	src/pioneers3d/Game_EventReceiver.hpp \
 	src/pioneers3d/Game_Raeuber.hpp \
 	src/pioneers3d/Game_Logger.hpp \
-    src/pioneers3d/Game_Bank.hpp \
-    src/pioneers3d/Game_Action.hpp \
-    src/pioneers3d/Game_Tile.hpp \
-    src/pioneers3d/Game_Waypoint.hpp \
-    src/pioneers3d/Game_Texture.hpp \
-    src/pioneers3d/Game_Player.hpp \
-    src/pioneers3d/Game_UI.hpp \
-    src/pioneers3d/Game_Font.hpp \
-    src/pioneers3d/eAction.hpp \
-    src/common/BaseWindow.hpp \
-    src/pioneers3d/Game_Collision.hpp \
-    src/pioneers3d/Game_Chat.hpp
+	src/pioneers3d/Game_Bank.hpp \
+	src/pioneers3d/Game_Action.hpp \
+	src/pioneers3d/Game_Tile.hpp \
+	src/pioneers3d/Game_Waypoint.hpp \
+	src/pioneers3d/Game_Texture.hpp \
+	src/pioneers3d/Game_Player.hpp \
+	src/pioneers3d/Game_UI.hpp \
+	src/pioneers3d/Game_Font.hpp \
+	src/pioneers3d/eAction.hpp \
+	src/common/BaseWindow.hpp \
+	src/pioneers3d/Game_Chat.hpp \
+	src/pioneers3d/Game_Objects.hpp \
+    src/common/RuntimeLogger.hpp
 
 SOURCES += \
 	src/common/AutoMeshBuffer.cpp \
-	src/common/AutoSceneNode.cpp \
-	src/common/Camera.cpp \
-	src/common/createBox.cpp \
-	src/common/createCircle.cpp \
-	src/common/createCylinder.cpp \
-	src/common/createDevice.cpp \
-	src/common/createHexagon.cpp \
-	src/common/createRect.cpp \
+	src/common/AutoMeshBufferUtils.cpp \
 	src/common/createRoundRect.cpp \
-	src/common/createTriangle.cpp \
+	src/common/Camera.cpp \
+	src/common/createDevice.cpp \
 	src/common/ImageUtils.cpp \
 	src/common/StringUtils.cpp \
 	src/common/BaseEventReceiver.cpp \
 	src/common/OffscreenRenderer.cpp \
 	src/common/Logger.cpp \
-    src/common/FontUtils.cpp \
-    src/common/AutoMesh.cpp \
-    src/common/AutoTriangleSelector.cpp \
+	src/common/FontUtils.cpp \
 	src/pioneers3d/scene/BoardSceneNode.cpp \
 	src/pioneers3d/scene/TileSceneNode.cpp \
 	src/pioneers3d/main_Pioneers3D.cpp \
@@ -128,14 +114,15 @@ SOURCES += \
 	src/pioneers3d/Game_Camera.cpp \
 	src/pioneers3d/Game_Raeuber.cpp \
 	src/pioneers3d/Game_Logger.cpp \
-    src/pioneers3d/Game_Bank.cpp \
-    src/pioneers3d/Game_Action.cpp \
-    src/pioneers3d/Game_Player.cpp \
-    src/pioneers3d/Game_Texture.cpp \
-    src/pioneers3d/Game_Waypoint.cpp \
-    src/pioneers3d/Game_Tile.cpp \
-    src/pioneers3d/Game_Font.cpp \
-    src/pioneers3d/Game_UI.cpp \
-    src/common/BaseWindow.cpp \
-    src/pioneers3d/Game_Collision.cpp \
-    src/pioneers3d/Game_Chat.cpp
+	src/pioneers3d/Game_Bank.cpp \
+	src/pioneers3d/Game_Action.cpp \
+	src/pioneers3d/Game_Player.cpp \
+	src/pioneers3d/Game_Texture.cpp \
+	src/pioneers3d/Game_Waypoint.cpp \
+	src/pioneers3d/Game_Tile.cpp \
+	src/pioneers3d/Game_Font.cpp \
+	src/pioneers3d/Game_UI.cpp \
+	src/common/BaseWindow.cpp \
+	src/pioneers3d/Game_Chat.cpp \
+	src/pioneers3d/Game_Objects.cpp \
+    src/common/RuntimeLogger.cpp

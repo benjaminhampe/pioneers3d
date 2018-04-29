@@ -1,12 +1,12 @@
 #include "Game_Action.hpp"
-
-#include <pioneers3d/Game_Bank.hpp>
 #include <pioneers3d/Game_Texture.hpp>
-#include <pioneers3d/Game_Player.hpp>
-#include <pioneers3d/Game_UI.hpp>
 #include <pioneers3d/Game_Chat.hpp>
-
-#define PRINT_FUNCTION { std::cout << __FUNCTION__ << ":" << __LINE__ << "()\n"; }
+#include <pioneers3d/Game_Bank.hpp>
+#include <pioneers3d/Game_Player.hpp>
+#include <pioneers3d/Game_Waypoint.hpp>
+#include <pioneers3d/Game_Objects.hpp>
+#include <pioneers3d/Game_UI.hpp>
+#define PRINT_FUNCTION { Chat_log( game, LogLevel::Debug, __FUNCTION__ ); }
 
 //void Action_Dice( Game_t* game );
 //void Action_Bank( Game_t* game );
@@ -25,26 +25,126 @@
 
 namespace pioneers3d {
 
+using de::alphasonic::LogLevel;
+
+void Action_Abort( Game_t* game )
+{
+    if ( game->State == eGameState::NOT_RUNNING )
+    {
+        return;
+    }
+
+    if ( game->State == eGameState::PLACE_OBJECT )
+    {
+
+        if (game->PlaceObject )
+        {
+            game->PlaceObject->drop();
+            game->PlaceObject = nullptr;
+        }
+
+        if ( game->PlaceObjectType == ePlaceObjectType::ROBBER )
+        {
+            Player_setActionEnabled( game, eAction::PLACE_ROBBER, true );
+        }
+        if ( game->PlaceObjectType == ePlaceObjectType::ROAD )
+        {
+            Player_setActionEnabled( game, eAction::BUY_ROAD, true );
+            Waypoints_R_setVisible( game, false );
+        }
+        if ( game->PlaceObjectType == ePlaceObjectType::SETTLEMENT )
+        {
+            Player_setActionEnabled( game, eAction::BUY_SETTLEMENT, true );
+            Waypoints_S_setVisible( game, false );
+        }
+        if ( game->PlaceObjectType == ePlaceObjectType::CITY )
+        {
+            Player_setActionEnabled( game, eAction::BUY_CITY, true );
+            Waypoints_S_setVisible( game, false );
+        }
+    }
+
+    game->State = eGameState::IDLE;
+    UI_update( game );
+}
+
+void Action_EndTurn( Game_t* game )
+{
+    // BEGIN CURRENT PLAYER
+    uint32_t playerColor = Player_getColor( game, game->Player );
+    std::string playerName = Player_getName( game, game->Player );
+    Chat_print( game, de::alphasonic::sprintf("(%d) %s ends turn.", game->Player + 1, playerName.c_str()), playerColor );
+    // END CURRENT PLAYER
+
+    // BEGIN NEXT PLAYER
+    game->Player++;
+
+    if ( game->Player >= game->Players.size() )
+    {
+        game->Player = 0;
+        game->Round++;
+    }
+
+    playerColor = Player_getColor( game, game->Player );
+    playerName = Player_getName( game, game->Player );
+    Chat_print( game, de::alphasonic::sprintf("(%d) %s begins turn...", game->Player + 1, playerName.c_str()), playerColor );
+
+    Player_setActionEnabled( game, game->Player, eAction::ENDTURN, false );
+
+    // DECIDE STATE
+    if ( game->Round == 0 )
+    {
+        Player_setAction( game, eAction::DICE );
+    }
+    else if ( game->Round == 1 )
+    {
+        Player_setAction( game, eAction::BUY_ROAD | eAction::BUY_SETTLEMENT );
+    }
+    else if ( game->Round == 2 )
+    {
+        Player_setAction( game, eAction::BUY_ROAD | eAction::BUY_SETTLEMENT );
+    }
+    else if ( game->Round == 3 )
+    {
+        Player_setAction( game, eAction::DICE );
+    }
+    else
+    {
+        Player_setActionEnabled( game, eAction::DICE, true );
+    }
+
+    setWindowVisible( game, eWindow::DICE, false );
+
+    UI_update( game );
+}
+
 void Action_Dice( Game_t* game )
 {
-    PRINT_FUNCTION
-    setPlayerActionEnabled( game, getCurrentPlayer( game ), eAction::ENDTURN, true );
-    setPlayerActionEnabled( game, getCurrentPlayer( game ), eAction::DICE, false );
-    ActionUI_update( game );
-
     setWindowVisible( game, eWindow::DICE, true );
     game->Dice.A = rand() % 6 + 1;
     game->Dice.B = rand() % 6 + 1;
     game->UI.Dice.A->setImage( Game_getDiceTexture( game, game->Dice.A ) );
     game->UI.Dice.B->setImage( Game_getDiceTexture( game, game->Dice.B ) );
 
-    int dice = game->Dice.sum();
     int playerIndex = game->Player;
-    uint32_t playerColor = getPlayerColor( game, playerIndex );
-    std::string playerName = getPlayerName( game, playerIndex );
+    int dice = game->Dice.sum();
+    uint32_t playerCount = uint32_t( getPlayerCount( game ) );
+    uint32_t playerColor = Player_getColor( game, playerIndex );
+    std::string playerName = Player_getName( game, playerIndex );
 
-    std::stringstream s; s << "Player dice " << dice << " = (" << game->Dice.A << " + " << game->Dice.B << " )";
-    Chat_addItem( game, playerIndex, playerName, playerColor, s.str() );
+    Chat_print( game, de::alphasonic::sprintf("%s (%d) got value (%d) with dice (%d + %d)", playerName.c_str(), playerIndex + 1, dice, game->Dice.A, game->Dice.B ), playerColor );
+
+    Player_setActionEnabled( game, game->Player, eAction::ENDTURN, true );
+    Player_setActionEnabled( game, game->Player, eAction::DICE, false );
+
+    UI_update( game );
+
+    if ( game->State != eGameState::IDLE )
+    {
+        return;
+    }
+
+    // GAME PHASE, only after 2 set rounds and 1 dice round at the start of each game
 
     if ( dice == 7 )
     {
@@ -67,76 +167,147 @@ void Action_Dice( Game_t* game )
     }
 
     std::cout << __FUNCTION__ << " :: [Ok] " << Bank_toString( bank ) << "\n";
-
-}
-
-void Action_EndTurn( Game_t* game )
-{
-    PRINT_FUNCTION
-    int32_t playerIndex = game->Player + 1;
-    int32_t playerCount = game->Players.size();
-    if ( playerIndex >= playerCount ) playerIndex = 0;
-    game->Player = playerIndex;
-
-    setPlayerActionEnabled( game, game->Player, eAction::DICE, true );
-    setPlayerActionEnabled( game, game->Player, eAction::ENDTURN, false );
-    PlayerUI_update( game );
-    ActionUI_update( game );
-    setWindowVisible( game, eWindow::DICE, false );
-
-    game->RoundCounter++;
 }
 
 void Action_Bank( Game_t* game )
 {
-    PRINT_FUNCTION
+    Chat_printPlayerMessage( game, game->Player, "bank" );
+
     game->UI.Bank.Window->setVisible( true );
     //game->UI.Bank.Window->getEnvironment()->getRootGUIElement()->bringToFront( game->UI.Bank.Window );
 }
 
 void Action_Trade( Game_t* game )
 {
-    PRINT_FUNCTION
+    Chat_printPlayerMessage( game, game->Player, "trade" );
 }
 
 void Action_BuyEventCard( Game_t* game )
 {
-    PRINT_FUNCTION
+    Chat_printPlayerMessage( game, game->Player, "buy event card" );
 }
 
 void Action_BuyRoad( Game_t* game )
 {
-    PRINT_FUNCTION
+//    if ( game->State == eGameState::PLACE_OBJECT )
+//    {
+//        return;
+//    }
+    game->State = eGameState::PLACE_OBJECT;
+    game->PlaceObjectType = ePlaceObjectType::ROAD;
+
+    Chat_printPlayerMessage( game, game->Player, "buy road" );
+
+    // create Road ( a box )
+    irr::scene::ISceneManager* smgr = game->Device->getSceneManager();
+    AutoSceneNode* node = new AutoSceneNode( smgr, smgr->getRootSceneNode(), -1 );
+    node->add( createRotatedBox( glm::vec3( 0,2.5f,0 ), glm::vec3(30,5,5), glm::vec3(0,0,0), Player_getColor( game ) ), true );
+    game->PlaceObject = node;
+
+    Waypoints_S_setVisible( game, false );
+    Waypoints_R_setVisible( game, true );
+
+    if ( game->Round == 0 )
+    {
+        // Dice Round, nothing todo...
+    }
+    else if ( game->Round == 1 )
+    {
+        Player_setActionEnabled( game, eAction::BUY_ROAD, false );
+        if ( Player_getNumSettlements( game ) >= 1 )
+        {
+            Player_setActionEnabled( game, eAction::ENDTURN, true );
+        }
+    }
+    else if ( game->Round == 2 )
+    {
+        Player_setActionEnabled( game, eAction::BUY_ROAD, false );
+        if ( Player_getNumSettlements( game ) >= 2 )
+        {
+            Player_setActionEnabled( game, eAction::ENDTURN, true );
+        }
+    }
+    else
+    {
+        // Normal game mode
+    }
+
+    UI_update( game );
 }
 
 void Action_BuySettlement( Game_t* game )
 {
-    PRINT_FUNCTION
+    game->State = eGameState::PLACE_OBJECT;
+    game->PlaceObjectType = ePlaceObjectType::SETTLEMENT;
+
+    Chat_printPlayerMessage( game, game->Player, "buy settlement" );
+
+    irr::scene::ISceneManager* smgr = game->Device->getSceneManager();
+    AutoSceneNode* node = new AutoSceneNode( smgr, smgr->getRootSceneNode(), -1 );
+    node->add( createRotatedBox( glm::vec3( 0,4,0 ), glm::vec3(10,8,10), glm::vec3(0,0,0), Player_getColor( game ) ), true );
+    node->add( createRotatedBox( glm::vec3( 0,9,0 ), glm::vec3(8,2,8), glm::vec3(0,0,0), Player_getColor( game ) ), true );
+
+    game->PlaceObject = node;
+
+    Waypoints_S_setVisible( game, true );
+    Waypoints_R_setVisible( game, false );
+
+    if ( game->Round == 0 )
+    {
+        // Dice Round, nothing todo...
+    }
+    else if ( game->Round == 1 )
+    {
+        Player_setActionEnabled( game, eAction::BUY_SETTLEMENT, false );
+        if ( Player_getNumRoads( game ) >= 1 )
+        {
+            Player_setActionEnabled( game, eAction::ENDTURN, true );
+        }
+    }
+    else if ( game->Round == 2 )
+    {
+        Player_setActionEnabled( game, eAction::BUY_SETTLEMENT, false );
+        if ( Player_getNumRoads( game ) >= 2 )
+        {
+            Player_setActionEnabled( game, eAction::ENDTURN, true );
+        }
+    }
+    else
+    {
+        // Normal game mode
+    }
+
+    UI_update( game );
 }
 
 void Action_BuyCity( Game_t* game )
 {
     PRINT_FUNCTION
+    game->State = eGameState::PLACE_OBJECT;
 }
 
 void Action_PlaceRobber( Game_t * game )
 {
     PRINT_FUNCTION
+    game->State = eGameState::PLACE_OBJECT;
 }
 
 void Action_PlaceRoad( Game_t* game )
 {
     PRINT_FUNCTION
+    game->State = eGameState::PLACE_OBJECT;
 }
 
 void Action_PlaceSettlement( Game_t* game )
 {
     PRINT_FUNCTION
+    game->State = eGameState::PLACE_OBJECT;
 }
 
 void Action_PlaceCity( Game_t* game )
 {
     PRINT_FUNCTION
+    game->State = eGameState::PLACE_OBJECT;
 }
 
 /*

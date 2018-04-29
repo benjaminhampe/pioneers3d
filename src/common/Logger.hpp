@@ -65,6 +65,22 @@ public:
         }
     }
 
+
+    /// @brief Convert enum value to string.
+    uint32_t getColor() const
+    {
+        switch ( m_Level )
+        {
+            case Trace: return 0xFFFF80FF;
+            case Debug: return 0xFFFF00FF;
+            case Warn: return 0xFFFFFF00;
+            case Error: return 0xFFFF0000;
+            case Fatal: return 0xFFFF6020;
+            case Info: return 0xFFFFFFFF;
+            default: return 0xFFFFFFFF;
+        }
+    }
+
     /// @brief Convert class member enum value to string.
     std::string toString() const { return createString( m_Level );	}
 
@@ -125,6 +141,28 @@ private:
 } // end namespace alphasonic
 } // end namespace de
 
+#if 0
+// create static class logger
+#ifndef DE_CREATE_LOGGER
+#define DE_CREATE_LOGGER(name) \
+public: \
+    static de::alphasonic::Logger & \
+    getLogger() \
+    { \
+        static de::alphasonic::Logger s_Logger( (name) ) \
+        return s_Logger; \
+    }
+
+#define to$(Args...) (de::alphasonic::sprintf(Args))
+#define MDCL_LOG(level,Args...) getLogger() << (level) << __FUNCTION__ << " :: " << to$(Args) << "\n";
+#define MDCL_TRACE(Args...) MDCL_LOG(de::alphasonic::LogLevel::Trace,Args)
+#define MDCL_DEBUG(Args...) MDCL_LOG(de::alphasonic::LogLevel::Debug,Args)
+#define MDCL_INFO(Args...) MDCL_LOG(de::alphasonic::LogLevel::Info,Args)
+#define MDCL_WARN(Args...) MDCL_LOG(de::alphasonic::LogLevel::Warn,Args)
+#define MDCL_ERROR(Args...) MDCL_LOG(de::alphasonic::LogLevel::Error,Args)
+#define MDCL_FATAL(Args...) MDCL_LOG(de::alphasonic::LogLevel::Fatal,Args)
+#endif
+#endif
 //inline std::ostream &
 //operator<< ( std::ostream & out, de::alphasonic::LogLevel const & level )
 //{

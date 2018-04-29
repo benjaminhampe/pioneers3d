@@ -24,8 +24,10 @@ public:
         BANK = 1<<2,
         ACTION = 1<<3,
         PLAYER = 1<<4,
-        CHAT = 1<<8,
-        ALL = MAINMENU | DICE | BANK | ACTION | PLAYER | CHAT
+        //CHAT = 1<<8,
+        INIT_DICE = ACTION | DICE,
+        INIT_PLACE = ACTION | PLAYER,
+        ALL = MAINMENU | DICE | BANK | ACTION | PLAYER
     };
 
     eWindow( uint32_t flags ) : Flags( flags ) {}
@@ -38,16 +40,18 @@ public:
 };
 
 void setWindowVisible( Game_t * game, eWindow window, bool visible );
-
-void ActionUI_create( Game_t * game, irr::core::recti const & pos );
-void ActionUI_update( Game_t * game );
-
-void PlayerUI_create( Game_t * game, irr::core::recti const & pos );
-void PlayerUI_update( Game_t * game );
-
-void DiceUI_create( Game_t * game, irr::core::recti const & pos );
-
-void GameUI_createChat( Game_t * game, irr::core::recti const & pos );
+void UI_create( Game_t * game );
+void UI_update( Game_t * game );
+void UI_createActionWindow( Game_t * game, irr::core::recti const & pos );
+void UI_updateActionWindow( Game_t * game );
+void UI_createPlayerWindow( Game_t * game, irr::core::recti const & pos );
+void UI_updatePlayerWindow( Game_t * game );
+void UI_createDiceWindow( Game_t * game, irr::core::recti const & pos );
+void UI_createChatWindow( Game_t * game, irr::core::recti const & pos );
+void UI_createBankWindow( Game_t * game, irr::core::recti const & pos );
+void UI_createStartWindow( Game_t * game, irr::core::recti const & pos );
+void UI_createHelpWindow( Game_t * game );
+void UI_createCameraEditorWindow( Game_t * game, irr::core::recti const & pos );
 
 /*
 void
@@ -59,16 +63,6 @@ CardUI_create(  irr::gui::IGUIEnvironment* env,
                 irr::video::ITexture* tex = nullptr,
                 std::string value = "" );
 */
-
-void GameUI_createCamera( Game_t * game, irr::core::recti const & pos );
-
-void BankUI_create( Game_t * game, irr::core::recti const & pos );
-
-void MainMenuUI_create( Game_t * game );
-
-
-void HelpWindowUI_create( Game_t * game );
-
 
 } // end namespace pioneers3d
 

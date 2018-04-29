@@ -2,27 +2,15 @@
 #define DE_ALPHASONIC_AUTO_MESH_BUFFER_HPP
 
 #include <common/Types.hpp>
-#include <irrBackend.hpp>
 
-inline void
-enumerateMeshBuffer( irr::scene::SMeshBuffer & p )
-{
-    std::cout << "VertexCount = " << p.Vertices.size() << "\n";
-    for ( uint32_t i = 0; i < p.Vertices.size(); ++i )
-    {
-        std::cout << "Vertex[" << i << "]" << toString( p.Vertices[ i ] ) << "\n";
-    }
+void
+enumerateMeshBuffer( irr::scene::SMeshBuffer & p );
 
-    std::cout << "IndexCount = " << p.Indices.size() << "\n";
-
-    for ( uint32_t i = 0; i < p.Indices.size(); ++i )
-    {
-        std::cout << "Index[" << i << "]" << p.Indices[ i ] << "\n";
-    }
-
-    std::cout << "Material = " << p.Vertices.size() << "\n";
-    std::cout << "BoundingBox = " << p.Vertices.size() << "\n";
-}
+//=======================================================================================
+//
+// CLASS: AutoMeshBuffer
+//
+//=======================================================================================
 
 class AutoMeshBuffer : public irr::IReferenceCounted
 {
@@ -33,312 +21,315 @@ public:
     irr::scene::SMeshBuffer MeshBuffer;			// The traditional irrlicht meshbuffer ( aka non-auto, aka broken )
 
 public:
-    AutoMeshBuffer() : PrimitiveType( irr::scene::EPT_POINTS ) // This works for every mesh type ( aka fallback )
-                     , VertexType( irr::video::EVT_STANDARD )	// Standard Vertex: FVF_POSITION | FVF_NORMAL | FVF_COLOR32 | FVF_TEXCOORD0
-                     , IndexType( irr::video::EIT_16BIT )		// Standard up to 65535 Vertices
-    {
-        MeshBuffer.Material.MaterialType = irr::video::EMT_SOLID;
-        MeshBuffer.Material.Lighting = false;
-        MeshBuffer.Material.FogEnable = false;
-    }
+    static uint32_t
+    getPrimitiveCount( irr::scene::E_PRIMITIVE_TYPE primitiveType, uint32_t indexCount );
+
+    AutoMeshBuffer();
 
     AutoMeshBuffer( irr::scene::E_PRIMITIVE_TYPE primType,
                     irr::video::E_VERTEX_TYPE vertexType = irr::video::EVT_STANDARD,
-                    irr::video::E_INDEX_TYPE indexType = irr::video::EIT_16BIT )
-        : PrimitiveType( primType )
-        , VertexType( vertexType )
-        , IndexType( indexType )
-    {
-        MeshBuffer.Material.MaterialType = irr::video::EMT_SOLID;
-        MeshBuffer.Material.Lighting = false;
-        MeshBuffer.Material.FogEnable = false;
-    }
+                    irr::video::E_INDEX_TYPE indexType = irr::video::EIT_16BIT );
 
-    virtual ~AutoMeshBuffer() {}
+    virtual ~AutoMeshBuffer();
 
-    static uint32_t
-    getPrimitiveCount( irr::scene::E_PRIMITIVE_TYPE primitiveType, uint32_t indexCount )
-    {
-        switch( primitiveType )
-        {
-            case irr::scene::EPT_POINTS: return indexCount;
-            case irr::scene::EPT_LINES: return indexCount / 2;
-            case irr::scene::EPT_LINE_LOOP: return indexCount - 1;
-            case irr::scene::EPT_TRIANGLES: return indexCount / 3;
-            case irr::scene::EPT_POLYGON: return indexCount;
-            case irr::scene::EPT_QUADS: return indexCount / 4;
-            default: return 0;
-        }
-        return 0;
-    }
+    uint32_t getPrimitiveCount() const;
 
-    uint32_t getPrimitiveCount() const
-    {
-        return getPrimitiveCount( PrimitiveType, MeshBuffer.getIndexCount() );
-    }
+    void render( irr::video::IVideoDriver* driver );
 
-    void render( irr::video::IVideoDriver* driver )
-    {
-        driver->setMaterial( MeshBuffer.Material );
+    /// interface: Material
 
-        driver->drawVertexPrimitiveList(
-            MeshBuffer.getVertices(),
-            MeshBuffer.getVertexCount(),
-            MeshBuffer.getIndices(),
-            this->getPrimitiveCount(),
-            VertexType,
-            PrimitiveType,
-            IndexType
-        );
-    }
+    void setTexture( uint32_t stage, irr::video::ITexture* tex );
 
-    // material
+    void setWireframe( bool enable );
 
-    void setTexture( uint32_t stage, irr::video::ITexture* tex )
-    {
-        MeshBuffer.Material.setTexture( stage, tex );
-    }
+    bool hasTransparentVertexColor() const;
 
-    void setWireframe( bool enable )
-    {
-        MeshBuffer.Material.Wireframe = enable;
-    }
+    void setDefaultMaterialType();
 
-    bool hasTransparentVertexColor() const
-    {
-        for ( uint32_t i = 0; i < MeshBuffer.Vertices.size(); ++i )
-        {
-            if ( MeshBuffer.Vertices[ i ].Color.getAlpha() < 255 )
-            {
-                return true;
-            }
-        }
-        return false;
-    }
+    void setDefaultMaterialType( irr::video::SColor const & color );
 
-    void setDefaultMaterialType()
-    {
-        MeshBuffer.Material.MaterialType = irr::video::EMT_SOLID;
+    /// interface: IMeshBuffer
 
-        if ( hasTransparentVertexColor() )
-        {
-            MeshBuffer.Material.MaterialType = irr::video::EMT_TRANSPARENT_VERTEX_ALPHA;
-        }
-    }
-
-    void setDefaultMaterialType( irr::video::SColor const & color )
-    {
-        MeshBuffer.Material.MaterialType = irr::video::EMT_SOLID;
-
-        if ( color.getAlpha() < 255 )
-        {
-            MeshBuffer.Material.MaterialType = irr::video::EMT_TRANSPARENT_VERTEX_ALPHA;
-        }
-    }
-
-/// IMeshBuffer interface:
-///
     //! returns an axis aligned bounding box
-    irr::core::aabbox3d<irr::f32> const & getBoundingBox() const
-    {
-        return MeshBuffer.BoundingBox;
-    }
+    irr::core::aabbox3d<irr::f32> const & getBoundingBox() const;
 
     //! set user axis aligned bounding box
-    void setBoundingBox( irr::core::aabbox3df const & box )
-    {
-        MeshBuffer.BoundingBox = box;
-    }
+    void setBoundingBox( irr::core::aabbox3df const & box );
 
     //! Get material of this meshbuffer
-    /** \return Material of this buffer */
-    irr::video::SMaterial const & getMaterial() const
-    {
-        return MeshBuffer.Material;
-    }
+    irr::video::SMaterial const & getMaterial() const;
 
     //! Get material of this meshbuffer
-    /** \return Material of this buffer */
-    irr::video::SMaterial & getMaterial()
-    {
-        return MeshBuffer.Material;
-    }
+    irr::video::SMaterial & getMaterial();
+
+    /// @brief Add collision detection
+    bool getIntersectionWithLine( irr::core::line3df const & ray, irr::core::vector3df & hitPosition ) const;
 
 };
 
-inline void
-addVertex( AutoMeshBuffer & buffer, glm::vec3 p, glm::vec3 n, uint32_t color, glm::vec2 uv, bool flipV = true )
+//=======================================================================================
+//
+// CLASS: AutoMesh
+//
+//=======================================================================================
+
+class AutoMesh : public irr::scene::IMesh
 {
-    buffer.MeshBuffer.Vertices.push_back( irr::video::S3DVertex( p.x, p.y, p.z, n.x, n.y, n.z, irr::video::SColor( color ), uv.x, (flipV) ? 1.0f - uv.y : uv.y ) );
-    buffer.MeshBuffer.BoundingBox.addInternalPoint( p.x, p.y, p.z );
-}
+public:
+    //! constructor
+    AutoMesh();
 
-inline void
-addTriangle( AutoMeshBuffer & buffer, glm::vec3 A, glm::vec3 B, glm::vec3 C, uint32_t color, glm::vec2 uvA, glm::vec2 uvB, glm::vec2 uvC, bool flipV = true )
+    //! destructor
+    virtual ~AutoMesh();
+
+    //! clean mesh
+    void clear();
+
+    virtual irr::u32 getMaterialCount() const;
+
+    virtual irr::video::SMaterial & getMaterial( irr::u32 i );
+
+    //! returns amount of mesh buffers.
+    virtual irr::u32 getMeshBufferCount() const override;
+
+    //! returns pointer to a mesh buffer
+    virtual irr::scene::IMeshBuffer* getMeshBuffer( irr::u32 i ) const override;
+
+    //! returns a meshbuffer which fits a material
+    /** reverse search */
+    virtual irr::scene::IMeshBuffer* getMeshBuffer( irr::video::SMaterial const & material ) const override;
+
+    //! returns an axis aligned bounding box
+    virtual irr::core::aabbox3d<irr::f32> const & getBoundingBox() const override;
+
+    //! set user axis aligned bounding box
+    virtual void setBoundingBox( irr::core::aabbox3df const & box ) override;
+
+    //! recalculates the bounding box
+    virtual void recalculateBoundingBox(); // override
+
+    //! adds a MeshBuffer
+    /** The bounding box is not updated automatically. */
+    virtual void addMeshBuffer( irr::scene::IMeshBuffer* buf ); // override
+
+    //! adds a MeshBuffer
+    /** The bounding box is not updated automatically. */
+    virtual void addAutoMeshBuffer( AutoMeshBuffer* buf, bool dropAfter = false ); // override
+
+    //! sets a flag of all contained materials to a new value
+    virtual void setMaterialFlag( irr::video::E_MATERIAL_FLAG flag, bool newvalue) override;
+
+    //! set the hardware mapping hint, for driver
+    virtual void setHardwareMappingHint( irr::scene::E_HARDWARE_MAPPING newMappingHint, irr::scene::E_BUFFER_TYPE buffer = irr::scene::EBT_VERTEX_AND_INDEX ) override;
+
+    //! flags the meshbuffer as changed, reloads hardware buffers
+    virtual void setDirty( irr::scene::E_BUFFER_TYPE buffer = irr::scene::EBT_VERTEX_AND_INDEX ) override;
+
+    //! The meshbuffers of this mesh
+    std::vector< AutoMeshBuffer* > MeshBuffers;
+
+    //! The bounding box of this mesh
+    irr::core::aabbox3df BoundingBox;
+
+    //! What we return on invalid index
+    irr::video::SMaterial DefaultMaterial;
+
+    /// @brief Add collision detection
+    bool getIntersectionWithLine( irr::core::line3df const & ray, irr::core::vector3df & hitPosition ) const;
+};
+
+//=======================================================================================
+//
+// CLASS: AutoSceneNode
+//
+//=======================================================================================
+
+class AutoSceneNode : public irr::scene::ISceneNode
 {
-    uint32_t const v0 = buffer.MeshBuffer.Vertices.size();
-    glm::vec3 const n = glm::normalize( glm::cross( B-A, C-A ) );
+public:
+    AutoSceneNode( irr::scene::ISceneManager* smgr, irr::scene::ISceneNode* parent, int id = -1 );
 
-    addVertex( buffer, A, n, color, uvA, flipV );
-    addVertex( buffer, B, n, color, uvB, flipV );
-    addVertex( buffer, C, n, color, uvC, flipV );
+    virtual ~AutoSceneNode();
 
-    buffer.MeshBuffer.Indices.push_back( v0 + 0 );
-    buffer.MeshBuffer.Indices.push_back( v0 + 1 );
-    buffer.MeshBuffer.Indices.push_back( v0 + 2 );
-}
+    void OnRegisterSceneNode() override;
 
-inline void
-addTriangle( AutoMeshBuffer & buffer, glm::vec3 A, glm::vec3 B, glm::vec3 C, glm::vec3 n, uint32_t color, glm::vec2 uvA, glm::vec2 uvB, glm::vec2 uvC, bool flipV = true )
+    void render() override;
+
+    irr::u32 getMaterialCount() const override;
+
+    irr::video::SMaterial& getMaterial( irr::u32 i ) override;
+
+    irr::core::aabbox3d<irr::f32> const & getBoundingBox() const override;
+
+    void clear();
+
+    void add( AutoMeshBuffer * mb, bool dropAfterAdd = false );
+
+//    void addMeshBuffer(
+//            irr::scene::SMeshBuffer && mb,
+//            irr::scene::E_PRIMITIVE_TYPE primType = irr::scene::EPT_TRIANGLES,
+//            irr::video::E_VERTEX_TYPE vertexType = irr::video::EVT_STANDARD,
+//            irr::video::E_INDEX_TYPE indexType = irr::video::EIT_16BIT );
+
+    irr::u32 getMeshBufferCount() const;
+
+    AutoMeshBuffer* getAutoMeshBuffer( irr::u32 i );
+
+    irr::scene::SMeshBuffer* getMeshBuffer( irr::u32 i );
+
+    /// @brief Add collision detection
+    bool getIntersectionWithLine( irr::core::line3df const & ray, irr::core::vector3df & hitPosition ) const;
+
+    //void setPosition( float32_t x, float32_t y, float32_t z );
+
+    AutoMesh * getMesh() { return &m_Mesh; }
+
+protected:
+    irr::core::aabbox3d<irr::f32> m_BoundingBox;
+
+    AutoMesh m_Mesh;
+
+    // std::vector< AutoMeshBuffer* > m_MeshBuffer;
+};
+
+
+//=======================================================================================
+//
+// CLASS: AutoTriangleSelector
+//
+//=======================================================================================
+
+#if 0
+//! Interface to return triangles with specific properties.
+class AutoTriangleSelector : public virtual irr::scene::ITriangleSelector
 {
-    uint32_t const v0 = buffer.MeshBuffer.Vertices.size();
+    irr::scene::ISceneNode* m_SceneNode;
+    std::vector< irr::core::triangle3df > m_Triangles;
+    irr::core::aabbox3df m_BoundingBox;
+public:
+    void clear() { m_Triangles.clear(); m_SceneNode = nullptr; }
 
-    addVertex( buffer, A, n, color, uvA, flipV );
-    addVertex( buffer, B, n, color, uvB, flipV );
-    addVertex( buffer, C, n, color, uvC, flipV );
+    //! Get amount of all available triangles in this selector
+    void setSceneNode( irr::scene::ISceneNode* node ) { m_SceneNode = node; }
 
-    buffer.MeshBuffer.Indices.push_back( v0 + 0 );
-    buffer.MeshBuffer.Indices.push_back( v0 + 1 );
-    buffer.MeshBuffer.Indices.push_back( v0 + 2 );
-}
+    void addTriangle( irr::core::triangle3df const & triangle ) { m_Triangles.emplace_back( std::move( triangle ) ); }
 
-inline glm::vec3
-getNormal( glm::vec3 A, glm::vec3 B, glm::vec3 C )
-{
-    return glm::normalize( glm::cross( B-A, C-A ) );
-}
+    void addMeshBuffer( irr::scene::IMeshBuffer* p, irr::scene::E_PRIMITIVE_TYPE primType = irr::scene::EPT_TRIANGLES )
+    {
+        if ( primType != irr::scene::EPT_TRIANGLES )
+        {
+            std::cout << "[Warn] " << __FUNCTION__ << " :: Adding incompatible MeshBuffer of primType(" << primType << ")\n";
+        }
 
+        uint32_t triCount = p->getIndexCount() / 3;
+        for ( uint32_t i = 0; i < triCount; ++i )
+        {
+            irr::video::S3DVertex* vertices = (irr::video::S3DVertex*)p->getVertices();
+            irr::core::vector3df const & A = vertices[ 3*i + 0 ].Pos;
+            irr::core::vector3df const & B = vertices[ 3*i + 1 ].Pos;
+            irr::core::vector3df const & C = vertices[ 3*i + 2 ].Pos;
+            m_Triangles.emplace_back( irr::core::triangle3df( A, B, C ) );
+        }
+    }
+    //! Get amount of all available triangles in this selector
+    virtual irr::s32 getTriangleCount() const { return m_Triangles.size(); }
 
-inline void
-addQuad( AutoMeshBuffer & buffer, glm::vec3 A, glm::vec3 B, glm::vec3 C, glm::vec3 D, uint32_t color, bool flipV = true )
-{
-    uint32_t const v0 = buffer.MeshBuffer.Vertices.size();
+    //! Get scene node associated with a given triangle.
+    virtual irr::scene::ISceneNode* getSceneNodeForTriangle( irr::u32 /*triangleIndex*/ ) const { return m_SceneNode; }
 
-    glm::vec3 const n1 = getNormal( A, B, C );
-    glm::vec3 const n2 = getNormal( A, C, D );
-    glm::vec2 const uvA( 0.0f, 0.0f );
-    glm::vec2 const uvB( 0.0f, 1.0f );
-    glm::vec2 const uvC( 1.0f, 1.0f );
-    glm::vec2 const uvD( 1.0f, 0.0f );
+    //! Get number of TriangleSelectors that are part of this one
+    virtual irr::u32 getSelectorCount() const { return 1; }
 
-    addVertex( buffer, A, n1, color, uvA, flipV );
-    addVertex( buffer, B, n2, color, uvB, flipV );
-    addVertex( buffer, C, n1, color, uvC, flipV );
-    addVertex( buffer, A, n2, color, uvA, flipV );
-    addVertex( buffer, C, n2, color, uvC, flipV );
-    addVertex( buffer, D, n1, color, uvD, flipV );
+    //! Get TriangleSelector based on index based on getSelectorCount
+    virtual ITriangleSelector* getSelector( irr::u32 index ) { return nullptr; }
 
-    buffer.MeshBuffer.Indices.push_back( v0 + 0 );
-    buffer.MeshBuffer.Indices.push_back( v0 + 1 );
-    buffer.MeshBuffer.Indices.push_back( v0 + 2 );
-    buffer.MeshBuffer.Indices.push_back( v0 + 3 );
-    buffer.MeshBuffer.Indices.push_back( v0 + 4 );
-    buffer.MeshBuffer.Indices.push_back( v0 + 5 );
-}
+    //! Get TriangleSelector based on index based on getSelectorCount
+    virtual const ITriangleSelector* getSelector( irr::u32 index ) const { return nullptr; }
 
-//  F  G
-// /E /H
-// B--C
-// |/ |
-// A--D
+    //! Gets the triangles for one associated node.
+    virtual void getTriangles( irr::core::triangle3df* triangles, irr::s32 arraySize,
+        irr::s32& outTriangleCount, const irr::core::matrix4* transform=0 ) const override
+    {
+        irr::u32 cnt = m_Triangles.size();
+        if (cnt > (irr::u32)arraySize)
+            cnt = (irr::u32)arraySize;
 
-/// @brief Create a box with one repeating texture over all 6 planes
-inline void
-addBox( AutoMeshBuffer & p, glm::vec3 const & pos, glm::vec3 const & size, uint32_t color )
-{
-    float const dx = 0.5f*size.x;
-    float const dy = 0.5f*size.y;
-    float const dz = 0.5f*size.z;
-    glm::vec3 const A = pos + glm::vec3(-dx,-dy,-dz);
-    glm::vec3 const B = pos + glm::vec3(-dx, dy,-dz);
-    glm::vec3 const C = pos + glm::vec3( dx, dy,-dz);
-    glm::vec3 const D = pos + glm::vec3( dx,-dy,-dz);
-    glm::vec3 const E = pos + glm::vec3(-dx,-dy, dz);
-    glm::vec3 const F = pos + glm::vec3(-dx, dy, dz);
-    glm::vec3 const G = pos + glm::vec3( dx, dy, dz);
-    glm::vec3 const H = pos + glm::vec3( dx,-dy, dz);
+        irr::core::matrix4  mat;
+        if (transform)      mat = *transform;
+        if (m_SceneNode)    mat *= m_SceneNode->getAbsoluteTransformation();
 
-    // p.MeshBuffer.BoundingBox = irr::core::aabbox3df(-dx,-dy,-dz, dx,dy,dz);
+        for ( irr::u32 i = 0; i < cnt; ++i )
+        {
+            mat.transformVect( triangles[i].pointA, m_Triangles[i].pointA );
+            mat.transformVect( triangles[i].pointB, m_Triangles[i].pointB );
+            mat.transformVect( triangles[i].pointC, m_Triangles[i].pointC );
+        }
 
-    addQuad( p, E, F, B, A, color ); // n(-1, 0, 0);    // Neg X = EFBA
-    addQuad( p, E, A, D, H, color ); // n( 0,-1, 0);    // Neg Y = EADH
-    addQuad( p, A, B, C, D, color ); // n( 0, 0, -1);   // Neg Z = ABCD
-    addQuad( p, D, C, G, H, color ); // n( 1, 0, 0);    // Pos X = DCGH
-    addQuad( p, B, F, G, C, color ); // n( 0, 1, 0);    // Pos Y = BFGC
-    addQuad( p, H, G, F, E, color ); // n( 0, 0, 1);    // Pos Z = HGFE
-}
-
-/// @brief Create a box with one repeating texture over all 6 planes
-inline void
-addBoxPlane( AutoMeshBuffer & p, int i, glm::vec3 const & pos, glm::vec3 const & size, uint32_t color )
-{
-    float const dx = 0.5f*size.x;
-    float const dy = 0.5f*size.y;
-    float const dz = 0.5f*size.z;
-    glm::vec3 const A = pos + glm::vec3(-dx,-dy,-dz);
-    glm::vec3 const B = pos + glm::vec3(-dx, dy,-dz);
-    glm::vec3 const C = pos + glm::vec3( dx, dy,-dz);
-    glm::vec3 const D = pos + glm::vec3( dx,-dy,-dz);
-    glm::vec3 const E = pos + glm::vec3(-dx,-dy, dz);
-    glm::vec3 const F = pos + glm::vec3(-dx, dy, dz);
-    glm::vec3 const G = pos + glm::vec3( dx, dy, dz);
-    glm::vec3 const H = pos + glm::vec3( dx,-dy, dz);
-
-         if ( i == 0 ) addQuad( p, E, F, B, A, color ); // n(-1, 0, 0); // Neg X = EFBA
-    else if ( i == 1 ) addQuad( p, E, A, D, H, color ); // n( 0,-1, 0); // Neg Y = EADH
-    else if ( i == 2 ) addQuad( p, A, B, C, D, color ); // n( 0, 0,-1); // Neg Z = ABCD
-    else if ( i == 3 ) addQuad( p, D, C, G, H, color ); // n( 1, 0, 0); // Pos X = DCGH
-    else if ( i == 4 ) addQuad( p, B, F, G, C, color ); // n( 0, 1, 0); // Pos Y = BFGC
-    else if ( i == 5 ) addQuad( p, H, G, F, E, color ); // n( 0, 0, 1); // Pos Z = HGFE
-}
-
-/// @brief Create a box
-inline void
-addBoxWithoutTop( AutoMeshBuffer & p, glm::vec3 const & pos, glm::vec3 const & size, uint32_t color )
-{
-    float const dx = 0.5f*size.x;
-    float const dy = 0.5f*size.y;
-    float const dz = 0.5f*size.z;
-    glm::vec3 const A = pos + glm::vec3(-dx,-dy,-dz);
-    glm::vec3 const B = pos + glm::vec3(-dx, dy,-dz);
-    glm::vec3 const C = pos + glm::vec3( dx, dy,-dz);
-    glm::vec3 const D = pos + glm::vec3( dx,-dy,-dz);
-    glm::vec3 const E = pos + glm::vec3(-dx,-dy, dz);
-    glm::vec3 const F = pos + glm::vec3(-dx, dy, dz);
-    glm::vec3 const G = pos + glm::vec3( dx, dy, dz);
-    glm::vec3 const H = pos + glm::vec3( dx,-dy, dz);
-
-    addQuad( p, E, F, B, A, color ); // n(-1, 0, 0);    // Neg X = EFBA
-    addQuad( p, E, A, D, H, color ); // n( 0,-1, 0);    // Neg Y = EADH
-    addQuad( p, A, B, C, D, color ); // n( 0, 0, -1);   // Neg Z = ABCD
-    addQuad( p, D, C, G, H, color ); // n( 1, 0, 0);    // Pos X = DCGH
-    //addQuad( p, B, F, G, C, color ); // n( 0, 1, 0);    // Pos Y = BFGC
-    addQuad( p, H, G, F, E, color ); // n( 0, 0, 1);    // Pos Z = HGFE
-}
-
-/// @brief Create a box
-inline void
-addBoxWithoutTopAndBottom( AutoMeshBuffer & p, glm::vec3 const & pos, glm::vec3 const & size, uint32_t color )
-{
-    float const dx = 0.5f*size.x;
-    float const dy = 0.5f*size.y;
-    float const dz = 0.5f*size.z;
-    glm::vec3 const A = pos + glm::vec3(-dx,-dy,-dz);
-    glm::vec3 const B = pos + glm::vec3(-dx, dy,-dz);
-    glm::vec3 const C = pos + glm::vec3( dx, dy,-dz);
-    glm::vec3 const D = pos + glm::vec3( dx,-dy,-dz);
-    glm::vec3 const E = pos + glm::vec3(-dx,-dy, dz);
-    glm::vec3 const F = pos + glm::vec3(-dx, dy, dz);
-    glm::vec3 const G = pos + glm::vec3( dx, dy, dz);
-    glm::vec3 const H = pos + glm::vec3( dx,-dy, dz);
-
-    addQuad( p, E, F, B, A, color ); // n(-1, 0, 0);    // Neg X = EFBA
-    //addQuad( p, E, A, D, H, color ); // n( 0,-1, 0);    // Neg Y = EADH
-    addQuad( p, A, B, C, D, color ); // n( 0, 0, -1);   // Neg Z = ABCD
-    addQuad( p, D, C, G, H, color ); // n( 1, 0, 0);    // Pos X = DCGH
-    //addQuad( p, B, F, G, C, color ); // n( 0, 1, 0);    // Pos Y = BFGC
-    addQuad( p, H, G, F, E, color ); // n( 0, 0, 1);    // Pos Z = HGFE
-}
+        outTriangleCount = cnt;
+    }
 
 
-#endif // DE_ALPHASONIC_AUTO_MESH_BUFFER_HPP
+//! Gets all triangles which lie within a specific bounding box.
+    virtual void getTriangles( irr::core::triangle3df* triangles,
+                    irr::s32 arraySize, irr::s32 & outTriangleCount,
+                    irr::core::aabbox3d<irr::f32> const & box,
+                    irr::core::matrix4 const * transform) const override
+    {
+        irr::core::matrix4 mat( irr::core::matrix4::EM4CONST_NOTHING );
+        irr::core::aabbox3df tBox(box);
+
+        if (m_SceneNode)
+        {
+            m_SceneNode->getAbsoluteTransformation().getInverse(mat);
+            mat.transformBoxEx( tBox );
+        }
+        if ( transform )    mat = *transform;
+        else                mat.makeIdentity();
+        if (m_SceneNode)    mat *= m_SceneNode->getAbsoluteTransformation();
+
+        outTriangleCount = 0;
+
+        if ( !tBox.intersectsWithBox( m_BoundingBox ) ) return;
+
+        irr::s32 triangleCount = 0;
+        irr::u32 const cnt = m_Triangles.size();
+        for ( irr::u32 i = 0; i < cnt; ++i )
+        {
+            // This isn't an accurate test, but it's fast, and the
+            // API contract doesn't guarantee complete accuracy.
+            if ( m_Triangles[i].isTotalOutsideBox(tBox) )
+               continue;
+
+            triangles[ triangleCount ] = m_Triangles[ i ];
+            mat.transformVect( triangles[ triangleCount ].pointA );
+            mat.transformVect( triangles[ triangleCount ].pointB );
+            mat.transformVect( triangles[ triangleCount ].pointC );
+
+            ++triangleCount;
+
+            if (triangleCount == arraySize)
+                break;
+        }
+
+        outTriangleCount = triangleCount;
+    }
+
+
+    //! Gets all triangles which have or may have contact with a 3d line.
+    virtual void getTriangles( irr::core::triangle3df* triangles,
+                    irr::s32 arraySize,
+                    irr::s32 & outTriangleCount,
+                    irr::core::line3d<irr::f32> const & line,
+                    irr::core::matrix4 const * transform) const override
+    {
+        irr::core::aabbox3d<irr::f32> box( line.start );
+        box.addInternalPoint( line.end );
+
+        // TODO: Could be optimized for line a little bit more.
+        getTriangles( triangles, arraySize, outTriangleCount, box, transform );
+    }
+};
+
+#endif // 0
+
+#endif // AUTOMESH_HPP

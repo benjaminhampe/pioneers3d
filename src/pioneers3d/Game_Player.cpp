@@ -1,66 +1,138 @@
-#include "Game_Player.hpp"
-
+#include <pioneers3d/Game_Player.hpp>
 #include <pioneers3d/Game_Texture.hpp>
 #include <pioneers3d/Game_Bank.hpp>
-
-#define PRINT_FUNCTION_NAME { std::cout << __FUNCTION__ << ":" << __LINE__ << "()\n"; }
+#include <pioneers3d/Game_Waypoint.hpp>
 
 namespace pioneers3d {
 
+uint32_t Player_getNumRoads( Game_t* game )
+{
+    if ( !game ) return 0;
+    Player_t * player = getPlayer( game );
+    if ( !player ) return 0;
+    return player->NumRoads;
+}
+
+uint32_t Player_getNumSettlements( Game_t* game )
+{
+    if ( !game ) return 0;
+    Player_t * player = getPlayer( game );
+    if ( !player ) return 0;
+    return player->NumSettlements;
+}
+
+uint32_t Player_getNumCities( Game_t* game )
+{
+    if ( !game ) return 0;
+    Player_t * player = getPlayer( game );
+    if ( !player ) return 0;
+    return player->NumCities;
+}
+
+uint32_t Player_getNumRessource( Game_t* game, eTileType resType )
+{
+    if ( !game ) return 0;
+    Player_t * player = getPlayer( game );
+    if ( !player ) return 0;
+    return player->Bank.getRessource( resType );
+}
+
+void Player_addRoad( Game_t* game, Waypoint_t* w )
+{
+    if ( !game ) return;
+    if ( !w ) return;
+    Player_t * player = getPlayer( game );
+    if ( !player ) return;
+
+    game->PlaceObject->setPosition( toIRR( w->Pos ) );
+    game->PlaceObject->setRotation( irr::core::vector3df( 0, w->Angle, 0 ) );
+
+    w->Owner = player;
+    w->OwnerNode = game->PlaceObject;
+    w->Points = 0;
+
+    player->NumRoads++;
+    player->Waypoints.emplace_back( w );
+
+    game->PlaceObject = nullptr;
+
+    Waypoints_R_setVisible( game, false );
+
+    if ( game->Round >= 3 )
+    {
+        //player->Bank.buyRoad();
+    }
+}
+
+void Player_addSettlement( Game_t* game, Waypoint_t* w )
+{
+    if ( !game ) return;
+    if ( !w ) return;
+    Player_t * player = getPlayer( game );
+    if ( !player ) return;
+    w->Owner = player;
+    w->OwnerNode = game->PlaceObject;
+    w->OwnerNode->setPosition( toIRR( w->Pos ) );
+    w->Points = 1;
+
+    player->NumSettlements++;
+    player->Waypoints.emplace_back( w );
+
+    game->PlaceObject = nullptr;
+
+    Waypoints_S_setVisible( game, false );
+
+    if ( game->Round >= 3 )
+    {
+        //player->Bank.buyRoad();
+    }
+}
+
+void Player_addCity( Game_t* game, Waypoint_t* w )
+{
+    Waypoints_S_setVisible( game, false );
+}
+
 uint32_t
-getPlayerColor( Game_t* game, int32_t playerIndex )
-{
-//    PRINT_FUNCTION_NAME
-    if ( !isPlayer( game, playerIndex ) ) { return 0x00000000; }
-    return game->Players[ playerIndex ].Color;
-}
-
-std::string
-getPlayerName( Game_t* game, int32_t playerIndex )
-{
-//    PRINT_FUNCTION_NAME
-    if ( !isPlayer( game, playerIndex ) ) { return "Unknown Player"; }
-    return game->Players[ playerIndex ].Name;
-}
-
-
-int32_t
 getPlayerCount( Game_t* game )
 {
-//    PRINT_FUNCTION_NAME
     if ( !game ) return 0;
-    return int32_t( game->Players.size() );
+    return game->Players.size();
 }
 
 bool
-isPlayer( Game_t* game, int32_t playerIndex )
+isPlayer( Game_t* game, uint32_t playerIndex )
 {
-//    PRINT_FUNCTION_NAME
-    assert( game );
-    if ( playerIndex < 0 ) return false;
-    if ( playerIndex >= int32_t(game->Players.size()) ) return false;
+    if ( !game ) return false;
+    if ( playerIndex >= getPlayerCount( game ) ) return false;
     return true;
 }
 
-int32_t
-getCurrentPlayer( Game_t* game )
-{
-//    PRINT_FUNCTION_NAME
-    assert( game );
-    return game->Player;
-}
-
 Player_t*
-getPlayer( Game_t* game, int32_t playerIndex )
+getPlayer( Game_t* game, uint32_t playerIndex )
 {
-//    PRINT_FUNCTION_NAME
-    if ( !game ) return nullptr;
     if ( !isPlayer( game, playerIndex ) ) return nullptr;
     return &game->Players[ playerIndex ];
 }
 
+uint32_t
+Player_getColor( Game_t* game, uint32_t playerIndex )
+{
+    Player_t* player = getPlayer( game, playerIndex );
+    if ( !player ) { return 0xFFFFFFFF; }
+    return player->Color;
+}
+
+std::string
+Player_getName( Game_t* game, uint32_t playerIndex )
+{
+    Player_t* player = getPlayer( game, playerIndex );
+    if ( !player ) { return "Unnamed"; }
+    return player->Name;
+}
+
 eAction
-getPlayerAction( Game_t* game, int32_t playerIndex )
+Player_getAction( Game_t* game, uint32_t playerIndex )
 {
     Player_t* player = getPlayer( game, playerIndex );
     if ( !player ) { return eAction::UNKNOWN; }
@@ -68,7 +140,7 @@ getPlayerAction( Game_t* game, int32_t playerIndex )
 }
 
 void
-setPlayerAction( Game_t* game, int32_t playerIndex, eAction action )
+Player_setAction( Game_t* game, uint32_t playerIndex, eAction action )
 {
     Player_t* player = getPlayer( game, playerIndex );
     if ( !player ) { return; }
@@ -76,7 +148,7 @@ setPlayerAction( Game_t* game, int32_t playerIndex, eAction action )
 }
 
 bool
-isPlayerActionEnabled( Game_t* game, int32_t playerIndex, eAction action )
+Player_isActionEnabled( Game_t* game, uint32_t playerIndex, eAction action )
 {
     Player_t* player = getPlayer( game, playerIndex );
     if ( !player ) { return false; }
@@ -84,7 +156,7 @@ isPlayerActionEnabled( Game_t* game, int32_t playerIndex, eAction action )
 }
 
 void
-setPlayerActionEnabled( Game_t* game, int32_t playerIndex, eAction action, bool enable )
+Player_setActionEnabled( Game_t* game, uint32_t playerIndex, eAction action, bool enable )
 {
     Player_t* player = getPlayer( game, playerIndex );
     if ( !player ) { return; }
@@ -99,7 +171,7 @@ setPlayerActionEnabled( Game_t* game, int32_t playerIndex, eAction action, bool 
 }
 
 void
-togglePlayerAction( Game_t* game, int32_t playerIndex, eAction action )
+togglePlayerAction( Game_t* game, uint32_t playerIndex, eAction action )
 {
     Player_t* player = getPlayer( game, playerIndex );
     if ( !player ) { return; }
@@ -114,10 +186,10 @@ togglePlayerAction( Game_t* game, int32_t playerIndex, eAction action )
 }
 
 
+
 void
 clearPlayers( Game_t* game )
 {
-    PRINT_FUNCTION_NAME
     assert( game );
     game->Players.clear();
 }
@@ -125,9 +197,7 @@ clearPlayers( Game_t* game )
 void
 createStandardPlayers( Game_t* game )
 {
-    PRINT_FUNCTION_NAME
     assert( game );
-    // create 4 standard players
 
     auto addPlayer = [ game ] ( int id, std::string const & name, uint32_t color ) -> void
     {
@@ -142,8 +212,8 @@ createStandardPlayers( Game_t* game )
 
     addPlayer( 1, "Benni", 0xFF30ED30 );
     addPlayer( 2, "Robot 1", 0xFFFF0000 );
-    addPlayer( 3, "Robot 2", 0xFFFFFF00 );
-    addPlayer( 4, "Robot 3", 0xFF0000FF );
+    //addPlayer( 3, "Robot 2", 0xFFFFFF00 );
+    //addPlayer( 4, "Robot 3", 0xFF0000FF );
 }
 
 } // end namespace pioneers3d

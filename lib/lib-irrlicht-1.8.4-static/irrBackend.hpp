@@ -183,6 +183,16 @@ createGUIImage( irr::gui::IGUIEnvironment* env, irr::gui::IGUIElement* parent, i
 
 #ifdef GLM_COMPILER
 
+inline irr::core::vector3df toIRR( glm::vec3 const & v )
+{
+    return irr::core::vector3df( v.x, v.y, v.z );
+}
+
+inline glm::vec3 toGLM( irr::core::vector3df const & v )
+{
+    return glm::vec3( v.X, v.Y, v.Z );
+}
+
 std::string toString( glm::ivec2 const & v );
 std::string toString( glm::ivec3 const & v );
 std::string toString( glm::vec2 const & v );

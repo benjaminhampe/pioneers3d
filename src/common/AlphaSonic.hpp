@@ -8,22 +8,16 @@
 #define DE_ALPHASONIC_COMMON_HPP
 
 #include <common/Types.hpp>
+#include <common/Logger.hpp>
+#include <common/createDevice.hpp>
 #include <common/BaseEventReceiver.hpp>
 #include <common/BaseWindow.hpp>
 #include <common/StringUtils.hpp>
 #include <common/FontUtils.hpp>
 #include <common/ImageUtils.hpp>
 #include <common/AutoMeshBuffer.hpp>
-#include <common/AutoSceneNode.hpp>
-#include <common/createDevice.hpp>
-#include <common/createCircle.hpp>
-#include <common/createCylinder.hpp>
-#include <common/createHexagon.hpp>
-#include <common/createBox.hpp>
-#include <common/createRect.hpp>
+#include <common/AutoMeshBufferUtils.hpp>
 #include <common/createRoundRect.hpp>
-#include <common/Logger.hpp>
-#include <common/sinCosTable.hpp>
 #include <common/Camera.hpp>
 #include <common/OffscreenRenderer.hpp>
 

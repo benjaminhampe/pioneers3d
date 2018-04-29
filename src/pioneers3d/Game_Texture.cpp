@@ -168,7 +168,7 @@ GameBuilder_createRessourceCardTexture( Game_t* game, eTileType tileType, std::s
     smgr->clear();
 
     AutoSceneNode* node = new AutoSceneNode( smgr, smgr->getRootSceneNode(), -1 );
-    node->setPosition( glm::vec3( 0,0,0) );
+    node->setPosition( irr::core::vector3df(0,0,0) );
     node->add( createRoundRect( glm::vec3(0,0,    0), glm::vec2(600,1000), glm::vec2(40,40), 9, tileType.getRessourceColor() ), true );
     node->add( createRoundRect( glm::vec3(0,0,-0.05f), glm::vec2(580,980), glm::vec2(40,40), 9, 0xFFFFFFFF ), true );
     AutoMeshBuffer* bg0 = createRoundRect( glm::vec3(0,0,-0.15f), glm::vec2(540,940), glm::vec2(40,40), 9, 0xFFFFFFFF );

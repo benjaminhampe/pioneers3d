@@ -36,7 +36,7 @@ Game_createFonts( Game_t* game )
     PRINT_FUNCTION_NAME
     game->Fonts.clear();
     Game_addFont( game, eFontType::DEFAULT, "fonts/DejaVuSansMono.ttf", 12, true, true );
-    Game_addFont( game, eFontType::CHAT, "fonts/Garton.ttf", 36, true, false );
+    Game_addFont( game, eFontType::CHAT, "fonts/Garton.ttf", 24, true, false );
     Game_addFont( game, eFontType::FPS_COUNTER, "fonts/DejaVuSansMono.ttf", 32, true, true );
     Game_addFont( game, eFontType::H1, "fonts/caribbean.otf", 32, true, true );
     Game_addFont( game, eFontType::AWESOME, "fonts/FontAwesome.ttf", 64, true, true );

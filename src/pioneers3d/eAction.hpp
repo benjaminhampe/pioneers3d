@@ -37,18 +37,6 @@ public:
         ACTION_MASK = DEFAULT_MASK | BUY_MASK | PLAY_MASK | PLACE_MASK
     };
 
-    static bool
-    isAction( uint32_t action )
-    {
-        return (action & uint32_t( ACTION_MASK )) != 0;
-    }
-
-    static bool
-    contains( uint32_t action, uint32_t flags )
-    {
-        return (action & flags) != 0;
-    }
-
     eAction() : m_Action( UNKNOWN ) {}
     eAction( EAction action ) : m_Action( static_cast< uint32_t >( action ) ) {}
     eAction( uint32_t action ) : m_Action( action ) {}
@@ -57,6 +45,13 @@ public:
 
     uint32_t getValue() const { return m_Action; }
     void setValue( uint32_t value ) { m_Action = value; }
+
+/*
+    static bool
+    contains( uint32_t action, uint32_t flags )
+    {
+        return (action & flags) != 0;
+    }
 
     bool contains( EAction action ) const
     {
@@ -85,6 +80,22 @@ public:
         {
             m_Action |= uint32_t( action );  // enable
         }
+    }
+*/
+    bool
+    isEnabled( uint32_t action ) const
+    {
+        return (m_Action & action) != 0;
+    }
+
+    void enable( uint32_t action )
+    {
+        m_Action |= action;
+    }
+
+    void disable( uint32_t action )
+    {
+        m_Action &= ~action;
     }
 
     uint32_t m_Action;
