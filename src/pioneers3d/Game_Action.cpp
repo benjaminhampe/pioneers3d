@@ -154,7 +154,6 @@ void Action_Dice( Game_t* game )
 
     // Collect ressource cards
     Bank_t bank;
-    Bank_clear( bank );
 
     for ( uint32_t i = 0; i < game->Tiles.size(); ++i )
     {
@@ -162,11 +161,11 @@ void Action_Dice( Game_t* game )
         if ( tile.DiceValue == dice )
         {
             std::cout << __FUNCTION__ << " :: [Ok] Found Tile with diceValue(" << dice << ") that has type(" << tile.Type.toString() << ")\n";
-            Bank_addRessource( bank, tile.Type );
+            bank.add( tile.Type, 1 );
         }
     }
 
-    std::cout << __FUNCTION__ << " :: [Ok] " << Bank_toString( bank ) << "\n";
+    std::cout << __FUNCTION__ << " :: [Ok] " << bank.toString() << "\n";
 }
 
 void Action_Bank( Game_t* game )

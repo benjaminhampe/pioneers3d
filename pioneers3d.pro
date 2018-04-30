@@ -91,7 +91,8 @@ HEADERS	+= \
 	src/common/BaseWindow.hpp \
 	src/pioneers3d/Game_Chat.hpp \
 	src/pioneers3d/Game_Objects.hpp \
-    src/common/RuntimeLogger.hpp
+    src/common/RuntimeLogger.hpp \
+    src/pioneers3d/types/Tile_t.hpp
 
 SOURCES += \
 	src/common/AutoMeshBuffer.cpp \
@@ -125,4 +126,5 @@ SOURCES += \
 	src/common/BaseWindow.cpp \
 	src/pioneers3d/Game_Chat.cpp \
 	src/pioneers3d/Game_Objects.cpp \
-    src/common/RuntimeLogger.cpp
+    src/common/RuntimeLogger.cpp \
+    src/pioneers3d/types/Tile_t.cpp
