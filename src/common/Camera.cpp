@@ -1,4 +1,4 @@
-#include "Camera.hpp"
+#include <common/Camera.hpp>
 
 namespace pioneers3d {
 

@@ -37,16 +37,16 @@ else:win32 {
 QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.10
 QMAKE_MAC_SDK = macosx10.11
 
-HEADERS += \
-	$$PWD/irrBackend.hpp \
-    $$PWD/ustring.hpp \
-    $$PWD/CGUITTFont.hpp \
-    $$PWD/CXMLWriterUTF8.hpp \
-    $$PWD/CGUIWindow.hpp
-    $$PWD/ustring.hpp
+#HEADERS += \
+#	$$PWD/irrBackend.hpp \
+#    $$PWD/ustring.hpp \
+#    $$PWD/CGUITTFont.hpp \
+#    $$PWD/CXMLWriterUTF8.hpp \
+#    $$PWD/CGUIWindow.hpp
+#    $$PWD/ustring.hpp
 
-SOURCES += \
-	$$PWD/irrBackend.cpp \
-    $$PWD/CGUITTFont.cpp \
-    $$PWD/CXMLWriterUTF8.cpp \
-    $$PWD/CGUIWindow.cpp
+#SOURCES += \
+#	$$PWD/irrBackend.cpp \
+#    $$PWD/CGUITTFont.cpp \
+#    $$PWD/CXMLWriterUTF8.cpp \
+#    $$PWD/CGUIWindow.cpp

@@ -1,7 +1,5 @@
 #include "AutoMeshBuffer.hpp"
 
-#include <irrlicht.h>
-
 /*
 void
 enumerateMesh( irr::scene::SMesh & p )
