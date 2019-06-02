@@ -1,5 +1,7 @@
 #ifndef POLYLINERENDERER_HPP
 #define POLYLINERENDERER_HPP
+
+#if 0
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
@@ -7,13 +9,13 @@
 
 class PolyLineRenderer : public QObject, protected QOpenGLFunctions
 {
-	Q_OBJECT
+   Q_OBJECT
 
 public:
-	explicit PolyLineRenderer( QObject * parent = 0);
-	virtual ~PolyLineRenderer();
+   explicit PolyLineRenderer( QObject * parent = 0);
+   virtual ~PolyLineRenderer();
 
-	void render();
+   void render();
 
 //    void rotateBy(int xAngle, int yAngle, int zAngle);
 //    void setClearColor(const QColor &color);
@@ -25,10 +27,11 @@ public:
 
 
 private:
-	QOpenGLShaderProgram * m_Program;
-	QOpenGLBuffer m_VertexBufferObject;
-	QOpenGLTexture * textures[6];
-	QVector<GLfloat> m_Vertices;
+   QOpenGLShaderProgram * m_Program;
+   QOpenGLBuffer m_VertexBufferObject;
+   QOpenGLTexture * textures[6];
+   QVector<GLfloat> m_Vertices;
 };
 
+#endif
 #endif // POLYLINERENDERER_HPP

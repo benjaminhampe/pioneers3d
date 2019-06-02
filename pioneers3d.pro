@@ -42,7 +42,7 @@ CONFIG(debug, debug|release) {
    DEFINES += _DEBUG
    DEFINES += DEBUG
 #   OBJECTS_DIR = $$PWD/obj/$$TARGET/debug
-#   MOC_DIR = $$PWD/obj/$$TARGET/debug/moc
+#   MOC_DIR = $$PWD/obj/$$TARGET/de.hampe.commondebug/moc
 #   RCC_DIR = $$PWD/obj/$$TARGET/debug/qrc
 #   UI_DIR = $$PWD/obj/$$TARGET/debug/ui
 }
@@ -62,42 +62,9 @@ QMAKE_CXXFLAGS += -Wno-comment
 # include ( src/pioneers3d/app/app.pri )
 include ( lib/lib-awesome/lib-awesome.pri )
 include ( lib/lib-tinyxml2/lib-tinyxml2.pri )
+include ( lib/lib-glm/lib-glm.pri )
 include ( lib/lib-freetype-2.9-static/lib-freetype-2.9-static.pri )
 include ( lib/lib-irrlicht-1.8.4-static/lib-irrlicht-1.8.4-static.pri )
-include ( lib/lib-glm/lib-glm.pri )
-
-include ( src/common/AlphaSonic.pri )
-
-SOURCES += \
-src/pioneers3d/main_Pioneers3D.cpp \
-src/pioneers3d/StandardGame.cpp \
-src/pioneers3d/data/Action.cpp \
-src/pioneers3d/data/Board.cpp \
-src/pioneers3d/data/Chat.cpp \
-src/pioneers3d/data/Font.cpp \
-src/pioneers3d/data/Object.cpp \
-src/pioneers3d/data/Player.cpp \
-src/pioneers3d/data/Texture.cpp \
-src/pioneers3d/data/Types.cpp \
-src/pioneers3d/data/UI.cpp \
-src/pioneers3d/data/CylinderCamera.cpp
-
-HEADERS += \
-src/pioneers3d/CompileConfig.hpp \
-src/pioneers3d/StandardGame.hpp \
-src/pioneers3d/data/Action.hpp \
-src/pioneers3d/data/All.hpp \
-src/pioneers3d/data/Board.hpp \
-src/pioneers3d/data/Chat.hpp \
-src/pioneers3d/data/eAction.hpp \
-src/pioneers3d/data/eGameState.hpp \
-src/pioneers3d/data/eGameType.hpp \
-src/pioneers3d/data/eTexture.hpp \
-src/pioneers3d/data/eTileType.hpp \
-src/pioneers3d/data/Font.hpp \
-src/pioneers3d/data/Object.hpp \
-src/pioneers3d/data/Player.hpp \
-src/pioneers3d/data/Texture.hpp \
-src/pioneers3d/data/Types.hpp \
-src/pioneers3d/data/UI.hpp \
-src/pioneers3d/data/CylinderCamera.hpp
+include ( src/irrExt/irrExt.pri )
+include ( src/de.hampe.common/de.hampe.common.pri )
+include ( src/pioneers3d/pioneers3d.pri )

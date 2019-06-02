@@ -1,0 +1,10 @@
+#include "Image.hpp"
+
+BEGIN_NAMESPACE_DE_HAMPE_COMMON_IMAGE
+
+Image::Image()
+{
+
+}
+
+END_NAMESPACE_DE_HAMPE_COMMON_IMAGE

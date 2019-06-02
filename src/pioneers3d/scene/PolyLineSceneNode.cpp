@@ -1,5 +1,6 @@
 #include "PolyLineSceneNode.hpp"
 
+#if 0
 QMatrix4x4 computeCamera()
 {
     QMatrix4x4 u_mvp;
@@ -128,3 +129,5 @@ void PolyLineRenderer::render()
         glDrawArrays(GL_TRIANGLE_FAN, i * 4, 4);
     }
 }
+
+#endif
