@@ -67,7 +67,7 @@ void Chat_printPlayerMessage( Game_t * game, uint32_t player, std::string txt )
     if (!chat) return;
     uint32_t color = Player_getColor( game, player );
     std::string name = Player_getName( game, player );
-    chat->Items.emplace_back( ChatItem_t( de::hampe::common::sprintf("(%d) %s %s", player + 1, name.c_str(), txt.c_str()), color ) );
+    chat->Items.emplace_back( ChatItem_t( de::hampe::common::sprintf("(", player + 1, ") ", name.c_str(), " ", txt.c_str()), color ) );
 }
 
 std::string Chat_toString( Game_t * game )

@@ -71,7 +71,7 @@ void Action_EndTurn( Game_t* game )
     // BEGIN CURRENT PLAYER
     uint32_t playerColor = Player_getColor( game, game->Player );
     std::string playerName = Player_getName( game, game->Player );
-    Chat_print( game, de::hampe::common::sprintf("(%d) %s ends turn.", game->Player + 1, playerName.c_str()), playerColor );
+    Chat_print( game, de::hampe::common::sprintf("(", game->Player + 1, ") ", playerName.c_str(), " ends turn."), playerColor );
     // END CURRENT PLAYER
 
     // BEGIN NEXT PLAYER
@@ -85,7 +85,7 @@ void Action_EndTurn( Game_t* game )
 
     playerColor = Player_getColor( game, game->Player );
     playerName = Player_getName( game, game->Player );
-    Chat_print( game, de::hampe::common::sprintf("(%d) %s begins turn...", game->Player + 1, playerName.c_str()), playerColor );
+    Chat_print( game, de::hampe::common::sprintf("(", game->Player + 1, ") ", playerName.c_str(), " begins turn..."), playerColor );
 
     Player_setActionEnabled( game, game->Player, eAction::ENDTURN, false );
 
@@ -130,7 +130,7 @@ void Action_Dice( Game_t* game )
     uint32_t playerColor = Player_getColor( game, playerIndex );
     std::string playerName = Player_getName( game, playerIndex );
 
-    Chat_print( game, de::hampe::common::sprintf("%s (%d) got value (%d) with dice (%d + %d)", playerName.c_str(), playerIndex + 1, dice, game->Dice.A, game->Dice.B ), playerColor );
+    Chat_print( game, de::hampe::common::sprintf(playerName.c_str(), " (", playerIndex + 1, ") got value (", dice, ") with dice (", game->Dice.A, " + ", game->Dice.B, ")" ), playerColor );
 
     Player_setActionEnabled( game, game->Player, eAction::ENDTURN, true );
     Player_setActionEnabled( game, game->Player, eAction::DICE, false );
