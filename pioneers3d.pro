@@ -4,45 +4,62 @@ DEFINES += USE_WINDOWS
 CONFIG += console c++17
 CONFIG -= app_bundle
 CONFIG -= qt
-QMAKE_CXXFLAGS += -Wno-unused-parameter
-QMAKE_CXXFLAGS += -Wno-unused-variable
-# QMAKE_CXXFLAGS += -Werror-no-return-type
-QMAKE_CXXFLAGS += -Wno-comment
-# QT += core gui widgets
 
-### Release version
-CONFIG(release, debug|release) {
-#   OBJECTS_DIR = $$PWD/obj/$$TARGET/release
-#   MOC_DIR = $$PWD/obj/$$TARGET/release/moc
-#   RCC_DIR = $$PWD/obj/$$TARGET/release/qrc
-#   UI_DIR = $$PWD/obj/$$TARGET/release/ui
-   DESTDIR = $$PWD/bin/win32-gcc
-   TARGET = $${TARGET}
+# QT += core gui widgets
+#DEFINES += QT_DEPRECATED_WARNINGS
+#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+
+win32 {
+   TARGET_OS = win
+#   !contains(QMAKE_TARGET.arch, x86_64) {
+#      message( "Building for 32 bit")
+#      TARGET_OS = $${TARGET_OS}32
+#   } else {
+#      message( "Building for 64 bit")
+#      TARGET_OS = $${TARGET_OS}64
+#   }
+}
+unix:!macx {
+   TARGET_OS = linux
+}
+macx: {
+   TARGET_OS = macosx
 }
 
-### Debug version
+contains(QT_ARCH, i386) {
+   message( "Building for 32 bit")
+   TARGET_OS = $${TARGET_OS}32
+} else {
+   message( "Building for 64 bit")
+   TARGET_OS = $${TARGET_OS}64
+}
+
+
+DESTDIR = $$PWD/bin/$${TARGET_OS}
+
 CONFIG(debug, debug|release) {
+   TARGET = $${TARGET}.debug
+   DEFINES += _DEBUG
+   DEFINES += DEBUG
 #   OBJECTS_DIR = $$PWD/obj/$$TARGET/debug
 #   MOC_DIR = $$PWD/obj/$$TARGET/debug/moc
 #   RCC_DIR = $$PWD/obj/$$TARGET/debug/qrc
 #   UI_DIR = $$PWD/obj/$$TARGET/debug/ui
-   DESTDIR = $$PWD/bin/win32-gcc
-   TARGET = $${TARGET}_debug
-   DEFINES += _DEBUG
+}
+CONFIG(release, debug|release) {
+   DEFINES += NDEBUG
+#   OBJECTS_DIR = $$PWD/obj/$$TARGET/release
+#   MOC_DIR = $$PWD/obj/$$TARGET/release/moc
+#   RCC_DIR = $$PWD/obj/$$TARGET/release/qrc
+#   UI_DIR = $$PWD/obj/$$TARGET/release/ui
 }
 
-# The following define makes your compiler emit warnings if you use
-# any feature of Qt which as been marked as deprecated (the exact warnings
-# depend on your compiler). Please consult the documentation of the
-# deprecated API in order to know how to port your code away from it.
-DEFINES += QT_DEPRECATED_WARNINGS
+QMAKE_CXXFLAGS += -Wno-unused-parameter
+QMAKE_CXXFLAGS += -Wno-unused-variable
+QMAKE_CXXFLAGS += -Wno-return-type
+QMAKE_CXXFLAGS += -Wno-comment
 
-# You can also make your code fail to compile if you use deprecated APIs.
-# In order to do so, uncomment the following line.
-# You can also select to disable deprecated APIs only up to a certain version of Qt.
-#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
-
-include ( src/pioneers3d/app/app.pri )
+# include ( src/pioneers3d/app/app.pri )
 include ( lib/lib-awesome/lib-awesome.pri )
 include ( lib/lib-tinyxml2/lib-tinyxml2.pri )
 include ( lib/lib-freetype-2.9-static/lib-freetype-2.9-static.pri )

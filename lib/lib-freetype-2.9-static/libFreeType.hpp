@@ -11,7 +11,7 @@
 #include FT_OUTLINE_H
 #include FT_SIZES_H
 #include FT_RENDER_H
-#include FT_DRIVER_H
+// #include FT_DRIVER_H
 #include FT_GLYPH_H
 #include FT_STROKER_H
 #include FT_ADVANCES_H

@@ -1,17 +1,31 @@
-INCLUDEPATH += $$PWD
-INCLUDEPATH += $$PWD/include/freetype2
 DEFINES += USE_FREETYPE=1
-LIBS += -L$$PWD/lib
-CONFIG(debug, debug|release) {
-	LIBS += -lfreetype
+
+unix:!macx {
+   INCLUDEPATH += /usr/include/freetype2
+   LIBS += -lfreetype
 }
-CONFIG(release, debug|release) {
-	LIBS += -lfreetype
+unix:!macx {
+   INCLUDEPATH += /usr/include/freetype2
+   LIBS += -lfreetype
 }
+win32 {
+   INCLUDEPATH += $$PWD
+   INCLUDEPATH += $$PWD/include/freetype2
+   LIBS += -L$$PWD/lib
+   LIBS += -lfreetype
+
+}
+
+# CONFIG(debug, debug|release) {
+# }
+# CONFIG(release, debug|release) {
+# }
+
+INCLUDEPATH += $$PWD
 
 HEADERS += \
-	$$PWD/libFreeType.hpp \
-	$$PWD/FT_Utils.hpp
+   $$PWD/libFreeType.hpp \
+   $$PWD/FT_Utils.hpp
 
 SOURCES += \
-	$$PWD/FT_Utils.cpp
+   $$PWD/FT_Utils.cpp

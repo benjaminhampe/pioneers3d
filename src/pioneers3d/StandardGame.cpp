@@ -205,7 +205,7 @@ Game_createStandard( Game_t* game, int argc, char** argv )
     game->ExeFile = argv[0];
     game->ExeDir = argv[0];
     game->Device = device;
-    game->MediaDir = "media/";
+    game->MediaDir = "../../media/";
     game->ClearColor = irr::video::SColor( 255, 225, 225, 255 );
     game->Type = eGameType::STANDARD;
     game->State = eGameState::IDLE;

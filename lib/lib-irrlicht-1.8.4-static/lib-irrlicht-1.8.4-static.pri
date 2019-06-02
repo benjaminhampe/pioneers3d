@@ -3,11 +3,17 @@ INCLUDEPATH += $$PWD
 
 DEFINES += USE_IRRLICHT=1
 
+unix:!macx {
+   INCLUDEPATH += /usr/include/irrlicht
+   LIBS += -lIrrlicht
+}
+
 macx {
 	INCLUDEPATH += /usr/local/include/irrlicht
 	LIBS += -L${/usr/local/lib -lIrrlicht -framework Cocoa
 }
-else:win32 {
+
+win32 {
 	INCLUDEPATH += $$PWD/include
 	INCLUDEPATH += $$PWD/include/irrlicht
 	HEADERS += $$PWD/include/irrlicht/*.h
