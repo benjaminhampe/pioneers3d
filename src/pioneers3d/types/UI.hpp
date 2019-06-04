@@ -25,7 +25,6 @@ void UI_createStartWindow( Game_t * game, irr::core::recti const & pos );
 void UI_createHelpWindow( Game_t * game );
 void UI_createCameraWindow( Game_t * game, irr::core::recti const & pos );
 
-
 class eWindow
 {
 public:
@@ -37,10 +36,10 @@ public:
         BANK = 1<<2,
         ACTION = 1<<3,
         PLAYER = 1<<4,
-        //CHAT = 1<<8,
-        INIT_DICE = ACTION | DICE,
-        INIT_PLACE = ACTION | PLAYER,
-        ALL = MAINMENU | DICE | BANK | ACTION | PLAYER
+        CHAT = 1<<5,
+        INIT_DICE = DICE | PLAYER | ACTION | CHAT,
+        INIT_PLACE = DICE | PLAYER | ACTION | CHAT,
+        ALL = MAINMENU | BANK | DICE | ACTION | PLAYER | CHAT
     };
 
     eWindow( uint32_t flags ) : Flags( flags ) {}
@@ -52,16 +51,16 @@ public:
     uint32_t Flags;
 };
 
-void setWindowVisible( Game_t * game, eWindow window, bool visible );
+void
+UI_setWindowVisible( Game_t * game, eWindow window, bool visible );
 
 irr::gui::IGUIButton*
-    createImageButton(
+UI_createImageButton(
         irr::gui::IGUIEnvironment* env,
         irr::gui::IGUIElement* parent,
         irr::core::recti const & pos,
         std::string name,
         irr::video::ITexture* tex );
-
 
 struct GUI_Menu_t
 {
@@ -85,6 +84,13 @@ public:
 
     void setTitle( Text_t&& title ) { m_Title = std::move( title ); }
     void setValue( Text_t&& value ) { m_Value = std::move( value ); }
+
+    Text_t const & getTitle() const { return m_Title; }
+    Text_t const & getValue() const { return m_Value; }
+
+    Text_t & getTitle() { return m_Title; }
+    Text_t & getValue() { return m_Value; }
+
     void setTexture( irr::video::ITexture* tex ) { m_Tex = tex; }
 public:
     Text_t m_Title;

@@ -1,16 +1,24 @@
 TARGET = Pioneers3D
 TEMPLATE = app
 DEFINES += USE_WINDOWS
-CONFIG += console c++17
 CONFIG -= app_bundle
 CONFIG -= qt
-
+CONFIG += console c++17
 # QT += core gui widgets
 #DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+# if (NOT MSVC)
+##### Link statically with libstdc++ and libc
+QMAKE_LDFLAGS += -static-libstdc++ 
+QMAKE_LDFLAGS += -static-libgcc
+##### Link dynamically with a libstdc++.so in exe path $ORIGIN, or other path $ORIGIN/../other/path/relative/to/origin
+# QMAKE_LDFLAGS += '-Wl,-rpath,$ORIGIN/../lib'
+#endif()
+
 win32 {
    TARGET_OS = win
+#   QMAKE_LFLAGS_WINDOWS +=  
 #   !contains(QMAKE_TARGET.arch, x86_64) {
 #      message( "Building for 32 bit")
 #      TARGET_OS = $${TARGET_OS}32
@@ -21,6 +29,7 @@ win32 {
 }
 unix:!macx {
    TARGET_OS = linux
+   
 }
 macx: {
    TARGET_OS = macosx

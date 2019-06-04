@@ -3,8 +3,28 @@
 
 namespace pioneers3d {
 
+void
+UI_setWindowVisible( Game_t * game, eWindow window, bool visible )
+{
+    if ( window & eWindow::MAINMENU ) { game->UI.Menu.Window->setVisible( visible); }
+    if ( window & eWindow::ACTION ) { game->UI.Action.Window->setVisible( visible); }
+    if ( window & eWindow::BANK ) { game->UI.Bank.Window->setVisible( visible); }
+    if ( window & eWindow::DICE ) { game->UI.Dice.Window->setVisible( visible); }
+    if ( window & eWindow::PLAYER ) { game->UI.Player.Window->setVisible( visible); }
+    if ( window & eWindow::CHAT ) { game->UI.Chat.Window->setVisible( visible); }
+}
+
+BaseWindow*
+UI_addWindow( Game_t * game, std::string const & title,
+    irr::core::recti const & pos, irr::gui::IGUIEnvironment* env, irr::gui::IGUIElement* parent, int id = -1 )
+{
+    BaseWindow* win = createBaseWindow( title, pos, env, parent, id );
+    game->UI.Windows.emplace_back( win );
+    return win;
+}
+
 irr::gui::IGUIButton*
-createImageButton(  irr::gui::IGUIEnvironment* env,
+UI_createImageButton(  irr::gui::IGUIEnvironment* env,
                irr::gui::IGUIElement* parent,
                irr::core::recti const & pos,
                std::string name,
@@ -69,26 +89,6 @@ GUI_Card_t::draw()
 }
 
 
-void
-setWindowVisible( Game_t * game, eWindow window, bool visible )
-{
-    if ( window & eWindow::MAINMENU ) { game->UI.Menu.Window->setVisible( visible); }
-    if ( window & eWindow::ACTION ) { game->UI.Action.Window->setVisible( visible); }
-    if ( window & eWindow::BANK ) { game->UI.Bank.Window->setVisible( visible); }
-    if ( window & eWindow::DICE ) { game->UI.Dice.Window->setVisible( visible); }
-    if ( window & eWindow::PLAYER ) { game->UI.Player.Window->setVisible( visible); }
-    //if ( window & eWindow::CHAT ) { game->UI.Chat.Window->setVisible( visible); }
-}
-
-BaseWindow*
-addWindow( Game_t * game, std::string const & title,
-    irr::core::recti const & pos, irr::gui::IGUIEnvironment* env, irr::gui::IGUIElement* parent, int id = -1 )
-{
-    BaseWindow* win = createBaseWindow( title, pos, env, parent, id );
-    game->UI.Windows.emplace_back( win );
-    return win;
-}
-
 
 
 void UI_create( Game_t * game )
@@ -96,22 +96,22 @@ void UI_create( Game_t * game )
     std::cout << __FUNCTION__ << "\n";
     assert( game );
     assert( game->Device );
-    irr::gui::IGUIEnvironment* env = game->Device->getGUIEnvironment();
-    assert( env );
+    //irr::gui::IGUIEnvironment* env = game->Device->getGUIEnvironment();
+    //assert( env );
 
-    irr::core::dimension2du const screen = game->Device->getVideoDriver()->getScreenSize();
-    UI_createStartWindow( game, mkRect( screen.Width/2 - 200, 50, 400, 450 ) );
+    glm::ivec2 const screen = Game_getScreenSize( game );
+    UI_createStartWindow( game, mkRect( screen.x/2 - 200, 50, 400, 450 ) );
     //UI_createChatWindow( game, mkRect( screen.Width/2+100, screen.Height/4, screen.Width/2 - 150, screen.Height/2 ) );
     UI_createActionWindow( game, mkRect( 100, 10, 900, 150 ) );
-    UI_createPlayerWindow( game, mkRect( 10, screen.Height - 210, screen.Width - 100, 200 ) );
-    UI_createDiceWindow( game, mkRect( screen.Width - 300, 10, 250, 200 ) );
-    UI_createBankWindow( game, mkRect( 10, (screen.Height - 200)/2, 400, 160 ) );
+    UI_createPlayerWindow( game, mkRect( 10, screen.y - 210, screen.x - 100, 200 ) );
+    UI_createDiceWindow( game, mkRect( screen.x - 300, 10, 250, 200 ) );
+    UI_createBankWindow( game, mkRect( 10, (screen.y - 200)/2, 400, 160 ) );
     UI_createHelpWindow( game );
     UI_createCameraWindow( game, mkRect( 10, 300, 400, 400 ) );
 
-    setWindowVisible( game, eWindow::ALL, false );
-    setWindowVisible( game, eWindow::ACTION, true );
-    setWindowVisible( game, eWindow::PLAYER, true );
+    //UI_setWindowVisible( game, eWindow::ALL, false );
+    //UI_setWindowVisible( game, eWindow::ACTION, true );
+    //UI_setWindowVisible( game, eWindow::PLAYER, true );
 }
 
 void UI_update( Game_t * game )
@@ -124,7 +124,7 @@ void UI_createStartWindow( Game_t * game, irr::core::recti const & pos )
 {
     std::cout << __FUNCTION__ << "()\n";
     irr::gui::IGUIEnvironment* env = game->Device->getGUIEnvironment();
-    BaseWindow* win = addWindow( game, "GAME MENU", pos, env, env->getRootGUIElement() );
+    BaseWindow* win = UI_addWindow( game, "GAME MENU", pos, env, env->getRootGUIElement() );
     irr::core::recti r_client = win->getClientRect();
     int bW = 200;
     int bH = 100;
@@ -142,7 +142,7 @@ void UI_createDiceWindow( Game_t * game, irr::core::recti const & pos )
 {
     std::cout << __FUNCTION__ << "(" << pos << ")\n";
     irr::gui::IGUIEnvironment* env = game->Device->getGUIEnvironment();
-    BaseWindow* win = addWindow( game, "D I C E", pos, env, env->getRootGUIElement() );
+    BaseWindow* win = UI_addWindow( game, "D I C E", pos, env, env->getRootGUIElement() );
     irr::core::recti r_client = win->getClientRect();
     int w = r_client.getWidth();
     int h = r_client.getHeight();
@@ -152,15 +152,15 @@ void UI_createDiceWindow( Game_t * game, irr::core::recti const & pos )
     int dx = (w-3*b)/2;
     int dy = h-2*b;
     game->UI.Dice.Window = win;
-    game->UI.Dice.A = createImageButton( env, win, mkRect(x+b,y+b,dx,dy), "Dice 1", Game_getDiceTexture( game, 1+(rand()%6) ) );
-    game->UI.Dice.B = createImageButton( env, win, mkRect(x+w-1-b-dx,y+b,dx,dy), "Dice 2", Game_getDiceTexture( game, 1+(rand()%6) ) );
+    game->UI.Dice.A = UI_createImageButton( env, win, mkRect(x+b,y+b,dx,dy), "Dice 1", Game_getDiceTexture( game, 1+(rand()%6) ) );
+    game->UI.Dice.B = UI_createImageButton( env, win, mkRect(x+w-1-b-dx,y+b,dx,dy), "Dice 2", Game_getDiceTexture( game, 1+(rand()%6) ) );
 }
 
 void UI_createActionWindow( Game_t * game, irr::core::recti const & pos )
 {
     irr::IrrlichtDevice* device = game->Device;
     irr::gui::IGUIEnvironment* env = device->getGUIEnvironment();
-    BaseWindow* win = addWindow( game, "Action Menu", pos, env, env->getRootGUIElement() );
+    BaseWindow* win = UI_addWindow( game, "Action Menu", pos, env, env->getRootGUIElement() );
     irr::core::recti rc = win->getClientRect();
     int x = rc.UpperLeftCorner.X;
     int y = rc.UpperLeftCorner.Y;
@@ -192,7 +192,7 @@ void UI_updateActionWindow( Game_t * game )
 {
     uint32_t playerIndex = game->Player;
 
-    Player_t* player = getPlayer( game, playerIndex );
+    Player_t* player = Player_getByIndex( game, playerIndex );
 
     auto setButton = [game] ( irr::gui::IGUIButton* & button, bool visibleAndEnabled ) -> void
     {
@@ -220,7 +220,7 @@ void UI_createPlayerWindow( Game_t * game, irr::core::recti const & pos )
     std::cout << __FUNCTION__ << "(" << pos << ")\n";
 
     irr::gui::IGUIEnvironment* env = game->Device->getGUIEnvironment();
-    BaseWindow* win = addWindow( game, "Player", pos, env, env->getRootGUIElement() );
+    BaseWindow* win = UI_addWindow( game, "Player", pos, env, env->getRootGUIElement() );
     irr::core::recti r_client = win->getClientRect();
     irr::gui::IGUIFont* font = Font_create( env, game->MediaDir + "fonts/DejaVuSansMono.ttf", 12, true, true );
     int x = r_client.UpperLeftCorner.X;
@@ -264,7 +264,29 @@ void UI_createPlayerWindow( Game_t * game, irr::core::recti const & pos )
 
 void UI_updatePlayerWindow( Game_t * game )
 {
+   int32_t playerIndex = game->Player;
 
+    Player_t* player = Player_getByIndex( game, playerIndex );
+
+    auto setButton = [] ( irr::gui::IGUIButton* & button, bool visibleAndEnabled ) -> void
+    {
+        button->setVisible( visibleAndEnabled );
+        button->setEnabled( visibleAndEnabled );
+    };
+
+    //game->UI.Player.Erz->getValue().setValue( Player_getNumErz( game ) );
+    setButton( game->UI.Action.Dice, player->Action.isEnabled( eAction::DICE ) );
+    setButton( game->UI.Action.Bank, player->Action.isEnabled( eAction::BANK ) );
+    setButton( game->UI.Action.Trade, player->Action.isEnabled( eAction::TRADE ) );
+    setButton( game->UI.Action.PlayCard, player->Action.isEnabled( eAction::PLAY_EVENT_CARD ) );
+    setButton( game->UI.Action.BuyCard, player->Action.isEnabled( eAction::BUY_EVENT_CARD ) );
+    setButton( game->UI.Action.BuyRoad, player->Action.isEnabled( eAction::BUY_ROAD ) );
+    setButton( game->UI.Action.BuySett, player->Action.isEnabled( eAction::BUY_SETTLEMENT ) );
+    setButton( game->UI.Action.BuyCity, player->Action.isEnabled( eAction::BUY_CITY ) );
+    setButton( game->UI.Action.PlaceRobber, player->Action.isEnabled( eAction::PLACE_ROBBER ) );
+    setButton( game->UI.Action.PlaceRoad, player->Action.isEnabled( eAction::PLACE_ROAD ) );
+    setButton( game->UI.Action.PlaceSett, player->Action.isEnabled( eAction::PLACE_SETTLEMENT ) );
+    setButton( game->UI.Action.PlaceCity, player->Action.isEnabled( eAction::PLACE_CITY ) );
 }
 
 /*
@@ -289,7 +311,7 @@ void UI_createBankWindow( Game_t * game, irr::core::recti const & pos )
 {
     std::cout << __FUNCTION__ << "(" << pos << ")\n";
     irr::gui::IGUIEnvironment* env = game->Device->getGUIEnvironment();
-    BaseWindow* win = addWindow( game, "Bank", pos, env, env->getRootGUIElement() );
+    BaseWindow* win = UI_addWindow( game, "Bank", pos, env, env->getRootGUIElement() );
     irr::core::recti r_client = win->getClientRect();
     game->UI.Bank.Window = win;
     int x = r_client.UpperLeftCorner.X;
@@ -327,7 +349,7 @@ void UI_createCameraWindow( Game_t * game, irr::core::recti const & pos )
 {
     irr::IrrlichtDevice* device = game->Device;
     irr::gui::IGUIEnvironment* env = device->getGUIEnvironment();
-    BaseWindow* win = addWindow( game, "Action Menu", pos, env, env->getRootGUIElement() );
+    BaseWindow* win = UI_addWindow( game, "Action Menu", pos, env, env->getRootGUIElement() );
     irr::core::recti rc = win->getClientRect();
     int x = rc.UpperLeftCorner.X;
     int y = rc.UpperLeftCorner.Y;

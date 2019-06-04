@@ -43,18 +43,26 @@ createStandardPlayers( Game_t* game )
 }
 
 int32_t
-getPlayerCount( Game_t* game )
+Player_getCount( Game_t* game )
 {
     if ( !game ) return 0;
     return int32_t( game->Players.size() );
 }
 
 // get a player by index
-Player_t*
-getPlayer( Game_t* game, int32_t i )
+int32_t
+Player_getIndex( Game_t* game )
 {
    assert( game );
-   if ( i < 0 || i >= getPlayerCount( game ) )
+   return game->Player;
+}
+
+// get a player by index
+Player_t*
+Player_getByIndex( Game_t* game, int32_t i )
+{
+   assert( game );
+   if ( i < 0 || i >= Player_getCount( game ) )
    {
       return nullptr;
    }
@@ -63,10 +71,12 @@ getPlayer( Game_t* game, int32_t i )
 
 // get current player
 Player_t*
-getPlayer( Game_t* game )
+Player_get( Game_t* game )
 {
    assert( game );
-   return getPlayer( game, game->Player );
+   Player_t* p = Player_getByIndex( game, game->Player );
+   assert( p );
+   return p;
 }
 
 
@@ -102,15 +112,15 @@ void Player_addRoad( Game_t* game, Waypoint_t* w )
 {
     if ( !game ) return;
     if ( !w ) return;
-    Player_t * player = getPlayer( game );
+    Player_t * player = Player_get( game );
     if ( !player ) return;
 
     game->PlaceObject->setPosition( toIRR( w->Pos ) );
     game->PlaceObject->setRotation( irr::core::vector3df( 0, w->Angle, 0 ) );
 
-    w->Owner = player;
+    w->Player = Player_getIndex( game );
     w->OwnerNode = game->PlaceObject;
-    w->Points = 0;
+    w->VictoryPoints = 0;
 
     player->NumRoads++;
     player->Waypoints.emplace_back( w );
@@ -129,12 +139,14 @@ void Player_addSettlement( Game_t* game, Waypoint_t* w )
 {
     if ( !game ) return;
     if ( !w ) return;
-    Player_t * player = getPlayer( game );
+    Player_t * player = Player_get( game );
     if ( !player ) return;
-    w->Owner = player;
+
+    // assert( w->Player > -1 );
+    w->Player = Player_getIndex( game );
     w->OwnerNode = game->PlaceObject;
     w->OwnerNode->setPosition( toIRR( w->Pos ) );
-    w->Points = 1;
+    w->VictoryPoints = 1;
 
     player->NumSettlements++;
     player->Waypoints.emplace_back( w );

@@ -14,6 +14,7 @@ HEADERS +=  \
    $$PWD/types/Dice.hpp \
    $$PWD/types/Font.hpp \
    $$PWD/types/Game.hpp \
+   $$PWD/types/GameEventReceiver.hpp \
    $$PWD/types/GameState.hpp \
    $$PWD/types/GameType.hpp \
    $$PWD/types/PlaceObjectType.hpp \
@@ -39,6 +40,7 @@ SOURCES +=  \
    $$PWD/types/Dice.cpp \
    $$PWD/types/Font.cpp \
    $$PWD/types/Game.cpp \
+   $$PWD/types/GameEventReceiver.cpp \
    $$PWD/types/GameState.cpp \
    $$PWD/types/GameType.cpp \
    $$PWD/types/PlaceObjectType.cpp \

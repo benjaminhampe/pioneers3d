@@ -1,7 +1,78 @@
 #include <pioneers3d/types/Board.hpp>
 #include <pioneers3d/types/Game.hpp>
+#include <iostream>
+
+std::ostream &
+operator<< ( std::ostream & o, pioneers3d::Tile_t const & t )
+{
+    o << "type: " << t.Type.toString() << "; "
+      << "i: "<< t.BoardIndex.x << "; "
+      << "j: "<< t.BoardIndex.y << "; "
+      << "x: "<< t.Pos.x << "; "
+      << "y: "<< t.Pos.y << "; "
+      << "z: "<< t.Pos.z << "; "
+      << "dice: "<< t.DiceValue << "; "
+      << "ang60: "<< t.Angle60 << "; "
+      << "waypoints: "<< t.Waypoints.size() << "; "
+      << "";
+    return o;
+}
+
+
+std::ostream &
+operator<< ( std::ostream & o, pioneers3d::Board_t const & b )
+{
+    o << "board-name(" << b.Name << "), "
+      << "board-type("<< b.Type << "), "
+      << "tiles("<< b.Tiles.size() << "), "
+      << "waypoints("<< b.Waypoints.size() << ")";
+    return o;
+}
+
 
 namespace pioneers3d {
+
+Tile_t::Tile_t()
+   : Board( nullptr )
+   , Type( TileType::WASSER )
+   , BoardIndex()
+   , Pos()
+   , Size()
+   , DiceValue( 0 )
+   , Angle60( 0 ) // in range [0...5]
+   , Waypoints{ nullptr, nullptr, nullptr, nullptr, nullptr, nullptr }  // Corners of the graph
+   , Tiles{ nullptr, nullptr, nullptr } // Neighbours
+   //, Roads;      // (Full) Edges of the graph
+   , Triangles()
+   , Node( nullptr )
+   , TriangleSelector( nullptr )
+{
+
+}
+
+Tile_t::~Tile_t()
+{
+   // if (Node) Node->drop();
+}
+
+
+int32_t
+Tile_t::getPlayerPoints( int playerIndex ) const
+{
+   int32_t victoryPoints = 0;
+
+   for ( size_t i = 0; i < Waypoints.size(); ++i )
+   {
+      Waypoint_t const * const w = Waypoints[ i ];
+      if ( w && w->Player == playerIndex )
+      {
+         victoryPoints += w->VictoryPoints;
+      }
+   }
+
+   return victoryPoints;
+}
+
 
 const char* const s_xmlStandardTiles = {
 R"(
@@ -58,39 +129,18 @@ R"(
 )"
 };
 
-std::string
-Tile_t::toString() const
+
+Board_t::Board_t()
 {
-    std::stringstream s;
-    s << "type: " << Type.toString() << "; "
-      << "i: "<< BoardIndex.x << "; "
-      << "j: "<< BoardIndex.y << "; "
-      << "x: "<< Pos.x << "; "
-      << "y: "<< Pos.y << "; "
-      << "z: "<< Pos.z << "; "
-      << "dice: "<< DiceValue << "; "
-      << "ang60: "<< Angle60 << "; "
-      << "waypoints: "<< Waypoints.size() << "; "
-      << "";
-    return s.str();
+
 }
 
-Board_t::Board_t() {}
-Board_t::~Board_t() {}
-
-std::string
-Board_t::toString() const
+Board_t::~Board_t()
 {
-    std::stringstream s;
-    s << "board-name: " << Name << "; "
-      << "board-type: "<< Type << "; "
-      << "tiles: "<< Tiles.size() << "; "
-      << "waypoints: "<< Waypoints.size() << "; "
-      << "";
-    return s.str();
+
 }
 
-Board_t* getBoard( Game_t * game )
+Board_t* Board_get( Game_t * game )
 {
    assert( game );
    return &game->Board;
@@ -228,6 +278,9 @@ Board_addTile( Game_t * game, TileType tileType, int i, int j, int diceValue, in
             node->add( createRotatedBox( getHexagonPoint( w, h, k+1 )*0.5f, glm::vec3(1,1,20), glm::vec3(0,(k+1)*60,0), 0xFFFFFFFF ), true );
         }
     }
+
+    std::cout << __FUNCTION__ << " :: Tile[" << game->Board.Tiles.size() << "] " << tile << "\n";
+
     game->Board.Tiles.push_back( std::move( tile ) );
 }
 
@@ -235,31 +288,32 @@ void Board_createWaypoints( Game_t * game, float32_t radius, float32_t height, u
 {
     assert ( game );
 
-    for ( uint32_t i = 0; i < game->Board.Tiles.size(); ++i )
+    for ( size_t i = 0; i < game->Board.Tiles.size(); ++i )
     {
-        Tile_t * tile = &game->Board.Tiles[ i ];
+        Tile_t const & tile = game->Board.Tiles[ i ];
 
-        for ( uint32_t k = 1; k <= 6; ++k )
+         if ( tile.Type.isWasser() ||
+              tile.Type == TileType::LAND_WUESTE )
+         {
+            continue;
+         }
+
+        for ( int32_t k = 1; k <= 6; ++k )
         {
-            if ( !tile->Type.isWasser() && tile->Type != TileType::LAND_WUESTE )
-            {
-                float32_t w = game->Board.TileSize.x;
-                float32_t h = game->Board.TileSize.z;
-                glm::vec3 pos;
-                float32_t phi = 0.0f;
+             glm::vec3 pos;
+             float32_t phi = 0.0f;
 
-                if ( isRoad )
-                {
-                    pos = getHexagonEdgeCenter( k, glm::vec2(w, h), tile->Pos );
-                    phi = getHexagonEdgeAngle( k, glm::vec2(w, h) );
-                }
-                else
-                {
-                    pos = getHexagonCorner( k, glm::vec2(w, h), tile->Pos );
-                }
+             if ( isRoad )
+             {
+                 pos = tile.getEdgeCenter( k );
+                 phi = tile.getEdgeAngle( k );
+             }
+             else
+             {
+                 pos = tile.getCorner( k );
+             }
 
-                Board_addWaypoint( game, radius, height, tesselation, pos, phi, isRoad );
-            }
+             Board_addWaypoint( game, radius, height, tesselation, pos, phi, isRoad );
         }
     }
 
@@ -269,13 +323,19 @@ void Board_createWaypoints( Game_t * game, float32_t radius, float32_t height, u
 
 void Board_addWaypoint( Game_t * game, float32_t r,float32_t h, uint32_t tesselation, glm::vec3 pos, float32_t angle, bool isRoad )
 {
+//    std::cout << __FUNCTION__ << "() :: Add waypoint at pos("<< pos << ").\n";
+
     assert ( game );
     assert ( game->Device );
     irr::scene::ISceneManager* smgr = game->Device->getSceneManager();
 
-    Waypoint_t* found = Board_findWaypoint( game, pos );
+    Board_t* board = Board_get( game );
+    assert ( board );
+
+    Waypoint_t* found = board->findWaypoint( pos );
     if ( found )
     {
+//      std::cout << __FUNCTION__ << "() :: Waypoint already exist at pos("<< pos << ").\n";
         return;
     }
 
@@ -309,13 +369,21 @@ void Board_addWaypoint( Game_t * game, float32_t r,float32_t h, uint32_t tessela
     way.Node = node;
     way.Angle = angle;
 
+    std::vector< Tile_t* > waypointTiles = board->findTiles( pos );
+
+    for ( size_t i = 0; i < waypointTiles.size(); ++i )
+    {
+      Tile_t * tile = waypointTiles[ i ];
+      way.addTile( tile );
+    }
+
     // Create triangle-selector for cylinder collision detection
     //irr::scene::ITriangleSelector* selector = smgr->createTriangleSelector( node->getMesh(), node );
     //node->setTriangleSelector( selector );
     //game->WaypointSelector->addTriangleSelector( selector );
     //selector->drop();
 
-    std::cout << __FUNCTION__ << ((isRoad) ? "R" : "S") << "(" << r << "," << h << "," << pos << ")\n";
+//    std::cout << __FUNCTION__ << " :: " << way << "\n";
 
     game->Board.Waypoints.emplace_back( std::move( way ) );
 }

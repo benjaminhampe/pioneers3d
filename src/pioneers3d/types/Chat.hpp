@@ -11,7 +11,7 @@ namespace pioneers3d {
    void Chat_clear( Game_t * game );
    void Chat_draw( Game_t * game, int32_t x, int32_t y );
    void Chat_print( Game_t * game, std::string txt, uint32_t color = 0xFF000000 );
-   void Chat_printPlayerMessage( Game_t * game, uint32_t player, std::string txt );
+   void Chat_printPlayerMessage( Game_t * game, int32_t player, std::string txt );
    void Chat_log( Game_t * game, de::hampe::common::logging::LogLevel const & level, std::string const & txt );
    std::string Chat_toString( Game_t * game );
 

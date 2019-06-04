@@ -103,9 +103,11 @@ mkRect( int32_t x, int32_t y, irr::core::dimension2du size )
 }
 
 inline irr::core::recti
-mkRect( int32_t x, int32_t y, uint32_t w, uint32_t h )
+mkRect( int32_t x, int32_t y, int32_t w, int32_t h )
 {
-    return irr::core::recti( irr::core::position2di( x, y ), irr::core::dimension2du( w, h ) );
+   w = glm::clamp( w, 0, 100000 );
+   h = glm::clamp( h, 0, 100000 );
+   return irr::core::recti( irr::core::position2di( x, y ), irr::core::dimension2du( uint32_t( w ), uint32_t( h ) ) );
 }
 
 inline irr::core::dimension2du

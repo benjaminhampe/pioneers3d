@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <sstream>
 #include <vector>
+#include <array>
 #include <irrExt/irrExt.hpp>
 #include <irrExt/AutoMeshBufferUtils.hpp>
 #include <irrExt/createRoundRect.hpp>

@@ -76,12 +76,12 @@ Game_getTexture( Game_t * game, eTexture type )
         case eTexture::CARD_WEIZEN:     tmp = "cards/card_weizen.jpg"; break;
         case eTexture::CARD_WOLLE:      tmp = "cards/card_wolle.jpg"; break;
         case eTexture::CARD_ERZ:        tmp = "cards/card_erz.jpg"; break;
-        case eTexture::CARD_EVENT:      tmp = "cards/card_event.png"; break;
-        case eTexture::CARD_KNIGHT:     tmp = "cards/card_knight.png"; break;
-        case eTexture::CARD_POINT:      tmp = "cards/card_point.png"; break;
-        case eTexture::CARD_BONUS:      tmp = "cards/card_bonus.png"; break;
-        case eTexture::CARD_BONUS_ARMY: tmp = "cards/card_bonus_army.png"; break;
-        case eTexture::CARD_BONUS_ROAD: tmp = "cards/card_bonus_road.png"; break;
+        case eTexture::CARD_EVENT:      tmp = "cards/event_card.png"; break; // The back of event cards
+        case eTexture::CARD_KNIGHT:     tmp = "cards/event_card_knight.png"; break;
+        case eTexture::CARD_POINT:      tmp = "cards/event_card_point.png"; break;
+        case eTexture::CARD_BONUS:      tmp = "cards/bonus_card.png"; break;
+        case eTexture::CARD_BONUS_ARMY: tmp = "cards/bonus_card_army.png"; break;
+        case eTexture::CARD_BONUS_ROAD: tmp = "cards/bonus_card_road.png"; break;
         case eTexture::STAT_ROAD:       tmp = "cards/stat_roads.png"; break;
         case eTexture::STAT_SETTLEMENT: tmp = "cards/stat_settlements.png"; break;
         case eTexture::STAT_CITY:       tmp = "cards/stat_cities.png"; break;
@@ -97,8 +97,8 @@ Game_getTexture( Game_t * game, eTexture type )
         case eTexture::ACTION_BUY_SETTLEMENT:   tmp = "action/buy_settlement.png"; break;
         case eTexture::ACTION_BUY_CITY:         tmp = "action/buy_city.png"; break;
 
-        case eTexture::TEX_ROBBER:          tmp = "raeuber/raeuber_tex.jpg"; break;
-        case eTexture::TEX_ROAD: tmp = "tex_road.jpg"; break;
+        case eTexture::TEX_ROAD:    tmp = "tex_road.jpg"; break;
+        case eTexture::TEX_ROBBER:  tmp = "raeuber/raeuber_tex.jpg"; break;
 
         case eTexture::PLAYER_ICON: tmp = "player/unknown.png"; break;
         case eTexture::PLAYER_ICON_1: tmp = "player_avatars/genghis.png"; break;

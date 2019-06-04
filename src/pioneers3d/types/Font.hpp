@@ -79,6 +79,13 @@ struct Text_t
         if ( Text.empty() ) return false;
         return true;
     }
+
+    void setValue( int32_t value )
+    {
+      std::stringstream s;
+      s << value;
+      Text = s.str();
+    }
 };
 
 void Text_draw( Text_t * txt, int32_t x, int32_t y );

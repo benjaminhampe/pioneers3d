@@ -77,7 +77,7 @@ void Action_EndTurn( Game_t* game )
     // BEGIN NEXT PLAYER
     game->Player++;
 
-    if ( game->Player >= game->Players.size() )
+    if ( game->Player >= int32_t( game->Players.size() ) )
     {
         game->Player = 0;
         game->Round++;
@@ -111,24 +111,25 @@ void Action_EndTurn( Game_t* game )
         Player_setActionEnabled( game, eAction::DICE, true );
     }
 
-    setWindowVisible( game, eWindow::DICE, false );
+    UI_setWindowVisible( game, eWindow::DICE, false );
 
     UI_update( game );
 }
 
 void Action_Dice( Game_t* game )
 {
-    setWindowVisible( game, eWindow::DICE, true );
+    UI_setWindowVisible( game, eWindow::DICE, true );
     game->Dice.A = rand() % 6 + 1;
     game->Dice.B = rand() % 6 + 1;
     game->UI.Dice.A->setImage( Game_getDiceTexture( game, game->Dice.A ) );
     game->UI.Dice.B->setImage( Game_getDiceTexture( game, game->Dice.B ) );
 
-    int playerIndex = game->Player;
-    int dice = game->Dice.sum();
-    uint32_t playerCount = uint32_t( getPlayerCount( game ) );
+    int32_t playerIndex = game->Player;
+    int32_t playerCount = Player_getCount( game );
     uint32_t playerColor = Player_getColor( game, playerIndex );
     std::string playerName = Player_getName( game, playerIndex );
+
+    int dice = game->Dice.sum();
 
     Chat_print( game, de::hampe::common::sprintf(playerName.c_str(), " (", playerIndex + 1, ") got value (", dice, ") with dice (", game->Dice.A, " + ", game->Dice.B, ")" ), playerColor );
 
@@ -144,12 +145,44 @@ void Action_Dice( Game_t* game )
 
     // GAME PHASE, only after 2 set rounds and 1 dice round at the start of each game
 
+
     if ( dice == 7 )
     {
         Action_PlaceRobber( game );
         return;
     }
+    else
+    {
+       // Get tiles with eyes of dice
+       Board_t * board = Board_get( game );
+      std::vector< Tile_t const* > diceTiles = board->getTilesByValue( dice );
+      Chat_print( game, de::hampe::common::sprintf("tiles(", diceTiles.size(), ") with diceValue(", dice, ")" ), 0xFF000000 );
 
+      // Give players new ressource cards:
+      // Loop over all tiles
+         // Loop over all player
+            // Compute sum victory-points on tile for each player
+            // Add sum victory-points of ressource as cards of tile-type to bank
+
+      for ( size_t k = 0; k < diceTiles.size(); ++k )
+      {
+         Tile_t const * const tile = diceTiles[ k ];
+         if ( !tile ) continue;
+
+         for ( int32_t p = 0; p < Player_getCount( game ); ++p )
+         {
+            int32_t victoryPoints = tile->getPlayerPoints( p );
+            if ( victoryPoints > 0 )
+            {
+               int32_t oldResCount = Player_getNumRessource( game, tile->Type );
+               Player_setNumRessource( game, tile->Type, oldResCount + victoryPoints );
+
+               Chat_print( game, de::hampe::common::sprintf("Player(", p, ") new cards(", victoryPoints, ") of type(", tile->Type.toString(), ")" ), 0xFF0000FF );
+            }
+         }
+      }
+
+    }
     // Collect ressource cards
     Bank_t bank;
 
@@ -219,6 +252,11 @@ void Action_BuyRoad( Game_t* game )
     else if ( game->Round == 2 )
     {
         Player_setActionEnabled( game, eAction::BUY_ROAD, false );
+
+
+
+
+
         if ( Player_getNumSettlements( game ) >= 2 )
         {
             Player_setActionEnabled( game, eAction::ENDTURN, true );

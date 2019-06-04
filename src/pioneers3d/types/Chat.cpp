@@ -60,7 +60,7 @@ void Chat_log( Game_t * game, de::hampe::common::logging::LogLevel const & level
     Chat_print( game, txt, level.getColor() );
 }
 
-void Chat_printPlayerMessage( Game_t * game, uint32_t player, std::string txt )
+void Chat_printPlayerMessage( Game_t * game, int32_t player, std::string txt )
 {
     if (!game) return;
     Chat_t* chat = (Chat_t*)game->Chat;

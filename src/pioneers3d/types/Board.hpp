@@ -17,23 +17,34 @@ class Tile_t
 {
 public:
    Board_t*					Board = nullptr;
-   //std::vector< Tile_t* > 	NeighbourTiles;
-    TileType                   	Type = TileType::WASSER;
-    glm::ivec2                  BoardIndex;
-    glm::vec3                   Pos;
-    glm::vec3                   Size;
-    int32_t                     DiceValue = 0;
-    int32_t                     Angle60 = 0;
-    std::vector< Waypoint_t* >  Waypoints;
-    //std::vector< RoadPoint_t* > RoadPoints;
-    std::vector< irr::core::triangle3df > Triangles;
-    AutoSceneNode*              Node = nullptr;
-    irr::scene::ITriangleSelector* TriangleSelector = nullptr;
-public:
-    // Tile_t() {}
-    //~Tile_t() { if (Node) Node->drop(); }
-    std::string toString() const;
+   TileType                   	Type = TileType::WASSER;
+   glm::vec2                  TileSize;
+   glm::ivec2                  BoardIndex;
+   glm::vec3                   Pos;
+   glm::vec3                   Size;
+   int32_t                     DiceValue = 0;
+   int32_t                     Angle60 = 0;    // in range [0...5]
+   std::array< Waypoint_t*, 6 > Waypoints;  // Corners of the graph
+   std::array< Tile_t*, 6 >     Tiles;      // Neighbours
+   //std::array< Road_t*, 6 >   Roads;      // (Full) Edges of the graph
 
+   ///@brief Irrlicht stuff
+   std::vector< irr::core::triangle3df > Triangles;
+   AutoSceneNode*              Node = nullptr;
+   irr::scene::ITriangleSelector* TriangleSelector = nullptr;
+
+public:
+   Tile_t();
+   ~Tile_t();
+
+   int32_t
+   getPlayerPoints( int playerIndex ) const;
+
+   inline  glm::vec3 getEdgeCenter( int32_t k ) const { return getHexagonEdgeCenter( k, TileSize, Pos ); }
+
+   inline  float32_t getEdgeAngle( int32_t k ) const { return getHexagonEdgeAngle( k, TileSize ); }
+
+   inline  glm::vec3 getCorner( int32_t k ) const { return getHexagonCorner( k, TileSize, Pos ); }
 };
 
 typedef uint32_t BoardType;
@@ -61,113 +72,142 @@ public:
 
    Board_t();
    ~Board_t();
-   std::string toString() const;
 
-void printWaypoints()
-{
-    std::cout << Waypoints;
-}
+   void
+   addWaypoint( float32_t r,float32_t h, uint32_t tesselation, glm::vec3 pos, float32_t angle, bool isRoad );
 
-void clear()
-{
-   clearWaypoints();
-   clearTiles();
-}
-
-void clearTiles()
-{
-   for ( size_t i = 0; i < Tiles.size(); ++i )
+   std::vector< Tile_t const * >
+   getTilesByValue( int32_t diceValue ) const
    {
-      Tile_t & tile = Tiles[ i ];
-      if ( tile.Node )
+       std::vector< Tile_t const * > container;
+       for ( size_t i = 0; i < Tiles.size(); ++i )
+       {
+         Tile_t const & tile = Tiles[ i ];
+         if ( tile.DiceValue == diceValue )
+         {
+            container.emplace_back( &tile );
+         }
+       }
+       return container;
+   }
+
+   void clear()
+   {
+      clearWaypoints();
+      clearTiles();
+   }
+
+   void clearTiles()
+   {
+      for ( size_t i = 0; i < Tiles.size(); ++i )
       {
-         tile.Node->drop();
-         tile.Node = nullptr;
+         Tile_t & tile = Tiles[ i ];
+         if ( tile.Node )
+         {
+            tile.Node->drop();
+            tile.Node = nullptr;
+         }
+      }
+      Tiles.clear();
+   }
+
+   void clearWaypoints()
+   {
+      for ( size_t i = 0; i < Waypoints.size(); ++i )
+      {
+         Waypoint_t & waypoint = Waypoints[ i ];
+         if ( waypoint.Node )
+         {
+            waypoint.Node->drop();
+            waypoint.Node = nullptr;
+         }
+      }
+      Waypoints.clear();
+   }
+
+   Waypoint_t*
+   findWaypoint( glm::vec3 pos )
+   {
+      for ( uint32_t i = 0; i < Waypoints.size(); ++i )
+      {
+         Waypoint_t & w = Waypoints[ i ];
+         if ( equals( w.Pos, pos ) )
+         {
+            //std::cout << __FUNCTION__ << " [Found] :: Waypoint(" << i << ") at pos(" << toString(pos) << ")\n";
+            return &w;
+         }
+      }
+      return nullptr;
+   }
+
+   std::vector< Tile_t* >
+   findTiles( glm::vec3 const & pos )
+   {
+      std::vector< Tile_t* > container;
+
+      for ( size_t i = 0; i < Tiles.size(); ++i )
+      {
+         Tile_t & t = Tiles[ i ];
+         if ( equals( t.Pos, pos ) )
+         {
+            container.emplace_back( &t );
+         }
+      }
+
+      return container;
+   }
+
+   void forEachTile( std::function<void(Tile_t * t)> const & lambda )
+   {
+      for ( size_t i = 0; i < Tiles.size(); ++i )
+      {
+         lambda( &Tiles[i] );
       }
    }
-   Tiles.clear();
-}
 
-void clearWaypoints()
-{
-   for ( size_t i = 0; i < Waypoints.size(); ++i )
+   void forEachWaypoint( std::function<void(Waypoint_t * w)> const & lambda )
    {
-      Waypoint_t & waypoint = Waypoints[ i ];
-      if ( waypoint.Node )
-      {
-         waypoint.Node->drop();
-         waypoint.Node = nullptr;
-      }
-   }
-   Waypoints.clear();
-}
-
-Waypoint_t*
-findWaypoint( glm::vec3 pos )
-{
-   for ( uint32_t i = 0; i < Waypoints.size(); ++i )
-   {
-      Waypoint_t & w = Waypoints[ i ];
-      if ( equals( w.Pos, pos ) )
-      {
-         //std::cout << __FUNCTION__ << " [Found] :: Waypoint(" << i << ") at pos(" << toString(pos) << ")\n";
-         return &w;
-      }
-   }
-   return nullptr;
-}
-
-void forEachTile( std::function<void(Tile_t * t)> const & lambda )
-{
-   for ( size_t i = 0; i < Tiles.size(); ++i )
-   {
-      lambda( &Tiles[i] );
-   }
-}
-
-void forEachWaypoint( std::function<void(Waypoint_t * w)> const & lambda )
-{
-   for ( size_t i = 0; i < Waypoints.size(); ++i )
-   {
-      lambda( &Waypoints[i] );
-   }
-}
-
-void forEachWaypointR( std::function<void(Waypoint_t * w)> const & lambda )
-{
-   for ( size_t i = 0; i < Waypoints.size(); ++i )
-   {
-      if ( Waypoints[ i ].IsRoad )
+      for ( size_t i = 0; i < Waypoints.size(); ++i )
       {
          lambda( &Waypoints[i] );
       }
    }
-}
 
-void forEachWaypointS( std::function<void(Waypoint_t * w)> const & lambda )
-{
-   for ( size_t i = 0; i < Waypoints.size(); ++i )
+   void forEachWaypointR( std::function<void(Waypoint_t * w)> const & lambda )
    {
-      if ( !Waypoints[ i ].IsRoad )
+      for ( size_t i = 0; i < Waypoints.size(); ++i )
       {
-         lambda( &Waypoints[i] );
+         if ( Waypoints[ i ].IsRoad )
+         {
+            lambda( &Waypoints[i] );
+         }
       }
    }
-}
+
+   void forEachWaypointS( std::function<void(Waypoint_t * w)> const & lambda )
+   {
+      for ( size_t i = 0; i < Waypoints.size(); ++i )
+      {
+         if ( !Waypoints[ i ].IsRoad )
+         {
+            lambda( &Waypoints[i] );
+         }
+      }
+   }
 
 };
 
-Board_t*    getBoard( Game_t * game );
+Board_t*    Board_get( Game_t * game );
 inline std::string Board_toString( Game_t * game );
-inline void Board_printWaypoints( Game_t* game ) { getBoard( game )->printWaypoints(); }
-inline void Board_clear( Game_t * game ) { getBoard( game )->clear(); }
-inline void Board_clearTiles( Game_t* game ) { getBoard( game )->clearTiles(); }
-inline void Board_clearWaypoints( Game_t* game ) { getBoard( game )->clearWaypoints(); }
-inline Waypoint_t* Board_findWaypoint( Game_t * game, glm::vec3 const & pos ) { return getBoard( game )->findWaypoint( pos ); }
-inline void forEachTile( Game_t * game, std::function<void(Tile_t * t)> const & lambda ) { getBoard( game )->forEachTile( lambda ); }
-inline void forEachWaypoint(  Game_t * game, std::function<void(Waypoint_t * w)> const & lambda ) { getBoard( game )->forEachWaypoint( lambda ); }
-inline void forEachWaypointR( Game_t * game, std::function<void(Waypoint_t * w)> const & lambda ) { getBoard( game )->forEachWaypointR( lambda ); }
-inline void forEachWaypointS( Game_t * game, std::function<void(Waypoint_t * w)> const & lambda ) { getBoard( game )->forEachWaypointS( lambda ); }
+inline void Board_clear( Game_t * game ) { Board_get( game )->clear(); }
+inline void Board_clearTiles( Game_t* game ) { Board_get( game )->clearTiles(); }
+inline void Board_clearWaypoints( Game_t* game ) { Board_get( game )->clearWaypoints(); }
+inline Waypoint_t* Board_findWaypoint( Game_t * game, glm::vec3 const & pos ) { return Board_get( game )->findWaypoint( pos ); }
+inline std::vector< Tile_t* > Board_findTiles( Game_t * game, glm::vec3 const & pos ) { return Board_get( game )->findTiles( pos ); }
+inline void forEachTile( Game_t * game, std::function<void(Tile_t * t)> const & lambda ) { Board_get( game )->forEachTile( lambda ); }
+inline void forEachWaypoint(  Game_t * game, std::function<void(Waypoint_t * w)> const & lambda ) { Board_get( game )->forEachWaypoint( lambda ); }
+inline void forEachWaypointR( Game_t * game, std::function<void(Waypoint_t * w)> const & lambda ) { Board_get( game )->forEachWaypointR( lambda ); }
+inline void forEachWaypointS( Game_t * game, std::function<void(Waypoint_t * w)> const & lambda ) { Board_get( game )->forEachWaypointS( lambda ); }
 
 // ---------------------------------------------------------------------------------------
 void        Board_create( Game_t * game );
@@ -193,5 +233,12 @@ inline void Board_hideWaypointsR( Game_t* game ) { Board_setVisible_WaypointsR( 
 inline void Board_hideWaypointsS( Game_t* game ) { Board_setVisible_WaypointsS( game, false ); }
 
 } // end namespace pioneers3d
+
+std::ostream &
+operator<< ( std::ostream & o, pioneers3d::Tile_t const & t );
+
+std::ostream &
+operator<< ( std::ostream & o, pioneers3d::Board_t const & b );
+
 
 #endif // PIONEERS3D_STANDARD_GAME_HPP
