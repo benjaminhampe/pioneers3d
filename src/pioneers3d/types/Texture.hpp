@@ -8,7 +8,10 @@
 namespace pioneers3d {
 
    class Game_t;
-   irr::video::ITexture* Game_getTexture( Game_t* game, eTexture type );
+
+   const char* Texture_getName( eTexture type );
+
+   irr::video::ITexture* Texture_get( Game_t* game, eTexture type );
    irr::video::ITexture* Game_getChipTexture( Game_t* game, TileType tileType, int diceValue );
    irr::video::ITexture* Game_getTileTexture( Game_t* game, TileType tileType );
    irr::video::ITexture* Game_getPlayerTexture( Game_t* game, int player );

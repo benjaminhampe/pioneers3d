@@ -19,6 +19,22 @@ namespace pioneers3d {
 //    void Game_moveCameraForward( Game_t * game );
 //    void Game_moveCameraBack( Game_t * game );
 
+   glm::vec3 Camera_getPosition( irr::scene::ICameraSceneNode* camera );
+   void Camera_setPosition( irr::scene::ICameraSceneNode* camera, glm::vec3 );
+
+   glm::vec3 Camera_getLookAt( irr::scene::ICameraSceneNode* camera );
+   void Camera_setLookAt( irr::scene::ICameraSceneNode* camera, glm::vec3 );
+
+   irr::scene::ICameraSceneNode* Game_getCamera( Game_t * game );
+   void Camera_moveToDefault( Game_t * game );
+   void Camera_moveToTop( Game_t * game );
+   void Camera_moveToBottom( Game_t * game );
+   void Camera_moveToFront( Game_t * game );
+   void Camera_moveToBack( Game_t * game );
+   void Camera_moveToLeft( Game_t * game );
+   void Camera_moveToRight( Game_t * game );
+
+
 class CylinderCamera
 {
     glm::vec3 Eye;
@@ -142,56 +158,56 @@ public:
             const irr::SEvent::SKeyInput& key = event.KeyInput;
 
 #ifdef USE_IRRLICHT
-			if (key.Key == irr::KEY_KEY_W || key.Key == irr::KEY_UP)
+            if (key.Key == irr::KEY_KEY_W || key.Key == irr::KEY_UP)
 #else
-			if (key.Key == irr::IRR_KEY_W || key.Key == irr::IRR_KEY_UP)
+            if (key.Key == irr::IRR_KEY_W || key.Key == irr::IRR_KEY_UP)
 #endif
             {
                 moveForward( 3.5f );
                 return true;
             }
-#ifdef USE_IRRLICHT			
+#ifdef USE_IRRLICHT
             if (key.Key == irr::KEY_KEY_S || key.Key == irr::KEY_DOWN)
 #else
             if (key.Key == irr::IRR_KEY_S || key.Key == irr::IRR_KEY_DOWN)
 #endif
-			{
+            {
                 moveBackward( 3.5f );
                 return true;
             }
-#ifdef USE_IRRLICHT			
+#ifdef USE_IRRLICHT
             if (key.Key == irr::KEY_KEY_A || key.Key == irr::KEY_LEFT)
 #else
             if (key.Key == irr::IRR_KEY_A || key.Key == irr::IRR_KEY_LEFT)
 #endif
-			{
+            {
                 rotateLeft( 3.5f );
                 return true;
             }
-#ifdef USE_IRRLICHT			
+#ifdef USE_IRRLICHT
             if (key.Key == irr::KEY_KEY_D || key.Key == irr::KEY_RIGHT)
 #else
             if (key.Key == irr::IRR_KEY_D || key.Key == irr::IRR_KEY_RIGHT)
-#endif      
-			{
+#endif
+            {
                 rotateRight( 3.5f );
                 return true;
             }
-#ifdef USE_IRRLICHT			
+#ifdef USE_IRRLICHT
             if (key.Key == irr::KEY_KEY_Q || key.Key == irr::KEY_MINUS)
 #else
             if (key.Key == irr::IRR_KEY_Q || key.Key == irr::IRR_KEY_MINUS)
 #endif
-			{
+            {
                 moveDown( 3.5f );
                 return true;
             }
-#ifdef USE_IRRLICHT			
+#ifdef USE_IRRLICHT
             if (key.Key == irr::KEY_KEY_E || key.Key == irr::KEY_PLUS)
 #else
             if (key.Key == irr::IRR_KEY_E || key.Key == irr::IRR_KEY_PLUS)
 #endif
-			{
+            {
                 moveUp( 3.5f );
                 return true;
             }

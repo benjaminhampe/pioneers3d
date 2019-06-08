@@ -15,6 +15,7 @@
 #include <irrExt/BaseEventReceiver.hpp>
 #include <de/hampe/common/ostreamGLM.hpp>
 #include <de/hampe/common/logging/Logger.hpp>
+#include <de/hampe/common/os/FileSystemSTL.hpp>
 
 int32_t safeMod( int32_t a, int32_t b );
 

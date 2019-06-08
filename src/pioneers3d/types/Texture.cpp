@@ -3,124 +3,113 @@
 
 namespace pioneers3d {
 
-irr::video::ITexture*
-Game_getTexture( Game_t * game, eTexture type )
+const char*
+Texture_getName( eTexture const type )
 {
-    if ( !game )
-    {
-        std::cout << __FUNCTION__ << " [Error] :: Invalid pointer to Game\n";
-        return nullptr;
+   switch( type )
+   {
+      case eTexture::UNKNOWN: return "unknown.jpg";
+      case eTexture::SKYBOX_TOP: return "skybox/ct/top.jpg";
+      case eTexture::SKYBOX_BOTTOM: return "skybox/ct/bottom.jpg";
+      case eTexture::SKYBOX_LEFT: return "skybox/ct/left.jpg";
+      case eTexture::SKYBOX_RIGHT: return "skybox/ct/right.jpg";
+      case eTexture::SKYBOX_FRONT: return "skybox/ct/front.jpg";
+      case eTexture::SKYBOX_BACK: return "skybox/ct/back.jpg";
+
+      case eTexture::DICE_1: return "dice/dice1.png";
+      case eTexture::DICE_2: return "dice/dice2.png";
+      case eTexture::DICE_3: return "dice/dice3.png";
+      case eTexture::DICE_4: return "dice/dice4.png";
+      case eTexture::DICE_5: return "dice/dice5.png";
+      case eTexture::DICE_6: return "dice/dice6.png";
+
+      case eTexture::CHIP_W: return "chips/waypoint_w.png";
+      case eTexture::CHIP_S: return "chips/waypoint_s.png";
+      case eTexture::CHIP_HOLZ: return "chips/chip_holz.jpg";
+      case eTexture::CHIP_LEHM: return "chips/chip_lehm.png";
+      case eTexture::CHIP_WEIZEN: return "chips/chip_weizen.jpg";
+      case eTexture::CHIP_WOLLE: return "chips/chip_wolle.jpg";
+      case eTexture::CHIP_ERZ: return "chips/chip_erz.jpg";
+      case eTexture::CHIP_2: return "chips/chip02.png";
+      case eTexture::CHIP_3: return "chips/chip03.png";
+      case eTexture::CHIP_4: return "chips/chip04.png";
+      case eTexture::CHIP_5: return "chips/chip05.png";
+      case eTexture::CHIP_6: return "chips/chip06.png";
+      case eTexture::CHIP_8: return "chips/chip08.png";
+      case eTexture::CHIP_9: return "chips/chip09.png";
+      case eTexture::CHIP_10: return "chips/chip10.png";
+      case eTexture::CHIP_11: return "chips/chip11.png";
+      case eTexture::CHIP_12: return "chips/chip12.png";
+
+      case eTexture::TILE_WASSER: return "tiles/wasser.png";
+      case eTexture::TILE_WUESTE: return "tiles/wueste.jpg";
+      case eTexture::TILE_HOLZ: return "tiles/land_holz.png";
+      case eTexture::TILE_LEHM: return "tiles/land_lehm.png";
+      case eTexture::TILE_WEIZEN: return "tiles/land_weizen.jpg";
+      case eTexture::TILE_WOLLE: return "tiles/land_wolle.jpg";
+      case eTexture::TILE_ERZ: return "tiles/land_erz.jpg";
+
+      // Composed textures
+      case eTexture::CARD_HOLZ:       return "cards/card_holz.jpg";
+      case eTexture::CARD_LEHM:       return "cards/card_lehm.jpg";
+      case eTexture::CARD_WEIZEN:     return "cards/card_weizen.jpg";
+      case eTexture::CARD_WOLLE:      return "cards/card_wolle.jpg";
+      case eTexture::CARD_ERZ:        return "cards/card_erz.jpg";
+      case eTexture::CARD_EVENT:      return "cards/event_card.png"; // The back of event cards
+      case eTexture::CARD_KNIGHT:     return "cards/event_card_knight.png";
+      case eTexture::CARD_POINT:      return "cards/event_card_point.png";
+      case eTexture::CARD_BONUS:      return "cards/bonus_card.png";
+      case eTexture::CARD_BONUS_ARMY: return "cards/bonus_card_army.png";
+      case eTexture::CARD_BONUS_ROAD: return "cards/bonus_card_road.png";
+      case eTexture::STAT_ROAD:       return "cards/stat_roads.png";
+      case eTexture::STAT_SETTLEMENT: return "cards/stat_settlements.png";
+      case eTexture::STAT_CITY:       return "cards/stat_cities.png";
+
+      case eTexture::ACTION_DICE:             return "action/dice.png";
+      case eTexture::ACTION_PLACE_ROBBER:     return "action/place_robber.png";
+      case eTexture::ACTION_ENDTURN:          return "action/endturn.png";
+      case eTexture::ACTION_TRADE:            return "action/trade.png";
+      case eTexture::ACTION_BANK:             return "action/bank.png";
+      case eTexture::ACTION_PLAY_EVENT_CARD:  return "action/play_event_card.png";
+      case eTexture::ACTION_BUY_EVENT_CARD:   return "action/buy_event_card.png";
+      case eTexture::ACTION_BUY_ROAD:         return "action/buy_road.png";
+      case eTexture::ACTION_BUY_SETTLEMENT:   return "action/buy_settlement.png";
+      case eTexture::ACTION_BUY_CITY:         return "action/buy_city.png";
+
+      case eTexture::TEX_ROAD:    return "tex_road.jpg";
+      case eTexture::TEX_ROBBER:  return "raeuber/raeuber_tex.jpg";
+
+      case eTexture::PLAYER_ICON: return "player/unknown.png";
+      case eTexture::PLAYER_ICON_1: return "player_avatars/genghis.png";
+      case eTexture::PLAYER_ICON_2: return "player_avatars/gandhi.png";
+      case eTexture::PLAYER_ICON_3: return "player_avatars/catherine.png";
+      case eTexture::PLAYER_ICON_4: return "player_avatars/hatshepsut.png";
+
+      default: return ""; // Always return empty string, not a nullptr
     }
-    if ( !game->Device )
+}
+
+
+irr::video::ITexture*
+Texture_get( Game_t * game, eTexture const type )
+{
+    char const * const texName = Texture_getName( type );
+
+    if ( strlen( texName ) < 3 )
     {
-        std::cout << __FUNCTION__ << " [Error] :: Invalid pointer to IrrlichtDevice\n";
+        std::cout << __FUNCTION__ << " [Error] :: Invalid texName(" << texName << ")\n";
         return nullptr;
     }
 
-    std::string const & mediaDir = game->MediaDir;
+    assert( game );
+    assert( game->Device );
+    assert( game->Device->getVideoDriver() );
+    std::string const fileName = Game_getAssetFileName( game, texName );
     irr::video::IVideoDriver * driver = game->Device->getVideoDriver();
-    if ( !driver )
-    {
-        std::cout << __FUNCTION__ << " [Error] :: Invalid pointer to IVideoDriver\n";
-        return nullptr;
-    }
-
-    std::string tmp;
-
-    switch( type )
-    {
-        case eTexture::UNKNOWN: tmp = "unknown.jpg"; break;
-        case eTexture::SKYBOX_TOP: tmp = "skybox/ct/top.jpg"; break;
-        case eTexture::SKYBOX_BOTTOM: tmp = "skybox/ct/bottom.jpg"; break;
-        case eTexture::SKYBOX_LEFT: tmp = "skybox/ct/left.jpg"; break;
-        case eTexture::SKYBOX_RIGHT: tmp = "skybox/ct/right.jpg"; break;
-        case eTexture::SKYBOX_FRONT: tmp = "skybox/ct/front.jpg"; break;
-        case eTexture::SKYBOX_BACK: tmp = "skybox/ct/back.jpg"; break;
-
-        case eTexture::DICE_1: tmp = "dice/dice1.png"; break;
-        case eTexture::DICE_2: tmp = "dice/dice2.png"; break;
-        case eTexture::DICE_3: tmp = "dice/dice3.png"; break;
-        case eTexture::DICE_4: tmp = "dice/dice4.png"; break;
-        case eTexture::DICE_5: tmp = "dice/dice5.png"; break;
-        case eTexture::DICE_6: tmp = "dice/dice6.png"; break;
-
-        case eTexture::CHIP_W: tmp = "chips/waypoint_w.png"; break;
-        case eTexture::CHIP_S: tmp = "chips/waypoint_s.png"; break;
-        case eTexture::CHIP_HOLZ: tmp = "chips/chip_holz.jpg"; break;
-        case eTexture::CHIP_LEHM: tmp = "chips/chip_lehm.png"; break;
-        case eTexture::CHIP_WEIZEN: tmp = "chips/chip_weizen.jpg"; break;
-        case eTexture::CHIP_WOLLE: tmp = "chips/chip_wolle.jpg"; break;
-        case eTexture::CHIP_ERZ: tmp = "chips/chip_erz.jpg"; break;
-        case eTexture::CHIP_2: tmp = "chips/chip02.png"; break;
-        case eTexture::CHIP_3: tmp = "chips/chip03.png"; break;
-        case eTexture::CHIP_4: tmp = "chips/chip04.png"; break;
-        case eTexture::CHIP_5: tmp = "chips/chip05.png"; break;
-        case eTexture::CHIP_6: tmp = "chips/chip06.png"; break;
-        case eTexture::CHIP_8: tmp = "chips/chip08.png"; break;
-        case eTexture::CHIP_9: tmp = "chips/chip09.png"; break;
-        case eTexture::CHIP_10: tmp = "chips/chip10.png"; break;
-        case eTexture::CHIP_11: tmp = "chips/chip11.png"; break;
-        case eTexture::CHIP_12: tmp = "chips/chip12.png"; break;
-
-        case eTexture::TILE_WASSER: tmp = "tiles/wasser.png"; break;
-        case eTexture::TILE_WUESTE: tmp = "tiles/wueste.jpg"; break;
-        case eTexture::TILE_HOLZ: tmp = "tiles/land_holz.png"; break;
-        case eTexture::TILE_LEHM: tmp = "tiles/land_lehm.png"; break;
-        case eTexture::TILE_WEIZEN: tmp = "tiles/land_weizen.jpg"; break;
-        case eTexture::TILE_WOLLE: tmp = "tiles/land_wolle.jpg"; break;
-        case eTexture::TILE_ERZ: tmp = "tiles/land_erz.jpg"; break;
-
-        // Composed textures
-        case eTexture::CARD_HOLZ:       tmp = "cards/card_holz.jpg"; break;
-        case eTexture::CARD_LEHM:       tmp = "cards/card_lehm.jpg"; break;
-        case eTexture::CARD_WEIZEN:     tmp = "cards/card_weizen.jpg"; break;
-        case eTexture::CARD_WOLLE:      tmp = "cards/card_wolle.jpg"; break;
-        case eTexture::CARD_ERZ:        tmp = "cards/card_erz.jpg"; break;
-        case eTexture::CARD_EVENT:      tmp = "cards/event_card.png"; break; // The back of event cards
-        case eTexture::CARD_KNIGHT:     tmp = "cards/event_card_knight.png"; break;
-        case eTexture::CARD_POINT:      tmp = "cards/event_card_point.png"; break;
-        case eTexture::CARD_BONUS:      tmp = "cards/bonus_card.png"; break;
-        case eTexture::CARD_BONUS_ARMY: tmp = "cards/bonus_card_army.png"; break;
-        case eTexture::CARD_BONUS_ROAD: tmp = "cards/bonus_card_road.png"; break;
-        case eTexture::STAT_ROAD:       tmp = "cards/stat_roads.png"; break;
-        case eTexture::STAT_SETTLEMENT: tmp = "cards/stat_settlements.png"; break;
-        case eTexture::STAT_CITY:       tmp = "cards/stat_cities.png"; break;
-
-        case eTexture::ACTION_DICE:             tmp = "action/dice.png"; break;
-        case eTexture::ACTION_PLACE_ROBBER:     tmp = "action/place_robber.png"; break;
-        case eTexture::ACTION_ENDTURN:          tmp = "action/endturn.png"; break;
-        case eTexture::ACTION_TRADE:            tmp = "action/trade.png"; break;
-        case eTexture::ACTION_BANK:             tmp = "action/bank.png"; break;
-        case eTexture::ACTION_PLAY_EVENT_CARD:  tmp = "action/play_event_card.png"; break;
-        case eTexture::ACTION_BUY_EVENT_CARD:   tmp = "action/buy_event_card.png"; break;
-        case eTexture::ACTION_BUY_ROAD:         tmp = "action/buy_road.png"; break;
-        case eTexture::ACTION_BUY_SETTLEMENT:   tmp = "action/buy_settlement.png"; break;
-        case eTexture::ACTION_BUY_CITY:         tmp = "action/buy_city.png"; break;
-
-        case eTexture::TEX_ROAD:    tmp = "tex_road.jpg"; break;
-        case eTexture::TEX_ROBBER:  tmp = "raeuber/raeuber_tex.jpg"; break;
-
-        case eTexture::PLAYER_ICON: tmp = "player/unknown.png"; break;
-        case eTexture::PLAYER_ICON_1: tmp = "player_avatars/genghis.png"; break;
-        case eTexture::PLAYER_ICON_2: tmp = "player_avatars/gandhi.png"; break;
-        case eTexture::PLAYER_ICON_3: tmp = "player_avatars/catherine.png"; break;
-        case eTexture::PLAYER_ICON_4: tmp = "player_avatars/hatshepsut.png"; break;
-        default: break;
-    }
-
-    if ( tmp.empty() )
-    {
-        std::cout << __FUNCTION__ << " [Error] :: Empty filename\n";
-        return nullptr;
-    }
-
-    std::string const fileName = mediaDir + tmp;
-
     driver->setTextureCreationFlag( irr::video::ETCF_ALWAYS_32_BIT, true );
     //driver->setTextureCreationFlag( irr::video::ETCF_CREATE_MIP_MAPS, false );
 
     irr::video::ITexture* tex = driver->getTexture( fileName.c_str() );
-
     if ( !tex )
     {
         std::cout << __FUNCTION__ << " [Error] :: Cannot get texture (" << fileName << ")\n";
@@ -136,13 +125,13 @@ Game_getDiceTexture( Game_t* game, int diceValue )
 {
     switch( diceValue )
     {
-        case 1: return Game_getTexture( game, eTexture::DICE_1 );
-        case 2: return Game_getTexture( game, eTexture::DICE_2 );
-        case 3: return Game_getTexture( game, eTexture::DICE_3 );
-        case 4: return Game_getTexture( game, eTexture::DICE_4 );
-        case 5: return Game_getTexture( game, eTexture::DICE_5 );
-        case 6: return Game_getTexture( game, eTexture::DICE_6 );
-        default: return Game_getTexture( game, eTexture::UNKNOWN );
+        case 1: return Texture_get( game, eTexture::DICE_1 );
+        case 2: return Texture_get( game, eTexture::DICE_2 );
+        case 3: return Texture_get( game, eTexture::DICE_3 );
+        case 4: return Texture_get( game, eTexture::DICE_4 );
+        case 5: return Texture_get( game, eTexture::DICE_5 );
+        case 6: return Texture_get( game, eTexture::DICE_6 );
+        default: return Texture_get( game, eTexture::UNKNOWN );
     }
 }
 
@@ -151,11 +140,11 @@ Game_getPlayerTexture( Game_t* game, int player )
 {
     switch( player )
     {
-        case 1: return Game_getTexture( game, eTexture::PLAYER_ICON_1 );
-        case 2: return Game_getTexture( game, eTexture::PLAYER_ICON_2 );
-        case 3: return Game_getTexture( game, eTexture::PLAYER_ICON_3 );
-        case 4: return Game_getTexture( game, eTexture::PLAYER_ICON_4 );
-        default: return Game_getTexture( game, eTexture::PLAYER_ICON );
+        case 1: return Texture_get( game, eTexture::PLAYER_ICON_1 );
+        case 2: return Texture_get( game, eTexture::PLAYER_ICON_2 );
+        case 3: return Texture_get( game, eTexture::PLAYER_ICON_3 );
+        case 4: return Texture_get( game, eTexture::PLAYER_ICON_4 );
+        default: return Texture_get( game, eTexture::PLAYER_ICON );
     }
 }
 
@@ -174,7 +163,7 @@ Game_getTileTexture( Game_t* game, TileType tileType )
         default: break;
     }
 
-    return Game_getTexture( game, texType );
+    return Texture_get( game, texType );
 }
 
 irr::video::ITexture*
@@ -187,7 +176,7 @@ Game_getCardTexture( Game_t* game, TileType tileType )
     if ( tileType.contains( TileType::WOLLE ) ) texType = eTexture::CARD_WOLLE;
     if ( tileType.contains( TileType::ERZ ) ) texType = eTexture::CARD_ERZ;
 
-    return Game_getTexture( game, texType );
+    return Texture_get( game, texType );
 }
 
 irr::video::ITexture*
@@ -226,7 +215,7 @@ Game_getChipTexture( Game_t* game, TileType tileType, int diceValue )
         }
     }
 
-    return Game_getTexture( game, texType );
+    return Texture_get( game, texType );
 }
 
 irr::video::ITexture*
@@ -250,7 +239,7 @@ GameBuilder_getRessourceCardTexture( Game_t* game, TileType tt, bool fg )
         else if (tt.contains( TileType::ERZ) ) { texType = eTexture::TILE_ERZ; }
     }
 
-    return Game_getTexture( game, texType );
+    return Texture_get( game, texType );
 }
 
 irr::video::ITexture*
@@ -265,7 +254,6 @@ GameBuilder_createRessourceCardTexture( Game_t* game, TileType tileType, std::st
     smgr->clear();
 
     AutoSceneNode* node = new AutoSceneNode( smgr, smgr->getRootSceneNode(), -1 );
-    node->setPosition( irr::core::vector3df(0,0,0) );
     node->add( createRoundRect( glm::vec3(0,0,    0), glm::vec2(600,1000), glm::vec2(40,40), 9, tileType.getRessourceColor() ), true );
     node->add( createRoundRect( glm::vec3(0,0,-0.05f), glm::vec2(580,980), glm::vec2(40,40), 9, 0xFFFFFFFF ), true );
     AutoMeshBuffer* bg0 = createRoundRect( glm::vec3(0,0,-0.15f), glm::vec2(540,940), glm::vec2(40,40), 9, 0xFFFFFFFF );

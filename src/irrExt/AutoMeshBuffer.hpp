@@ -3,6 +3,9 @@
 
 #include <irrExt/irrExt.hpp>
 
+void SceneNode_setPosition( irr::scene::ISceneNode* node, glm::vec3 const & pos );
+void SceneNode_setRotation( irr::scene::ISceneNode* node, glm::vec3 const & degrees );
+
 void
 enumerateMeshBuffer( irr::scene::SMeshBuffer & p );
 
@@ -80,7 +83,7 @@ public:
     AutoMesh();
 
     //! destructor
-    virtual ~AutoMesh();
+    ~AutoMesh() override;
 
     //! clean mesh
     void clear();

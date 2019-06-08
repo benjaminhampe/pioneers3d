@@ -14,16 +14,21 @@ class Game_t;
 void UI_create( Game_t * game );
 void UI_update( Game_t * game );
 bool UI_onEvent( Game_t * game, irr::SEvent const & event );
-void UI_createActionWindow( Game_t * game, irr::core::recti const & pos );
+void UI_createActionWindow( Game_t * game );
 void UI_updateActionWindow( Game_t * game );
-void UI_createPlayerWindow( Game_t * game, irr::core::recti const & pos );
+void UI_createPlayerWindow( Game_t * game );
 void UI_updatePlayerWindow( Game_t * game );
-void UI_createDiceWindow( Game_t * game, irr::core::recti const & pos );
-void UI_createChatWindow( Game_t * game, irr::core::recti const & pos );
-void UI_createBankWindow( Game_t * game, irr::core::recti const & pos );
-void UI_createStartWindow( Game_t * game, irr::core::recti const & pos );
+void UI_createDiceWindow( Game_t * game );
+void UI_createChatWindow( Game_t * game );
+void UI_createBankWindow( Game_t * game );
+void UI_createStartWindow( Game_t * game );
 void UI_createHelpWindow( Game_t * game );
-void UI_createCameraWindow( Game_t * game, irr::core::recti const & pos );
+
+void UI_createCameraWindow( Game_t * game );
+bool UI_handleCameraWindow( Game_t * game, irr::SEvent const & event );
+
+BaseWindow*
+UI_addWindow( Game_t * game, std::string const & title, irr::core::recti const & pos, irr::gui::IGUIElement* parent, int id = -1 );
 
 class eWindow
 {
@@ -37,9 +42,9 @@ public:
         ACTION = 1<<3,
         PLAYER = 1<<4,
         CHAT = 1<<5,
-        INIT_DICE = DICE | PLAYER | ACTION | CHAT,
-        INIT_PLACE = DICE | PLAYER | ACTION | CHAT,
-        ALL = MAINMENU | BANK | DICE | ACTION | PLAYER | CHAT
+        INIT_DICE = DICE | PLAYER | ACTION,
+        INIT_PLACE = DICE | PLAYER | ACTION,
+        ALL = MAINMENU | BANK | DICE | ACTION | PLAYER
     };
 
     eWindow( uint32_t flags ) : Flags( flags ) {}
@@ -73,25 +78,17 @@ struct GUI_Menu_t
 class GUI_Card_t : public irr::gui::IGUIElement
 {
 public:
-    GUI_Card_t( irr::gui::IGUIEnvironment* env,
-            irr::gui::IGUIElement* parent,
-            int id,
-            irr::core::recti const & pos );
-
-    virtual ~GUI_Card_t();
-
-    virtual void draw() override;
-
-    void setTitle( Text_t&& title ) { m_Title = std::move( title ); }
-    void setValue( Text_t&& value ) { m_Value = std::move( value ); }
-
+    GUI_Card_t( irr::gui::IGUIEnvironment* env, irr::gui::IGUIElement* parent, int id, irr::core::recti const & pos );
+    ~GUI_Card_t() override;
+    void draw() override;
+    void setTitle( Text_t title ) { m_Title = title; }
+    void setValue( Text_t value ) { m_Value = value; }
+    void setTexture( irr::video::ITexture* tex ) { m_Tex = tex; }
     Text_t const & getTitle() const { return m_Title; }
     Text_t const & getValue() const { return m_Value; }
-
     Text_t & getTitle() { return m_Title; }
     Text_t & getValue() { return m_Value; }
 
-    void setTexture( irr::video::ITexture* tex ) { m_Tex = tex; }
 public:
     Text_t m_Title;
     Text_t m_Value;
@@ -166,8 +163,14 @@ struct GUI_Dice_t
 struct GUI_Camera_t
 {
     BaseWindow* Window = nullptr;
-    irr::gui::IGUIButton* DefaultView = nullptr;
-    irr::gui::IGUIButton* TopView = nullptr;
+    irr::gui::IGUIButton* Default = nullptr;
+    irr::gui::IGUIButton* Left = nullptr;
+    irr::gui::IGUIButton* Right = nullptr;
+    irr::gui::IGUIButton* Front = nullptr;
+    irr::gui::IGUIButton* Back = nullptr;
+    irr::gui::IGUIButton* Top = nullptr;
+    irr::gui::IGUIButton* Bottom = nullptr;
+
     irr::gui::IGUIButton* MoveLeft = nullptr;
     irr::gui::IGUIButton* MoveRight = nullptr;
     irr::gui::IGUIButton* MoveUp = nullptr;

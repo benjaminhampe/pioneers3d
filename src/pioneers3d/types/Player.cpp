@@ -23,23 +23,14 @@ void
 addStandardPlayer( Game_t* game, int id, std::string const & name, uint32_t color )
 {
    assert( game );
+   assert( id >= 0 );
    Player_t player;
    player.Id = id;
    player.Name = name;
    player.Color = color;
-   player.Avatar = Game_getTexture( game, eTexture( uint32_t(eTexture::PLAYER_ICON) + id ) );
+   player.Avatar = Texture_get( game, eTexture( uint32_t( eTexture::PLAYER_ICON ) + uint32_t( id ) ) );
    player.Bank.clear();
    game->Players.emplace_back( std::move( player ) );
-}
-
-void
-createStandardPlayers( Game_t* game )
-{
-    assert( game );
-    addStandardPlayer( game, 1, "Benni", 0xFF30ED30 );
-    addStandardPlayer( game, 2, "Robot 1", 0xFFFF0000 );
-    // addStandardPlayer( game, 3, "Robot 2", 0xFFFFFF00 );
-    // addStandardPlayer( game, 4, "Robot 3", 0xFF0000FF );
 }
 
 int32_t
@@ -115,8 +106,8 @@ void Player_addRoad( Game_t* game, Waypoint_t* w )
     Player_t * player = Player_get( game );
     if ( !player ) return;
 
-    game->PlaceObject->setPosition( toIRR( w->Pos ) );
-    game->PlaceObject->setRotation( irr::core::vector3df( 0, w->Angle, 0 ) );
+    SceneNode_setPosition( game->PlaceObject, w->Pos );
+    SceneNode_setRotation( game->PlaceObject, glm::vec3( 0, w->Angle, 0 ) );
 
     w->Player = Player_getIndex( game );
     w->OwnerNode = game->PlaceObject;
@@ -145,7 +136,7 @@ void Player_addSettlement( Game_t* game, Waypoint_t* w )
     // assert( w->Player > -1 );
     w->Player = Player_getIndex( game );
     w->OwnerNode = game->PlaceObject;
-    w->OwnerNode->setPosition( toIRR( w->Pos ) );
+    SceneNode_setPosition( w->OwnerNode, w->Pos );
     w->VictoryPoints = 1;
 
     player->NumSettlements++;

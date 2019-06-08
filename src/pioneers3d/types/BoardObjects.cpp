@@ -40,74 +40,50 @@ void getHexagonTriangles( std::vector< irr::core::triangle3df > & container, glm
 
 glm::vec3 getHexagonCorner( int i, glm::vec2 const & tile_size, glm::vec3 const & tile_pos )
 {
-    while ( i < 0 ) i += 6;
-    while ( i >= 6 ) i -= 6;
-
-    switch ( i )
-    {
-        case 0: return tile_pos + glm::vec3( 0.00f*tile_size.x, 0.0f, -.50f*tile_size.y ); // A
-        case 1: return tile_pos + glm::vec3( -.50f*tile_size.x, 0.0f, -.25f*tile_size.y ); // B
-        case 2: return tile_pos + glm::vec3( -.50f*tile_size.x, 0.0f, 0.25f*tile_size.y ); // C
-        case 3: return tile_pos + glm::vec3( 0.00f*tile_size.x, 0.0f, 0.50f*tile_size.y ); // D
-        case 4: return tile_pos + glm::vec3( 0.50f*tile_size.x, 0.0f, 0.25f*tile_size.y ); // E
-        case 5: return tile_pos + glm::vec3( 0.50f*tile_size.x, 0.0f, -.25f*tile_size.y ); // F
-        default: assert( false ); // not allowed to happen
-    }
-    return glm::vec3(0.f,0.f,0.f);
+   assert( i >= 0 );
+   assert( i < 6 );
+   switch ( i )
+   {
+      case 0: return tile_pos + glm::vec3( 0.00f*tile_size.x, 0.0f, -.50f*tile_size.y ); // A
+      case 1: return tile_pos + glm::vec3( -.50f*tile_size.x, 0.0f, -.25f*tile_size.y ); // B
+      case 2: return tile_pos + glm::vec3( -.50f*tile_size.x, 0.0f, 0.25f*tile_size.y ); // C
+      case 3: return tile_pos + glm::vec3( 0.00f*tile_size.x, 0.0f, 0.50f*tile_size.y ); // D
+      case 4: return tile_pos + glm::vec3( 0.50f*tile_size.x, 0.0f, 0.25f*tile_size.y ); // E
+      case 5: return tile_pos + glm::vec3( 0.50f*tile_size.x, 0.0f, -.25f*tile_size.y ); // F
+      default: assert( false ); // not allowed to happen
+   }
+   return glm::vec3(0.f,0.f,0.f);
 }
 
 glm::vec3 getHexagonEdgeCenter( int i, glm::vec2 const & tile_size, glm::vec3 const & tile_pos )
 {
-    int32_t a = 0;
-    int32_t b = 0;
-    while ( i < 0 ) i += 6;
-    while ( i >= 6 ) i -= 6;
-    switch ( i )
-    {
-        case 0: a = 0; b = 1; break;
-        case 1: a = 1; b = 2; break; // B-C
-        case 2: a = 2; b = 3; break; // C-D
-        case 3: a = 3; b = 4; break; // D-E
-        case 4: a = 4; b = 5; break; // E-F
-        case 5: a = 5; b = 0; break; // F-A
-        default: assert( false ); // not allowed to happen
-    }
-    glm::vec3 const A = getHexagonCorner( a, tile_size, tile_pos );
-    glm::vec3 const B = getHexagonCorner( b, tile_size, tile_pos );
-    return A + (B-A)*0.5f; // Center of egde (a,b)
+   assert( i >= 0 );
+   assert( i < 6 );
+   int32_t a = i % 6;
+   int32_t b = ( i + 1 ) % 6;
+   glm::vec3 const A = getHexagonCorner( a, tile_size, tile_pos );
+   glm::vec3 const B = getHexagonCorner( b, tile_size, tile_pos );
+   return A + (B-A)*0.5f; // Center of egde (a,b)
 }
 
 float32_t getHexagonEdgeAngle( int i, glm::vec2 const & tile_size )
 {
-    int32_t a = 0;
-    int32_t b = 0;
-    while ( i < 0 ) i += 6;
-    while ( i >= 6 ) i -= 6;
-    switch ( i )
-    {
-        case 0: a = 0; b = 1; break; // A-B
-        case 1: a = 1; b = 2; break; // B-C
-        case 2: a = 2; b = 3; break; // C-D
-        case 3: a = 3; b = 4; break; // D-E
-        case 4: a = 4; b = 5; break; // E-F
-        case 5: a = 0; b = 5; break; // F-A
-        default: assert( false ); // not allowed to happen
-    }
-
-    glm::vec3 const A = getHexagonCorner( a, tile_size );
-    glm::vec3 const B = getHexagonCorner( b, tile_size );
-    glm::vec3 eAB( B.x-A.x, 0.0f, B.z-A.z); // projected onto xz plane
-    glm::vec3 eX(1,0,0); // we want angle between +x axis
-    // dot(a,b) = |a||b|cos(a,b);
-    // cos(a,b) = dot(a,b) / |a||b|;
-    // angle(a,b) = acos( dot(a,b) / |a||b| );
-    float32_t angle = irr::core::RADTODEG * acos( glm::dot(eAB,eX) / glm::length(eAB) );
-    while ( angle < 0.0f ) angle += 360.0f;
-    while ( angle >= 360.0f ) angle -= 360.0f;
-
-    std::cout << __FUNCTION__ << "(" << i << ") -> a60(" << angle << ")\n";
-
-    return angle;
+   assert( i >= 0 );
+   assert( i < 6 );
+   int32_t a = i % 6;
+   int32_t b = ( i + 1 ) % 6;
+   glm::vec3 const A = getHexagonCorner( a, tile_size );
+   glm::vec3 const B = getHexagonCorner( b, tile_size );
+   glm::vec3 eAB( B.x-A.x, 0.0f, B.z-A.z); // projected onto xz plane
+   glm::vec3 eX(1,0,0); // we want angle between +x axis
+   // dot(a,b) = |a||b|cos(a,b);
+   // cos(a,b) = dot(a,b) / |a||b|;
+   // angle(a,b) = acos( dot(a,b) / |a||b| );
+   float32_t angle = irr::core::RADTODEG * acos( glm::dot(eAB,eX) /* / glm::length(eAB) */ );
+   while ( angle < 0.0f ) angle += 360.0f;
+   while ( angle >= 360.0f ) angle -= 360.0f;
+   std::cout << __FUNCTION__ << "(" << i << ") -> a60(" << angle << ")\n";
+   return angle;
 }
 
 /*
@@ -145,7 +121,7 @@ void Game_createRaeuber( Game_t* game )
         node->getMaterial( i ).Lighting = false;
         node->getMaterial( i ).FogEnable = false;
         node->getMaterial( i ).NormalizeNormals = true;
-        node->getMaterial( i ).setTexture( 0, Game_getTexture( game, eTexture::TEX_ROBBER ) );
+        node->getMaterial( i ).setTexture( 0, Texture_get( game, eTexture::TEX_ROBBER ) );
     }
     game->Raeuber.Pos = glm::vec3(0,0,0);
     game->Raeuber.Node = node;

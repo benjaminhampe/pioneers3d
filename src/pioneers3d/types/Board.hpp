@@ -2,52 +2,14 @@
 #define PIONEERS3D_GAME_BOARD_HPP
 
 #include <pioneers3d/types/Common.hpp>
-#include <pioneers3d/types/TileType.hpp>
-#include <pioneers3d/types/Bank.hpp>
-#include <pioneers3d/types/Waypoint.hpp>
+#include <pioneers3d/types/Tile.hpp>
 #include <pioneers3d/types/BoardObjects.hpp>
 
 namespace pioneers3d {
 
-class Game_t;
-class Board_t;
-//class Waypoint_t;
-
-class Tile_t
-{
-public:
-   Board_t*					Board = nullptr;
-   TileType                   	Type = TileType::WASSER;
-   glm::vec2                  TileSize;
-   glm::ivec2                  BoardIndex;
-   glm::vec3                   Pos;
-   glm::vec3                   Size;
-   int32_t                     DiceValue = 0;
-   int32_t                     Angle60 = 0;    // in range [0...5]
-   std::array< Waypoint_t*, 6 > Waypoints;  // Corners of the graph
-   std::array< Tile_t*, 6 >     Tiles;      // Neighbours
-   //std::array< Road_t*, 6 >   Roads;      // (Full) Edges of the graph
-
-   ///@brief Irrlicht stuff
-   std::vector< irr::core::triangle3df > Triangles;
-   AutoSceneNode*              Node = nullptr;
-   irr::scene::ITriangleSelector* TriangleSelector = nullptr;
-
-public:
-   Tile_t();
-   ~Tile_t();
-
-   int32_t
-   getPlayerPoints( int playerIndex ) const;
-
-   inline  glm::vec3 getEdgeCenter( int32_t k ) const { return getHexagonEdgeCenter( k, TileSize, Pos ); }
-
-   inline  float32_t getEdgeAngle( int32_t k ) const { return getHexagonEdgeAngle( k, TileSize ); }
-
-   inline  glm::vec3 getCorner( int32_t k ) const { return getHexagonCorner( k, TileSize, Pos ); }
-};
-
 typedef uint32_t BoardType;
+
+class Game_t;
 
 class Board_t
 {
@@ -83,7 +45,7 @@ public:
        for ( size_t i = 0; i < Tiles.size(); ++i )
        {
          Tile_t const & tile = Tiles[ i ];
-         if ( tile.DiceValue == diceValue )
+         if ( tile.m_DiceValue == diceValue )
          {
             container.emplace_back( &tile );
          }
@@ -102,10 +64,10 @@ public:
       for ( size_t i = 0; i < Tiles.size(); ++i )
       {
          Tile_t & tile = Tiles[ i ];
-         if ( tile.Node )
+         if ( tile.m_Node )
          {
-            tile.Node->drop();
-            tile.Node = nullptr;
+            tile.m_Node->drop();
+            tile.m_Node = nullptr;
          }
       }
       Tiles.clear();
@@ -148,7 +110,7 @@ public:
       for ( size_t i = 0; i < Tiles.size(); ++i )
       {
          Tile_t & t = Tiles[ i ];
-         if ( equals( t.Pos, pos ) )
+         if ( equals( t.m_Pos, pos ) )
          {
             container.emplace_back( &t );
          }
@@ -210,11 +172,10 @@ inline void forEachWaypointR( Game_t * game, std::function<void(Waypoint_t * w)>
 inline void forEachWaypointS( Game_t * game, std::function<void(Waypoint_t * w)> const & lambda ) { Board_get( game )->forEachWaypointS( lambda ); }
 
 // ---------------------------------------------------------------------------------------
-void        Board_create( Game_t * game );
-void        Board_createStandardTiles( Game_t * game );
+void        Board_createStandard( Game_t * game );
 void        Board_addTile( Game_t * game, TileType tileType, int i, int j, int diceValue, int angle60 );
-void        Board_createWaypoints( Game_t * game, float32_t radius, float32_t height, uint32_t tesselation, bool isRoad = false );
 void        Board_addWaypoint( Game_t * game, float32_t r, float32_t h, uint32_t tesselation, glm::vec3 pos, float32_t angle, bool isRoad = false );
+void        Board_createWaypoints( Game_t * game, float32_t radius, float32_t height, uint32_t tesselation, bool isRoad = false );
 Tile_t *    Board_isMouseOverTile( Game_t * game );
 Waypoint_t* Board_isMouseOverWaypoint( Game_t * game, bool isRoad );
 //          Board_collectTilesByPosition( Game_t * game, glm::vec3 pos );
@@ -233,9 +194,6 @@ inline void Board_hideWaypointsR( Game_t* game ) { Board_setVisible_WaypointsR( 
 inline void Board_hideWaypointsS( Game_t* game ) { Board_setVisible_WaypointsS( game, false ); }
 
 } // end namespace pioneers3d
-
-std::ostream &
-operator<< ( std::ostream & o, pioneers3d::Tile_t const & t );
 
 std::ostream &
 operator<< ( std::ostream & o, pioneers3d::Board_t const & b );

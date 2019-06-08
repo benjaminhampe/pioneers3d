@@ -1,126 +1,154 @@
 #include <pioneers3d/types/Font.hpp>
 #include <pioneers3d/types/Game.hpp>
 #include <irrExt/CGUITTFont.hpp>
+#include <algorithm>
+
+std::ostream &
+operator<< ( std::ostream & o, pioneers3d::eFontType const fontType )
+{
+   switch( fontType )
+   {
+      //case pioneers3d::eFontType::Default: o << "Default"; break;
+      case pioneers3d::eFontType::Marquee: o << "Marquee"; break;
+      case pioneers3d::eFontType::H1: o << "H1"; break;
+      case pioneers3d::eFontType::H2: o << "H2"; break;
+      case pioneers3d::eFontType::H3: o << "H3"; break;
+      case pioneers3d::eFontType::H4: o << "H4"; break;
+      case pioneers3d::eFontType::H5: o << "H5"; break;
+      case pioneers3d::eFontType::H6: o << "H6"; break;
+      case pioneers3d::eFontType::AWESOME: o << "AWESOME"; break;
+      case pioneers3d::eFontType::User: o << "User"; break;
+      case pioneers3d::eFontType::CHAT_BG: o << "CHAT_BG"; break;
+      case pioneers3d::eFontType::CHAT: o << "CHAT"; break;
+      case pioneers3d::eFontType::FPS_COUNTER: o << "FPS_COUNTER"; break;
+      case pioneers3d::eFontType::SMALL: o << "SMALL"; break;
+      default: o << "Default"; break;
+   }
+   return o;
+}
+
+std::ostream &
+operator<< ( std::ostream & o, pioneers3d::Font_t const & font )
+{
+   o << font.Type << "," << font.Font << "," << font.FileName << "," << font.Size << "," << font.Style << "," << font.AntiAlias << "," << font.Transparent;
+   return o;
+}
 
 namespace pioneers3d {
 
-
-void
-Game_addFont( Game_t* game, eFontType type, std::string fileName, int32_t pxSize, bool aa, bool transparent )
+irr::video::IVideoDriver*
+Font_getVideoDriver( Font_t const & font )
 {
-    Font_t font;
-    font.Font = Font_create( game->Device->getGUIEnvironment(), game->MediaDir + fileName, pxSize, aa, transparent );
-    font.Type = type;
-    font.Size = pxSize;
-    game->Fonts.emplace_back( std::move( font ) );
+    if ( !font.Font ) { return nullptr; }
+    return font.Font->getVideoDriver();
 }
-
-irr::gui::IGUIFont*
-Game_getFont( Game_t* game, eFontType type )
-{
-    //PRINT_FUNCTION_NAME
-    for ( size_t i = 0; i < game->Fonts.size(); ++i )
-    {
-        Font_t const & font = game->Fonts[ i ];
-        if ( font.Type == type )
-        {
-            return font.Font;
-        }
-    }
-    return nullptr;
-}
-
-void
-Game_createFonts( Game_t* game )
-{
-    game->Fonts.clear();
-    Game_addFont( game, eFontType::DEFAULT, "fonts/DejaVuSansMono.ttf", 12, true, true );
-    Game_addFont( game, eFontType::CHAT, "fonts/Garton.ttf", 24, true, false );
-    Game_addFont( game, eFontType::FPS_COUNTER, "fonts/DejaVuSansMono.ttf", 32, true, true );
-    Game_addFont( game, eFontType::H1, "fonts/caribbean.otf", 32, true, true );
-    Game_addFont( game, eFontType::AWESOME, "fonts/FontAwesome.ttf", 64, true, true );
-}
-
-void
-Game_clearFonts( Game_t* game )
-{
-    for ( size_t i = 0; i < game->Fonts.size(); ++i )
-    {
-        Font_t & font = game->Fonts[ i ];
-        if ( font.Font )
-        {
-            font.Font->drop();
-        }
-    }
-    game->Fonts.clear();
-}
-
-
 
 irr::core::dimension2du
-Font_getPixelSize( irr::gui::IGUIFont* font, std::string txt )
+Font_getTextDimension( Font_t const & font, std::string const & txt )
 {
-    if ( !font ) { return irr::core::dimension2du(0,0); }
-    irr::core::stringw const text( txt.c_str() );
-    return font->getDimension( text.c_str() );
+    if ( !font.Font ) { return irr::core::dimension2du(0,0); }
+    return font.Font->getDimension( irr::core::stringw( txt.c_str() ).c_str() );
 }
 
-irr::gui::CGUITTFont*
+glm::ivec2
+Font_getTextSize( Font_t const & font, std::string const & txt )
+{
+   if ( !font.Font ) { return glm::ivec2(0,0); }
+   irr::core::dimension2du const irrSize = font.Font->getDimension( irr::core::stringw( txt.c_str() ).c_str() );
+   return glm::ivec2( int32_t( irrSize.Width ), int32_t( irrSize.Height ) );
+}
+
+Font_t
 Font_create(
         irr::gui::IGUIEnvironment* env,
         std::string fileName,
-        int32_t pxSize,
+        uint32_t fontSizePx,
+        uint32_t fontStyle,
+        eFontType fontType,
         bool aa,
         bool transparent )
 {
-    return irr::gui::CGUITTFont::create( env, irr::core::stringw( fileName.c_str() ).c_str(), pxSize, aa, transparent );
+   // Default: invalid font
+
+   // assert( env );
+   // assert( !fileName.empty() );
+   // assert( de::hampe::common::os::FileSystemSTL::existFile( fileName ) == true && fileName.c_str() );
+
+   if( !env )
+   {
+      std::cout << __FUNCTION__ << " Invalid pointer to irrlicht GUI env\n";
+      return Font_t();
+   }
+
+   if( fileName.empty() )
+   {
+      std::cout << __FUNCTION__ << " Empty filename\n";
+      return Font_t();
+   }
+
+   if( !de::hampe::common::os::FileSystemSTL::existFile( fileName ) )
+   {
+      std::cout << __FUNCTION__ << " Cannot open filename(" << fileName << ")\n";
+      return Font_t();
+   }
+
+   try
+   {
+      Font_t font;
+      font.Font = irr::gui::CGUITTFont::create( env, fileName.c_str(), fontSizePx, aa, transparent );
+      font.Type = fontType;
+      font.Size = fontSizePx;
+      font.Style = fontStyle;
+      font.AntiAlias = aa;
+      font.Transparent = transparent;
+      std::cout << __FUNCTION__ << "(" << fileName << ") :: Loaded font(" << font << ")\n";
+      return font;
+   }
+   catch( ... )
+   {
+      std::cout << __FUNCTION__ << "(" << fileName << ") :: Got exception\n";
+      return Font_t();
+   }
 }
 
 void
-Font_draw(
-    irr::gui::IGUIFont* font,
-    std::string txt,
-    int32_t x,
-    int32_t y,
-    uint32_t color )
+Font_draw( Font_t const & font,
+            std::string const & txt,
+            glm::ivec2 const & pos,
+            uint32_t color,
+            uint32_t textAlign )
 {
-    if ( !font ) { return; }
-    irr::core::stringw text( txt.c_str() );
-    irr::core::dimension2du size = font->getDimension( text.c_str() );
-    font->draw( text, mkRect( x, y, size.Width, size.Height ), color, false, false, 0 );
+   //if ( !font ) { return; }
+   if ( !font.Font ) { return; }
+   glm::ivec2 txtSize = Font_getTextSize( font, txt );
+   if ( txtSize.x < 1 || txtSize.y < 1 ) return;
+   int32_t tx = pos.x; // top
+   int32_t ty = pos.y; // left corner
+   if ( textAlign & TextAlign::Center )
+   {
+      tx -= txtSize.x / 2;
+   }
+   else if ( textAlign & TextAlign::Right )
+   {
+      tx -= txtSize.x;
+   }
+
+   if ( textAlign & TextAlign::Middle )
+   {
+      ty += txtSize.y / 2;
+   }
+   else if ( textAlign & TextAlign::Baseline ) {
+      // way more compilicated stuff -> approxxx
+      ty += ( 4 * txtSize.y ) / 5;
+   }
+   else if ( textAlign & TextAlign::Bottom ) {
+      ty += txtSize.y;
+   }
+
+   font.Font->draw( irr::core::stringw( txt.c_str() ), irr::core::recti( tx, ty, txtSize.x, txtSize.y ), color, false, false, nullptr );
 }
 
-void
-Font_draw(
-    irr::gui::IGUIFont* font,
-    std::string txt,
-    irr::core::recti const & pos,
-    uint32_t color )
-{
-    if ( !font )
-    {
-        std::cout << __FUNCTION__ << " :: Invalid pointer to Font\n";
-        return;
-    }
-
-    irr::core::stringw tmp( txt.c_str() );
-    irr::core::dimension2du txtSize = font->getDimension( tmp.c_str() );
-
-    if ( txtSize.Width < 1 || txtSize.Height < 1 )
-    {
-        std::cout << __FUNCTION__ << " :: Invalid Font Size(" << txtSize << ")\n";
-        return;
-    }
-    int w = pos.getWidth();
-    int h = pos.getHeight();
-    //int x = pos.UpperLeftCorner.X + ( w - txtSize.Width ) / 2;
-    //int y = pos.UpperLeftCorner.Y + ( h - txtSize.Height ) / 2;
-
-    int x = pos.UpperLeftCorner.X;
-    int y = pos.UpperLeftCorner.Y;
-    font->draw( tmp, mkRect( x-1, y-1, txtSize.Width+2, txtSize.Height+2 ), color, false, false, 0 );
-}
-
+#if 0
 void Font_drawBig( irr::gui::IGUIFont* font, std::string txt, int32_t x, int32_t y, uint32_t color )
 {
     Font_draw( font, txt, x-1, y-1, color );
@@ -154,29 +182,84 @@ void Font_drawShadow( irr::gui::IGUIFont* font, std::string txt, int32_t x, int3
 //    Font_draw( font, item.Text, tx+2, ty+1, bgColor );
 //    Font_draw( font, item.Text, tx, ty+2, bgColor );
 //    Font_draw( font, item.Text, tx+1, ty+2, bgColor );
+}
+#endif
 
-
+FontManager_t::FontManager_t()
+{
+   std::cout << "FontManager." << __FUNCTION__ << "\n";
 }
 
-
-void Text_draw( Text_t * p, int32_t x, int32_t y )
+FontManager_t::~FontManager_t()
 {
-    if ( !p ) { return; }
-    irr::core::dimension2du const txtSize = Font_getPixelSize( p->Font, p->Text );
-    Font_draw( p->Font, p->Text, mkRect( x, y, txtSize.Width, txtSize.Height ), p->Color );
+   std::cout << "FontManager." << __FUNCTION__ << "\n";
+
+   clear();
 }
 
-void Text_draw( Text_t * p, irr::core::recti const & pos )
+void
+FontManager_t::init( irr::gui::IGUIEnvironment* env )
 {
-    if ( !p ) { return; }
-    irr::core::dimension2du txtSize = Font_getPixelSize( p->Font, p->Text );
-    int32_t w = txtSize.Width;
-    int32_t h = txtSize.Height;
-    int32_t posW = pos.getWidth();
-    int32_t posH = pos.getHeight();
-    int32_t x = pos.UpperLeftCorner.X + (posW - w)/2;
-    int32_t y = pos.UpperLeftCorner.Y + (posH - h)/2;
-    Font_draw( p->Font, p->Text, mkRect( x, y, w, h ), p->Color );
+   std::cout << "FontManager." << __FUNCTION__ << "\n";
+   if ( !env )
+   {
+      std::cout << "FontManager." << __FUNCTION__ << " :: Invalid pointer to irrlicht gui\n";
+      return;
+   }
+
+   std::string const fontDir = "../../media/fonts/";
+   add( env, eFontType::Default, fontDir + "DejaVuSansMono.ttf", 12, 0, true, true );
+   add( env, eFontType::H1, fontDir + "Garton.ttf", 128, 0, true, true );
+   add( env, eFontType::H2, fontDir + "DejaVuSansMono.ttf", 96, 0, true, true );
+   add( env, eFontType::H3, fontDir + "DejaVuSansMono.ttf", 64, 0, true, true );
+   add( env, eFontType::H4, fontDir + "FontAwesome.ttf", 48, 0, true, true );
+   add( env, eFontType::H5, fontDir + "FontAwesome.ttf", 32, 0, true, true );
+   add( env, eFontType::H6, fontDir + "FontAwesome.ttf", 24, 0, true, true );
+   add( env, eFontType::User, fontDir + "DejaVuSansMono.ttf", 12, 0, true, true );
+   add( env, eFontType::CHAT, fontDir + "Garton.ttf", 24, 0, true, false );
+   add( env, eFontType::FPS_COUNTER, fontDir + "DejaVuSansMono.ttf", 32, 0, true, true );
+
+   add( env, eFontType::AWESOME, fontDir + "FontAwesome.ttf", 64, 0, true, true );
+}
+
+void
+FontManager_t::clear()
+{
+   std::cout << "FontManager." << __FUNCTION__ << "\n";
+
+   for ( size_t i = 0; i < Fonts.size(); ++i )
+   {
+      Font_t & font = Fonts[ i ];
+      if ( font.Font )
+      {
+         font.Font->drop(); // We owned it
+      }
+   }
+   Fonts.clear();
+}
+
+void
+FontManager_t::add( irr::gui::IGUIEnvironment* env, eFontType type, std::string const fileName, uint32_t sizePx, uint32_t style, bool aa, bool transparent )
+{
+   std::cout << "FontManager." << __FUNCTION__ << "(" << fileName << "):\n";
+   Font_t font = Font_create( env, fileName, sizePx, style, type, aa, transparent );
+   Fonts.emplace_back( std::move( font ) );
+}
+
+Font_t
+FontManager_t::get( eFontType type ) const
+{
+   Font_t font;
+
+   for ( size_t i = 0; i < Fonts.size(); ++i )
+   {
+      if ( Fonts[ i ].Type == type )
+      {
+         font = Fonts[ i ];
+         break;
+      }
+   }
+   return font;
 }
 
 } // end namespace pioneers3d

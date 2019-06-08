@@ -91,8 +91,8 @@ void Chat_draw( Game_t * game, int32_t x, int32_t y )
     if (!game) return;
     Chat_t* chat = (Chat_t*)game->Chat;
     if (!chat) return;
-    irr::gui::IGUIFont* font = Game_getFont( game, eFontType::CHAT );
-    if (!font) return;
+    Font_t font = Game_getFont( game, eFontType::CHAT );
+    if (!font.Font) return;
     int32_t tx = x;
     int32_t ty = y;
     size_t maxItems = chat->Items.size();
@@ -105,13 +105,13 @@ void Chat_draw( Game_t * game, int32_t x, int32_t y )
 
     irr::video::IVideoDriver* driver = game->Device->getVideoDriver();
     irr::core::dimension2du screen = driver->getScreenSize();
-    irr::core::recti viewport = driver->getViewPort();
+    //irr::core::recti viewport = driver->getViewPort();
 
     game->Device->getVideoDriver()->draw2DRectangle( 0x60FFFFFF, mkRect( tx-10, ty-10, screen.Width, screen.Height ) );
     for ( size_t i = iStart; i < maxItems; ++i )
     {
         ChatItem_t const & item = chat->Items[ i ];
-        irr::core::dimension2du textSize = Font_getPixelSize( font, item.Text );
+        irr::core::dimension2du textSize = Font_getTextDimension( font, item.Text );
 
         uint32_t bgColor = 0xFF202020;
         if ( irr::video::SColor( item.Color ).getAverage() < 90 )
@@ -119,20 +119,21 @@ void Chat_draw( Game_t * game, int32_t x, int32_t y )
             bgColor = 0xFFFFFFFF;
         }
 
-        Font_draw( font, item.Text, tx-1, ty, bgColor );
-        Font_draw( font, item.Text, tx-1, ty+1, bgColor );
-        Font_draw( font, item.Text, tx+2, ty, bgColor );
-        Font_draw( font, item.Text, tx+2, ty+1, bgColor );
+        Font_draw( font, item.Text, glm::ivec2( tx-1, ty ), bgColor );
+        Font_draw( font, item.Text, glm::ivec2( tx-1, ty+1 ), bgColor );
+        Font_draw( font, item.Text, glm::ivec2( tx+2, ty ), bgColor );
+        Font_draw( font, item.Text, glm::ivec2( tx+2, ty+1 ), bgColor );
 
-        Font_draw( font, item.Text, tx, ty-1, bgColor );
-        Font_draw( font, item.Text, tx+1, ty-1, bgColor );
-        Font_draw( font, item.Text, tx, ty+2, bgColor );
-        Font_draw( font, item.Text, tx+1, ty+2, bgColor );
+        Font_draw( font, item.Text, glm::ivec2( tx, ty-1 ), bgColor );
+        Font_draw( font, item.Text, glm::ivec2( tx+1, ty-1 ), bgColor );
+        Font_draw( font, item.Text, glm::ivec2( tx, ty+2 ), bgColor );
+        Font_draw( font, item.Text, glm::ivec2( tx+1, ty+2 ), bgColor );
 
-        Font_draw( font, item.Text, tx,   ty, item.Color );
-        Font_draw( font, item.Text, tx+1, ty+1, item.Color );
-        Font_draw( font, item.Text, tx+1, ty, item.Color );
-        Font_draw( font, item.Text, tx,   ty+1, item.Color );
+        Font_draw( font, item.Text, glm::ivec2( tx,   ty ), item.Color );
+        Font_draw( font, item.Text, glm::ivec2( tx+1, ty+1 ), item.Color );
+        Font_draw( font, item.Text, glm::ivec2( tx+1, ty ), item.Color );
+        Font_draw( font, item.Text, glm::ivec2( tx,   ty+1 ), item.Color );
+
         ty += textSize.Height;
     }
 }

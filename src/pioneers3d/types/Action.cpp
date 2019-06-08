@@ -174,10 +174,10 @@ void Action_Dice( Game_t* game )
             int32_t victoryPoints = tile->getPlayerPoints( p );
             if ( victoryPoints > 0 )
             {
-               int32_t oldResCount = Player_getNumRessource( game, tile->Type );
-               Player_setNumRessource( game, tile->Type, oldResCount + victoryPoints );
+               int32_t oldResCount = Player_getNumRessource( game, tile->m_Type );
+               Player_setNumRessource( game, tile->m_Type, oldResCount + victoryPoints );
 
-               Chat_print( game, de::hampe::common::sprintf("Player(", p, ") new cards(", victoryPoints, ") of type(", tile->Type.toString(), ")" ), 0xFF0000FF );
+               Chat_print( game, de::hampe::common::sprintf("Player(", p, ") new cards(", victoryPoints, ") of type(", tile->m_Type.toString(), ")" ), 0xFF0000FF );
             }
          }
       }
@@ -189,10 +189,10 @@ void Action_Dice( Game_t* game )
     for ( uint32_t i = 0; i < game->Board.Tiles.size(); ++i )
     {
         Tile_t & tile = game->Board.Tiles[ i ];
-        if ( tile.DiceValue == dice )
+        if ( tile.m_DiceValue == dice )
         {
-            std::cout << __FUNCTION__ << " :: [Ok] Found Tile with diceValue(" << dice << ") that has type(" << tile.Type.toString() << ")\n";
-            bank.add( tile.Type, 1 );
+            std::cout << __FUNCTION__ << " :: [Ok] Found Tile with diceValue(" << dice << ") that has type(" << tile.m_Type.toString() << ")\n";
+            bank.add( tile.m_Type, 1 );
         }
     }
 

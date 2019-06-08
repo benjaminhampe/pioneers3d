@@ -7,89 +7,180 @@
 
 namespace pioneers3d {
 
-class Game_t;
-
+// Game Fonts
 enum class eFontType : uint32_t
 {
-    DEFAULT = 0,
-    CHAT_BG,
-    CHAT,
-    AWESOME,
-    FPS_COUNTER,
-    H1,
-    H2,
-    H3,
-    SMALL,
+   Default = 0,
+   Marquee,
+   H1,
+   H2,
+   H3,
+   H4,
+   H5,
+   H6,
+   User,
+   CHAT_BG,
+   CHAT,
+   AWESOME,
+   FPS_COUNTER,
+   SMALL,
 };
-
-irr::gui::IGUIFont* Game_getFont( Game_t* game, eFontType type );
-void Game_clearFonts( Game_t* game );
-void Game_createFonts( Game_t* game );
-void Game_addFont( Game_t* game, eFontType type, std::string fileName, int32_t pxSize, bool aa = true, bool transparent = true );
 
 struct Font_t
 {
-    eFontType Type;
-    std::string FileName;
-    int32_t Size;
-    int32_t Style;
-    irr::gui::CGUITTFont* Font;
+   eFontType Type;
+   std::string FileName;
+   uint32_t Size;
+   uint32_t Style;
+   irr::gui::CGUITTFont* Font;
+   bool AntiAlias;
+   bool Transparent;
+
+   Font_t()
+      : Type( eFontType::Default )
+      , FileName( "fonts/Garton.ttf" )
+      , Size( 16 )
+      , Style( 0 )
+      , Font( nullptr )
+      , AntiAlias( true )
+      , Transparent( true )
+   {}
+
+   glm::ivec2
+   getTextSize( std::string const & txt ) const
+   {
+      if ( !Font ) { return glm::ivec2(0,0); }
+      irr::core::dimension2du const irrWitz = Font->getDimension( irr::core::stringw( txt.c_str() ).c_str() );
+      return glm::ivec2( int32_t( irrWitz.Width ), int32_t( irrWitz.Height ) );
+   }
 };
 
 typedef std::vector< Font_t > Fonts_t;
 
-irr::core::dimension2du
-Font_getPixelSize( irr::gui::IGUIFont* font, std::string txt );
-
-// #ifdef USE_LIB_FREETYPE2
-irr::gui::CGUITTFont*
-Font_create(
-        irr::gui::IGUIEnvironment* env,
-        std::string fileName,
-        int32_t pxSize,
-        bool aa,
-        bool transparent = true );
-// #endif
-
-void
-Font_draw(
-        irr::gui::IGUIFont* font,
-        std::string txt,
-        int32_t x,
-        int32_t y,
-        uint32_t color );
-
-void
-Font_draw(
-        irr::gui::IGUIFont* font,
-        std::string txt,
-        irr::core::recti const & pos,
-        uint32_t color );
-
-struct Text_t
+class TextAlign
 {
-    std::string Text;
-    uint32_t Color;
-    irr::gui::IGUIFont * Font;
-    Text_t() : Text( "X" ), Color( 0xFFFFFFFF ), Font( nullptr ) {}
-    Text_t( std::string txt, uint32_t color, irr::gui::IGUIFont* font ) : Text( txt ), Color( color ), Font( font ) {}
-    bool canDraw() const
-    {
-        if ( !Font ) return false;
-        if ( Text.empty() ) return false;
-        return true;
-    }
+public:
+   enum eTextAlign : uint32_t {
+      Default = 0,
+      Left = 1,
+      Center = 1<<1,
+      Right = 1<<2,
+      Top = 1<<3,
+      Middle = 1<<4,
+      Bottom = 1<<5,
+      Baseline = 1<<6,
+   };
 
-    void setValue( int32_t value )
-    {
-      std::stringstream s;
-      s << value;
-      Text = s.str();
-    }
+   TextAlign() : m_Align( Default ) {}
+   TextAlign( uint32_t flags ) : m_Align( flags ) {}
+
+   operator uint32_t() const { return m_Align; }
+
+private:
+   uint32_t m_Align;
 };
 
-void Text_draw( Text_t * txt, int32_t x, int32_t y );
-void Text_draw( Text_t * txt, irr::core::recti const & pos );
+Font_t
+Font_create( irr::gui::IGUIEnvironment* env,
+            std::string fileName,
+            uint32_t fontSizePx,
+            uint32_t fontStyle,
+            eFontType fontType,
+            bool aa,
+            bool transparent );
+
+irr::core::dimension2du
+Font_getTextDimension( Font_t const & font, std::string const & txt );
+
+glm::ivec2
+Font_getTextSize( Font_t const & font, std::string const & txt );
+
+irr::video::IVideoDriver*
+Font_getVideoDriver( Font_t const & font );
+
+void
+Font_draw( Font_t const & font,
+            std::string const & txt,
+            glm::ivec2 const & pos,
+            uint32_t color,
+            uint32_t textAlign = 0 );
+
+
+inline void
+Font_draw( Font_t const & font,
+            std::string const & txt,
+            irr::core::recti const & r,
+            uint32_t color )
+{
+   int32_t x = r.UpperLeftCorner.X;
+   int32_t y = r.UpperLeftCorner.Y;
+   Font_draw( font, txt, glm::ivec2( x, y ), color, TextAlign::Center | TextAlign::Middle );
+}
+
+// void Font_draw( Font_t const & font, std::string const & txt, int32_t x, int32_t y, uint32_t color );
+// void Font_draw( Font_t const & font, std::string const & txt, irr::core::recti const & pos, uint32_t color );
+
+// Game logic
+class Game_t;
+
+struct FontManager_t
+{
+   Fonts_t Fonts;
+
+   FontManager_t();
+   ~FontManager_t();
+
+   void init( irr::gui::IGUIEnvironment* env );
+   void clear();
+   void add( irr::gui::IGUIEnvironment* env, eFontType type, std::string fileName, uint32_t sizePx, uint32_t style, bool aa, bool transparent );
+
+   Font_t get( eFontType type ) const;
+
+};
+
+
+class Text_t
+{
+public:
+   Text_t()
+      : Font()
+      , Pos( 0, 0 )
+      , Color( 0xFFFFFFFF )
+      , Align( TextAlign::Center | TextAlign::Middle )
+      , Text( "Hello Text !\nHello World !!!" )
+   {}
+
+   Text_t( Font_t font, std::string txt, glm::ivec2 pos, uint32_t color, TextAlign align = TextAlign::Center | TextAlign::Middle)
+   {
+      Font = font;
+      Pos = pos;
+      Color = color;
+      Align = align;
+      Text = txt;
+   }
+
+   void
+   draw()
+   {
+      Font_draw( Font, Text, Pos, Color, Align );
+   }
+
+   void
+   setData( Font_t font, std::string txt, glm::ivec2 pos, uint32_t color, TextAlign align = TextAlign::Center | TextAlign::Middle)
+   {
+      Font = font;
+      Pos = pos;
+      Color = color;
+      Align = align;
+      Text = txt;
+   }
+
+   Font_t Font;
+   glm::ivec2 Pos;
+   uint32_t Color;
+   TextAlign Align;
+   std::string Text;
+};
 
 } // end namespace pioneers3d
 

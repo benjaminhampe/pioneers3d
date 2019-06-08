@@ -85,6 +85,23 @@ equals( float32_t a, float32_t b, float32_t eps = 0.0001f )
 }
 
 inline float32_t
+curveValue( float_t a, float_t b, float_t speed = 1.5f )
+{
+   if ( speed < 1.0f ) // a = 1,[11,13.8],   <- this is the computed value from last iteration and fed into here, or the start value at first call
+        speed = 1.0f;  // b = 15,[15,15]     <- destination value is const for all calls
+   float32_t ba = a - b;      // ba = -14,[-4,-1.2] ba/s = -4,[-1.2,-0.3]
+   return b + ( ba / speed ); // b = 11,[13.8,14.7]
+}
+
+inline glm::vec3
+curveVector( glm::vec3 a, glm::vec3 b, float_t speed = 1.5f )
+{
+   if ( speed < 1.0f ) // a = 1,[11,13.8],   <- this is the computed value from last iteration and fed into here, or the start value at first call
+        speed = 1.0f;  // b = 15,[15,15]     <- destination value is const for all calls
+   return b + ( ( a - b ) / speed ); // b = 11,[13.8,14.7] // ba = -14,[-4,-1.2] ba/s = -4,[-1.2,-0.3]
+}
+
+inline float32_t
 convertToNormalized( int16_t value )
 {
     // ( make all symmetric around +0.5f )
@@ -164,6 +181,7 @@ saveTexture( irr::video::IVideoDriver* driver, irr::video::ITexture* tex, std::s
     }
 }
 
+/*
 inline irr::gui::CGUITTFont*
 createTTFont( irr::gui::IGUIEnvironment* env, std::string const & fileName, uint32_t pxSize, bool aa = true, bool transparency = true )
 {
@@ -184,15 +202,19 @@ addFont( irr::gui::IGUIEnvironment* env, std::string const & fileName, uint32_t 
 }
 
 
+*/
+
+
 inline irr::gui::IGUIImage*
 createGUIImage( irr::gui::IGUIEnvironment* env, irr::gui::IGUIElement* parent, irr::core::recti const & pos, irr::video::ITexture* tex  )
 {
     std::cout << __FUNCTION__ << "(" << pos << ")\n";
-    if ( !env )
-    {
-        std::cout << __FUNCTION__ << " :: Invalid pointer to IGUIEnvironment\n";
-        return nullptr;
-    }
+    assert( env );
+//    if ( !env )
+//    {
+//        std::cout << __FUNCTION__ << " :: Invalid pointer to IGUIEnvironment\n";
+//        return nullptr;
+//    }
     if ( !parent )
     {
         parent = env->getRootGUIElement();

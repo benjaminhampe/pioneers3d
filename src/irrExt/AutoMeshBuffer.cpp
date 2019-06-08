@@ -1,5 +1,17 @@
 #include <irrExt/AutoMeshBuffer.hpp>
 
+void SceneNode_setPosition( irr::scene::ISceneNode* node, glm::vec3 const & pos )
+{
+   if ( !node ) return;
+   node->setPosition( irr::core::vector3df( pos.x, pos.y, pos.z ) );
+}
+
+void SceneNode_setRotation( irr::scene::ISceneNode* node, glm::vec3 const & degrees )
+{
+   if ( !node ) return;
+   node->setRotation( irr::core::vector3df( degrees.x, degrees.y, degrees.z ) );
+}
+
 /*
 void
 enumerateMesh( irr::scene::SMesh & p )
@@ -86,7 +98,6 @@ AutoMeshBuffer::getPrimitiveCount( irr::scene::E_PRIMITIVE_TYPE primitiveType, u
         case irr::scene::EPT_QUADS: return indexCount / 4;
         default: return 0;
     }
-    return 0;
 }
 
 uint32_t

@@ -215,6 +215,11 @@ namespace gui
             //! Destructor
             virtual ~CGUITTFont();
 
+            //! Get the font size.
+            virtual irr::gui::IGUIEnvironment* getGUIEnvironment() const { return Environment; }
+
+            virtual irr::video::IVideoDriver* getVideoDriver() const { return ( Environment ) ? Environment->getVideoDriver() : nullptr; }
+
             //! Sets the amount of glyphs to batch load.
             virtual void setBatchLoadSize(u32 batch_size) { batch_load_size = batch_size; }
 

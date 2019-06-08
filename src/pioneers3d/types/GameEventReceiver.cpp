@@ -126,7 +126,7 @@ GameEventReceiver::OnEvent( const irr::SEvent& event )
                         }
 
                         m_Device->closeDevice();
-                        m_Device->drop();
+                        //m_Device->drop();
                         m_Device = nullptr;
 
                         Game_destroy( m_Game );

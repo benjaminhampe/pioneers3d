@@ -36,5 +36,6 @@ int main( int argc, char** argv )
    assert( device );
    Game_t game;
    Game_createStandard( &game, device, argc, argv );
+   Game_start( &game );
    return Game_exec( &game );
 }

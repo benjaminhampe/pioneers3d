@@ -60,7 +60,6 @@ public:
 // =======================================================
 // === Game logic
 // =======================================================
-void createStandardPlayers( Game_t* game ); // create 4 standard players
 void addStandardPlayer( Game_t* game, int id, std::string const & name, uint32_t color );
 void clearPlayers( Game_t* game );
 
